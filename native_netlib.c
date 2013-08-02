@@ -56,6 +56,7 @@ ape_global *native_netlib_init()
 
     ape->timersng.head = NULL;
     ape->timersng.last_identifier = 0;
+    ape->ctx = NULL;
 	
     ape_dns_init(ape);
     events_init(ape);
