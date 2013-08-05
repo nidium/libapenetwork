@@ -205,7 +205,7 @@ int APE_socket_listen(ape_socket *socket, uint16_t port,
         const char *local_ip);
 int APE_socket_connect(ape_socket *socket, uint16_t port,
         const char *remote_ip_host);
-int APE_socket_write(ape_socket *socket, unsigned char *data,
+int APE_socket_write(ape_socket *socket, void *data,
 	size_t len, ape_socket_data_autorelease data_type);
 int APE_socket_destroy(ape_socket *socket);
 void APE_socket_shutdown(ape_socket *socket);

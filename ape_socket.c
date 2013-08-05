@@ -452,7 +452,7 @@ int APE_socket_writev(ape_socket *socket, const struct iovec *iov, int iovcnt)
 }
 #endif
 
-int APE_socket_write(ape_socket *socket, unsigned char *data,
+int APE_socket_write(ape_socket *socket, void *data,
     size_t len, ape_socket_data_autorelease data_type)
 {
 #ifdef __WIN32
