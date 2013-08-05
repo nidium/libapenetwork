@@ -52,7 +52,12 @@
 
 /* get a ape_socket pointer from event returns */
 #define APE_SOCKET(attach) ((ape_socket *)attach)
-#define APE_SOCKET_ISSECURE(socket) socket->SSL.issecure
+
+#ifdef _HAVE_SSL_SUPPORT  
+  #define APE_SOCKET_ISSECURE(socket) socket->SSL.issecure
+#else
+  #define APE_SOCKET_ISSECURE(socket) 0
+#endif
 
 #ifdef __WIN32
 struct iovec
@@ -119,10 +124,11 @@ typedef struct _ape_socket ape_socket;
 
 
 typedef struct {
-    void (*on_read)         (ape_socket *, ape_global *);
-    void (*on_disconnect)   (ape_socket *, ape_global *);
-    void (*on_connect)      (ape_socket *, ape_socket *, ape_global *);
-    void (*on_connected)    (ape_socket *, ape_global *);
+    void (*on_read)         (ape_socket *, ape_global *, void *arg);
+    void (*on_disconnect)   (ape_socket *, ape_global *, void *arg);
+    void (*on_connect)      (ape_socket *, ape_socket *, ape_global *, void *arg);
+    void (*on_connected)    (ape_socket *, ape_global *, void *arg);
+    void *arg;
 } ape_socket_callbacks;
 
 

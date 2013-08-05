@@ -146,6 +146,7 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
     ret->callbacks.on_disconnect    = NULL;
     ret->callbacks.on_connect       = NULL;
     ret->callbacks.on_connected     = NULL;
+    ret->callbacks.arg              = NULL;
 
     ret->remote_port = 0;
 
@@ -363,7 +364,7 @@ int APE_socket_destroy(ape_socket *socket)
     ape_dns_invalidate(socket->dns_state);
     
     if (socket->callbacks.on_disconnect != NULL) {
-        socket->callbacks.on_disconnect(socket, ape);
+        socket->callbacks.on_disconnect(socket, ape, socket->callbacks.arg);
     }
     
     //printf("====== Destroy : %d ======\n", APE_SOCKET_FD(socket));
@@ -772,7 +773,7 @@ static int ape_socket_queue_buffer(ape_socket *socket, buffer *b)
 void ape_socket_connected(ape_socket *socket)
 {
     if (socket->callbacks.on_connected != NULL) {
-        socket->callbacks.on_connected(socket, socket->ape);
+        socket->callbacks.on_connected(socket, socket->ape, socket->callbacks.arg);
     }
 }
 
@@ -810,7 +811,7 @@ int ape_socket_accept(ape_socket *socket)
         events_add(client->s.fd, client, EVENT_READ|EVENT_WRITE, socket->ape);
 
         if (socket->callbacks.on_connect != NULL) {
-            socket->callbacks.on_connect(socket, client, socket->ape);
+            socket->callbacks.on_connect(socket, client, socket->ape, socket->callbacks.arg);
         }
     }
 
@@ -882,7 +883,7 @@ socket_reread:
     if (socket->data_in.used != 0) {
         //buffer_append_char(&socket->data_in, '\0');
         if (socket->callbacks.on_read != NULL) {
-            socket->callbacks.on_read(socket, socket->ape);
+            socket->callbacks.on_read(socket, socket->ape, socket->callbacks.arg);
         }
 
         socket->data_in.used = 0;
