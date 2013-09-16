@@ -279,6 +279,9 @@ int APE_socket_connect(ape_socket *socket, uint16_t port,
 
 void APE_socket_shutdown(ape_socket *socket)
 {
+    if (socket->states.state == APE_SOCKET_ST_SHUTDOWN) {
+        return;
+    }
     if (socket->states.state == APE_SOCKET_ST_PROGRESS ||
         socket->states.state == APE_SOCKET_ST_PENDING) {
         ape_dns_invalidate(socket->dns_state);
@@ -299,10 +302,12 @@ void APE_socket_shutdown(ape_socket *socket)
     if (APE_SOCKET_ISSECURE(socket)) {
         ape_ssl_shutdown(socket->SSL.ssl);
     }
-#endif    
+#endif
     if (shutdown(socket->s.fd, 2) != 0) {
         //printf("Force shutdown\n");
         APE_socket_destroy(socket);
+    } else {
+        socket->states.state = APE_SOCKET_ST_SHUTDOWN;
     }
 }
 
@@ -313,6 +318,9 @@ void APE_socket_shutdown_now(ape_socket *socket)
 
 static void ape_socket_shutdown_force(ape_socket *socket)
 {
+    if (socket->states.state == APE_SOCKET_ST_SHUTDOWN) {
+        return;
+    }
     if (socket->states.state == APE_SOCKET_ST_PROGRESS ||
         socket->states.state == APE_SOCKET_ST_PENDING) {
         ape_dns_invalidate(socket->dns_state);
@@ -328,8 +336,11 @@ static void ape_socket_shutdown_force(ape_socket *socket)
         ape_ssl_shutdown(socket->SSL.ssl);
     }
 #endif
+
     if (shutdown(socket->s.fd, 2) != 0) {
         APE_socket_destroy(socket);
+    } else {
+        socket->states.state = APE_SOCKET_ST_SHUTDOWN;
     }
 }
 
@@ -707,6 +718,8 @@ int ape_socket_do_jobs(ape_socket *socket)
 #endif
             if (shutdown(socket->s.fd, 2) != 0) {
                 APE_socket_destroy(socket);
+            } else {
+                socket->states.state = APE_SOCKET_ST_SHUTDOWN;
             }
             
             return 0;
@@ -822,8 +835,10 @@ int ape_socket_accept(ape_socket *socket)
 int ape_socket_read(ape_socket *socket)
 {
     ssize_t nread;
-    
-    if (socket->states.state != APE_SOCKET_ST_ONLINE) {
+
+    if (socket->states.state != APE_SOCKET_ST_ONLINE &&
+        socket->states.state != APE_SOCKET_ST_SHUTDOWN) {
+
         printf("socket is not online\n");
         return 0;
     }
@@ -882,14 +897,15 @@ socket_reread:
 
     if (socket->data_in.used != 0) {
         //buffer_append_char(&socket->data_in, '\0');
-        if (socket->callbacks.on_read != NULL) {
+        if (socket->callbacks.on_read != NULL &&
+            socket->states.state != APE_SOCKET_ST_SHUTDOWN) {
+
             socket->callbacks.on_read(socket, socket->ape, socket->callbacks.arg);
         }
 
         socket->data_in.used = 0;
     }
     if (nread == 0) {
-
         APE_socket_destroy(socket);
 
         return -1;

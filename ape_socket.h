@@ -109,7 +109,8 @@ enum ape_socket_state {
     APE_SOCKET_ST_ONLINE,
     APE_SOCKET_ST_PROGRESS,
     APE_SOCKET_ST_PENDING,
-    APE_SOCKET_ST_OFFLINE
+    APE_SOCKET_ST_OFFLINE,
+    APE_SOCKET_ST_SHUTDOWN
 };
 
 typedef enum _ape_socket_data_autorelease {
