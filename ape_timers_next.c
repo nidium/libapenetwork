@@ -108,6 +108,7 @@ static __inline uint64_t mach_absolute_time()
 int process_timers(ape_timers *timers)
 {
 	ape_timer *cur = timers->head;
+    uint64_t inums = UINT64_MAX, lastsample = 0;
 
 	/* TODO: paused timer */
 	while (cur != NULL) {
@@ -124,6 +125,8 @@ int process_timers(ape_timers *timers)
 			
 			ret = cur->callback(cur->arg);
 
+            printf("Timer returned %lld\n", ret);
+
 			if (ret == -1) {
 				cur->schedule = start + cur->ticks_needs;
 			} else if (ret == 0) {
@@ -133,7 +136,9 @@ int process_timers(ape_timers *timers)
 				cur->ticks_needs = ret * 1000000;
 				cur->schedule = start + cur->ticks_needs;
 			}
-			duration = mach_absolute_time() - start;
+
+            lastsample = mach_absolute_time();
+			duration = lastsample - start;
 
 			if (cur->stats.max < duration / 1000000) {
 				cur->stats.max = duration / 1000000;
@@ -146,10 +151,24 @@ int process_timers(ape_timers *timers)
 
 		}
 
+        if (cur->schedule < inums) {
+            inums = cur->schedule;
+        }
+
 		cur = cur->next;
 	}
 
-	return 0;
+    if (inums == UINT64_MAX) {
+        return APE_TIMER_RESOLUTION;
+    }
+
+    if (lastsample == 0) {
+        lastsample = mach_absolute_time();
+    }
+
+    //printf("Next timer in : %lld or %d\n", inums-lastsample,  ape_max(1, (int)((inums-lastsample+500000)/1000000)));
+
+	return ape_max(1, (int)((inums-lastsample+500000)/1000000));
 }
 
 ape_timer *get_timer_by_id(ape_timers *timers, int identifier)
@@ -240,11 +259,13 @@ void timers_stats_print(ape_timers *timers)
 
 ape_timer *add_timer(ape_timers *timers, int ms, timer_callback cb, void *arg)
 {
-	ape_timer *timer = malloc(sizeof(ape_timer));
+	ape_timer *timer = (ape_timer *)malloc(sizeof(ape_timer));
+
+    printf("Timer added : %d\n", ms);
 
 	timers->last_identifier++;
 	timer->callback = cb;
-	timer->ticks_needs = (uint64_t)ms * 1000000;
+	timer->ticks_needs = (uint64_t)ms * 1000000LL;
 	timer->schedule = mach_absolute_time() + timer->ticks_needs;
 	timer->arg = arg;
 	timer->flags = APE_TIMER_IS_PROTECTED;

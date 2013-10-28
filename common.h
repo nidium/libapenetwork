@@ -31,13 +31,17 @@
   #error "No suitable IO handler found"
 #endif
 
-
 #ifdef _MSC_VER
   #include <ares.h>
 #else
   #include "ares.h"
 #endif
+
 #define APE_BASEMEM 4096
+
+#ifndef APE_TIMER_RESOLUTION
+  #define APE_TIMER_RESOLUTION 8 /* ms */
+#endif
 
 #define ape_min(val1, val2)  ((val1 > val2) ? (val2) : (val1))
 #define ape_max(val1, val2)  ((val1 < val2) ? (val2) : (val1))
