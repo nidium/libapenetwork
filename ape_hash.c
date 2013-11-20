@@ -109,7 +109,7 @@ void hashtbl_append64(ape_htable_t *htbl, uint64_t key, void *structaddr)
 
     hTmp->key.integer = key;
 
-    hTmp->addrs = (void *)structaddr;
+    hTmp->content.addrs = (void *)structaddr;
 
     if (htbl->table[key_hash] != NULL) {
         hDbl = htbl->table[key_hash];
@@ -117,7 +117,7 @@ void hashtbl_append64(ape_htable_t *htbl, uint64_t key, void *structaddr)
         while (hDbl != NULL) {
             if (key == hDbl->key.integer) {
                 free(hTmp);
-                hDbl->addrs = (void *)structaddr;
+                hDbl->content.addrs = (void *)structaddr;
                 return;
             } else {
                 hDbl = hDbl->next;
@@ -180,7 +180,7 @@ void *hashtbl_seek64(ape_htable_t *htbl, uint64_t key)
 
     while (hTmp != NULL) {
         if (key == hTmp->key.integer) {
-            return (void *)(hTmp->addrs);
+            return (void *)(hTmp->content.addrs);
         }
         hTmp = hTmp->next;
     }
@@ -188,7 +188,54 @@ void *hashtbl_seek64(ape_htable_t *htbl, uint64_t key)
     return NULL;
 }
 
+void hashtbl_append_val32(ape_htable_t *htbl, const char *key,
+        int key_len, uint32_t val)
+{
+    unsigned int key_hash;
+    ape_htable_item_t *hTmp, *hDbl;
 
+    if (key == NULL) {
+        return;
+    }
+
+    key_hash = ape_hash_str(key, key_len);
+
+    hTmp = (ape_htable_item_t *)malloc(sizeof(*hTmp));
+
+    hTmp->next = NULL;
+    hTmp->lnext = htbl->first;
+    hTmp->lprev = NULL;
+
+    if (htbl->first != NULL) {
+        htbl->first->lprev = hTmp;
+    }
+
+    hTmp->key.str = malloc(sizeof(char) * (key_len+1));
+
+    hTmp->content.scalar = val;
+
+    memcpy(hTmp->key.str, key, key_len+1);
+
+    if (htbl->table[key_hash] != NULL) {
+        hDbl = htbl->table[key_hash];
+
+        while (hDbl != NULL) {
+            if (strcasecmp(hDbl->key.str, key) == 0) {
+                free(hTmp->key.str);
+                free(hTmp);
+                hDbl->content.scalar = val;
+                return;
+            } else {
+                hDbl = hDbl->next;
+            }
+        }
+        hTmp->next = htbl->table[key_hash];
+    }
+
+    htbl->first = hTmp;
+
+    htbl->table[key_hash] = hTmp;    
+}
 
 void hashtbl_append(ape_htable_t *htbl, const char *key,
         int key_len, void *structaddr)
@@ -214,7 +261,7 @@ void hashtbl_append(ape_htable_t *htbl, const char *key,
 
     hTmp->key.str = malloc(sizeof(char) * (key_len+1));
 
-    hTmp->addrs = (void *)structaddr;
+    hTmp->content.addrs = (void *)structaddr;
 
     memcpy(hTmp->key.str, key, key_len+1);
 
@@ -225,7 +272,7 @@ void hashtbl_append(ape_htable_t *htbl, const char *key,
             if (strcasecmp(hDbl->key.str, key) == 0) {
                 free(hTmp->key.str);
                 free(hTmp);
-                hDbl->addrs = (void *)structaddr;
+                hDbl->content.addrs = (void *)structaddr;
                 return;
             } else {
                 hDbl = hDbl->next;
@@ -295,7 +342,7 @@ void *hashtbl_seek(ape_htable_t *htbl, const char *key, int key_len)
 
     while (hTmp != NULL) {
         if (strcasecmp(hTmp->key.str, key) == 0) {
-            return (void *)(hTmp->addrs);
+            return (void *)(hTmp->content.addrs);
         }
         hTmp = hTmp->next;
     }
@@ -303,7 +350,28 @@ void *hashtbl_seek(ape_htable_t *htbl, const char *key, int key_len)
     return NULL;
 }
 
+uint32_t hashtbl_seek_val32(ape_htable_t *htbl, const char *key, int key_len)
+{
+    unsigned int key_hash;
+    ape_htable_item_t *hTmp;
 
+    if (key == NULL) {
+        return NULL;
+    }
+
+    key_hash = ape_hash_str(key, key_len);
+
+    hTmp = htbl->table[key_hash];
+
+    while (hTmp != NULL) {
+        if (strcasecmp(hTmp->key.str, key) == 0) {
+            return hTmp->content.scalar;
+        }
+        hTmp = hTmp->next;
+    }
+
+    return NULL;
+}
 
 //-----------------------------------------------------------------------------
 // MurmurHash2, by Austin Appleby

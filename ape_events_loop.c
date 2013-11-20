@@ -41,7 +41,7 @@ void events_loop(ape_global *ape)
 
     while(ape->is_running && ape_running) {
         int i;
-        printf("Next timeout in %d\n", nexttimeout);
+        //printf("Next timeout in %d\n", nexttimeout);
         if ((nfd = events_poll(&ape->events, nexttimeout)) == -1) {
             continue;
         }

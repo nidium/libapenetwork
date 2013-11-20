@@ -46,7 +46,11 @@ typedef struct _ape_htable_item
         uint64_t integer;
     } key;
     
-    void *addrs;
+    union {
+        void *addrs;
+        uint32_t scalar;
+    } content;
+
     struct _ape_htable_item *next;
     
     struct _ape_htable_item *lnext;
@@ -69,8 +73,13 @@ uint32_t ape_hash_str(const void *key, int len);
 unsigned int MurmurHash2 ( const void * key, int len, unsigned int seed );
 void hashtbl_append(ape_htable_t *htbl, const char *key, int key_len,
         void *structaddr);
+
+void hashtbl_append_val32(ape_htable_t *htbl, const char *key, int key_len,
+        uint32_t val);
+
 void hashtbl_erase(ape_htable_t *htbl, const char *key, int key_len);
 void *hashtbl_seek(ape_htable_t *htbl, const char *key, int key_len);
+uint32_t hashtbl_seek_val32(ape_htable_t *htbl, const char *key, int key_len);
 
 #ifdef __cplusplus
 }

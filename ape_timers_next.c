@@ -125,7 +125,7 @@ int process_timers(ape_timers *timers)
             
             ret = cur->callback(cur->arg);
 
-            printf("Timer returned %lld\n", ret);
+            //printf("Timer returned %lld\n", ret);
 
             if (ret == -1) {
                 cur->schedule = start + cur->ticks_needs;
@@ -260,8 +260,6 @@ void timers_stats_print(ape_timers *timers)
 ape_timer *add_timer(ape_timers *timers, int ms, timer_callback cb, void *arg)
 {
     ape_timer *timer = (ape_timer *)malloc(sizeof(ape_timer));
-
-    printf("Timer added : %d\n", ms);
 
     timers->last_identifier++;
     timer->callback = cb;
