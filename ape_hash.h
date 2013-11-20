@@ -24,6 +24,10 @@
 
 #define HACH_TABLE_MAX 8192
 
+typedef struct _ape_htable_item ape_htable_item_t;
+
+typedef void (*ape_hash_clean_callback)(ape_htable_item_t *);
+
 typedef enum {
     APE_HASH_STR,
     APE_HASH_INT
@@ -35,11 +39,12 @@ typedef struct _ape_htable
     struct _ape_htable_item **table;
     
     ape_hash_type type;
+    ape_hash_clean_callback cleaner;
     
 } ape_htable_t;
 
 
-typedef struct _ape_htable_item
+struct _ape_htable_item
 {
     union {
         char *str;
@@ -56,7 +61,7 @@ typedef struct _ape_htable_item
     struct _ape_htable_item *lnext;
     struct _ape_htable_item *lprev;
     
-} ape_htable_item_t;
+};
 
 #ifdef __cplusplus
 extern "C" {
@@ -64,6 +69,7 @@ extern "C" {
 
 ape_htable_t *hashtbl_init(ape_hash_type type);
 
+void hashtbl_set_cleaner(ape_htable_t *htbl, ape_hash_clean_callback cleaner);
 void hashtbl_free(ape_htable_t *htbl);
 void *hashtbl_seek64(ape_htable_t *htbl, uint64_t key);
 void hashtbl_erase64(ape_htable_t *htbl, uint64_t key);

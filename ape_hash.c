@@ -62,8 +62,14 @@ ape_htable_t *hashtbl_init(ape_hash_type type)
     htbl->first = NULL;
     htbl->table = htbl_item;
     htbl->type  = type;
+    htbl->cleaner = NULL;
 
     return htbl;
+}
+
+void hashtbl_set_cleaner(ape_htable_t *htbl, ape_hash_clean_callback cleaner)
+{
+    htbl->cleaner = cleaner;
 }
 
 void hashtbl_free(ape_htable_t *htbl)
@@ -77,6 +83,10 @@ void hashtbl_free(ape_htable_t *htbl)
         while (hTmp != 0) {
             hNext = hTmp->next;
             
+            if (htbl->cleaner) {
+                htbl->cleaner(hTmp);
+            }
+
             if (htbl->type == APE_HASH_STR) {
                 free(hTmp->key.str);
                 hTmp->key.str = NULL;
@@ -116,6 +126,9 @@ void hashtbl_append64(ape_htable_t *htbl, uint64_t key, void *structaddr)
 
         while (hDbl != NULL) {
             if (key == hDbl->key.integer) {
+                if (htbl->cleaner) {
+                    htbl->cleaner(hTmp);
+                }
                 free(hTmp);
                 hDbl->content.addrs = (void *)structaddr;
                 return;
@@ -144,6 +157,11 @@ void hashtbl_erase64(ape_htable_t *htbl, uint64_t key)
 
     while (hTmp != NULL) {
         if (key == hTmp->key.integer) {
+
+            if (htbl->cleaner) {
+                htbl->cleaner(hTmp);
+            }            
+
             if (hPrev != NULL) {
                 hPrev->next = hTmp->next;
             } else {
@@ -270,6 +288,9 @@ void hashtbl_append(ape_htable_t *htbl, const char *key,
 
         while (hDbl != NULL) {
             if (strcasecmp(hDbl->key.str, key) == 0) {
+                if (htbl->cleaner) {
+                    htbl->cleaner(hTmp);
+                }
                 free(hTmp->key.str);
                 free(hTmp);
                 hDbl->content.addrs = (void *)structaddr;
@@ -303,6 +324,9 @@ void hashtbl_erase(ape_htable_t *htbl, const char *key, int key_len)
 
     while (hTmp != NULL) {
         if (strcasecmp(hTmp->key.str, key) == 0) {
+            if (htbl->cleaner) {
+                htbl->cleaner(hTmp);
+            }
             if (hPrev != NULL) {
                 hPrev->next = hTmp->next;
             } else {
