@@ -267,10 +267,19 @@ int APE_socket_connect(ape_socket *socket, uint16_t port,
 
     socket->remote_port = port;
 #ifdef _HAS_ARES_SUPPORT
-
     socket->dns_state = ape_gethostbyname(remote_ip_host,
             ape_socket_connect_ready_to_connect,
             socket, socket->ape);
+
+    /*
+        ape_gethostbyname called the callback in a sync way
+        (e.g. because of IP or "localhost").
+        We dont need dns_state anymore.
+    */
+    if (socket->states.state != APE_SOCKET_ST_PENDING && socket->dns_state  != NULL) {
+        free(socket->dns_state);
+        socket->dns_state = NULL;
+    }
 #else
     return ape_socket_connect_ready_to_connect(remote_ip_host, socket, 0);
 #endif

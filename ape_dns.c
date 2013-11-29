@@ -130,8 +130,6 @@ void ares_gethostbyname_cb(void *arg, int status,
     } else {
         params->callback(NULL, params->arg, status);
     }
-
-    free(params);
 }
 
 ape_dns_state *ape_gethostbyname(const char *host, ape_gethostbyname_callback callback,
