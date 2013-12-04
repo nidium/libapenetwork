@@ -242,9 +242,9 @@ static int ape_socket_connect_ready_to_connect(const char *remote_ip,
   #define errno  WSAGetLastError()
 #endif
     if (connect(socket->s.fd, (struct sockaddr *)&addr,
-                sizeof(struct sockaddr)) == 0 ||
+                sizeof(struct sockaddr)) == -1 &&
                 (errno != EWOULDBLOCK && errno != EINPROGRESS)) {
-        printf("Socket error (fd : %d) (connect() failed) %s\n", socket->s.fd, strerror(errno));
+        printf("Socket error(%d)  (fd : %d) (connect() failed) %s\n", errno, socket->s.fd, strerror(errno));
         APE_socket_destroy(socket);
         return -1;
     }
