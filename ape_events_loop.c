@@ -69,18 +69,21 @@ void events_loop(ape_global *ape)
                         }
                     }
                 } else if (APE_SOCKET(attach)->states.type == APE_SOCKET_TP_CLIENT) {
-
-                    
                     /* unset this before READ event because read can invoke writes */
                     if (bitev & EVENT_WRITE) {
                         APE_SOCKET(attach)->states.flags &= ~APE_SOCKET_WOULD_BLOCK;
                     }
 
-                    if (bitev & EVENT_READ &&
+                    if (APE_SOCKET(attach)->states.proto != APE_SOCKET_PT_UDP &&
+                        bitev & EVENT_READ &&
                         ape_socket_read(APE_SOCKET(attach)) == -1) {
                         
                         /* ape_socket is planned to be release after the for block */
                         continue;
+                    } else if (APE_SOCKET(attach)->states.proto ==
+                        APE_SOCKET_PT_UDP && bitev & EVENT_READ) {
+
+                        ape_socket_read_udp(APE_SOCKET(attach));
                     }
 
                     if (bitev & EVENT_WRITE) {

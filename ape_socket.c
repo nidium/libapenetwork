@@ -118,6 +118,7 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
     _nco++;
     proto = (pt == APE_SOCKET_PT_UDP ? SOCK_DGRAM : SOCK_STREAM);
 
+    /* TODO: set IPPROTO_UDP/TCP ? */
     if ((sock == 0 &&
         (sock = socket(AF_INET /* TODO AF_INET6 */, proto, 0)) == -1) ||
         setnonblocking(sock) == -1) {
