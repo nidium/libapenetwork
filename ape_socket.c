@@ -146,6 +146,7 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
     ret->callbacks.on_disconnect    = NULL;
     ret->callbacks.on_connect       = NULL;
     ret->callbacks.on_connected     = NULL;
+    ret->callbacks.on_message       = NULL;
     ret->callbacks.arg              = NULL;
 
     ret->remote_port = 0;
@@ -249,12 +250,14 @@ static int ape_socket_connect_ready_to_connect(const char *remote_ip,
         return -1;
     }
     socket->states.type = APE_SOCKET_TP_CLIENT;
-    socket->states.state = APE_SOCKET_ST_PROGRESS;
+
+    /* UDP is "always connected" */
+    socket->states.state = (socket->states.proto == APE_SOCKET_PT_UDP ?
+        APE_SOCKET_ST_ONLINE : APE_SOCKET_ST_PROGRESS);
 
     events_add(socket->s.fd, socket, EVENT_READ|EVENT_WRITE, socket->ape);
 
     return 0;
-
 }
 
 int APE_socket_connect(ape_socket *socket, uint16_t port,
@@ -838,6 +841,33 @@ int ape_socket_accept(ape_socket *socket)
     }
 
     return 0;
+}
+
+int ape_socket_read_udp(ape_socket *server)
+{
+/* UDP packet can't exceed this size */
+#define MAX_PACKET_SIZE_UDP 65535
+    struct sockaddr_in address;
+    socklen_t address_len = sizeof(struct sockaddr_in);
+
+    char buffer[MAX_PACKET_SIZE_UDP];
+    int rlen = 0;
+
+    while ((rlen = recvfrom(server->s.fd, buffer, MAX_PACKET_SIZE_UDP,
+        0, (struct sockaddr *)&address, &address_len)) > 0) {
+
+        if (rlen < 1) {
+            return 0;
+        }
+
+        buffer[rlen] = '\0';
+
+        if (server->callbacks.on_message != NULL) {
+            server->callbacks.on_message(server, server->ape,
+                (unsigned char *)buffer, rlen, server->callbacks.arg);
+        }
+    }
+#undef MAX_PACKET_SIZE_UDP
 }
 
 /* Consume socket buffer */

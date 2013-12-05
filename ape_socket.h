@@ -129,6 +129,7 @@ typedef struct {
     void (*on_disconnect)   (ape_socket *, ape_global *, void *arg);
     void (*on_connect)      (ape_socket *, ape_socket *, ape_global *, void *arg);
     void (*on_connected)    (ape_socket *, ape_global *, void *arg);
+    void (*on_message)      (ape_socket *, ape_global *, const unsigned char *packet, size_t len, void *arg);
     void *arg;
 } ape_socket_callbacks;
 
@@ -215,6 +216,7 @@ int APE_sendfile(ape_socket *socket, const char *file);
 int ape_socket_do_jobs(ape_socket *socket);
 int ape_socket_accept(ape_socket *socket);
 int ape_socket_read(ape_socket *socket);
+int ape_socket_read_udp(ape_socket *socket);
 void ape_socket_connected(ape_socket *socket);
 
 #ifdef __cplusplus

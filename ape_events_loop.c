@@ -62,10 +62,10 @@ void events_loop(ape_global *ape)
                     if (bitev & EVENT_READ) {
                         if (APE_SOCKET(attach)->states.proto == APE_SOCKET_PT_TCP ||
 							APE_SOCKET(attach)->states.proto == APE_SOCKET_PT_SSL) {
-								
+							
                             ape_socket_accept(APE_SOCKET(attach));
                         } else {
-                            printf("read on UDP\n");
+                            ape_socket_read_udp(APE_SOCKET(attach));
                         }
                     }
                 } else if (APE_SOCKET(attach)->states.type == APE_SOCKET_TP_CLIENT) {
