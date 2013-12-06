@@ -316,7 +316,8 @@ void APE_socket_shutdown(ape_socket *socket)
         ape_ssl_shutdown(socket->SSL.ssl);
     }
 #endif
-    if (shutdown(socket->s.fd, 2) != 0) {
+    if (socket->states.proto == APE_SOCKET_PT_UDP ||
+        shutdown(socket->s.fd, 2) != 0) {
         //printf("Force shutdown\n");
         APE_socket_destroy(socket);
     } else {
@@ -350,7 +351,8 @@ static void ape_socket_shutdown_force(ape_socket *socket)
     }
 #endif
 
-    if (shutdown(socket->s.fd, 2) != 0) {
+    if (socket->states.proto == APE_SOCKET_PT_UDP ||
+        shutdown(socket->s.fd, 2) != 0) {
         APE_socket_destroy(socket);
     } else {
         socket->states.state = APE_SOCKET_ST_SHUTDOWN;
@@ -729,7 +731,8 @@ int ape_socket_do_jobs(ape_socket *socket)
                 ape_ssl_shutdown(socket->SSL.ssl);
             }
 #endif
-            if (shutdown(socket->s.fd, 2) != 0) {
+            if (socket->states.proto == APE_SOCKET_PT_UDP
+                || shutdown(socket->s.fd, 2) != 0) {
                 APE_socket_destroy(socket);
             } else {
                 socket->states.state = APE_SOCKET_ST_SHUTDOWN;
