@@ -874,6 +874,30 @@ int ape_socket_read_udp(ape_socket *server)
 #undef MAX_PACKET_SIZE_UDP
 }
 
+int ape_socket_write_udp(ape_socket *from, const char *data,
+    size_t len, const char *ip, uint16_t port)
+{
+    if (from->states.proto != APE_SOCKET_PT_UDP) {
+        printf("[Socket warning] Trying to call sendto from a non UDP socket\n");
+        return -1;
+    }
+
+    struct sockaddr_in addr;
+
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(port);
+    addr.sin_addr.s_addr = inet_addr(ip);
+    memset(&(addr.sin_zero), '\0', 8);
+
+    int ret = sendto(from->s.fd, data, len, 0, (struct sockaddr *)&addr, sizeof(addr));
+
+    if (ret == -1) {
+        printf("[Socket warning] UDP I/O Error : %d\n", ret);
+    }
+
+    return ret;
+}
+
 /* Consume socket buffer */
 int ape_socket_read(ape_socket *socket)
 {
