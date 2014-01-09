@@ -148,9 +148,11 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
     ret->callbacks.on_connect       = NULL;
     ret->callbacks.on_connected     = NULL;
     ret->callbacks.on_message       = NULL;
+    ret->callbacks.on_drain         = NULL;
     ret->callbacks.arg              = NULL;
 
     ret->remote_port = 0;
+    ret->local_port  = 0;
 
     buffer_init(&ret->data_in);
 
@@ -243,6 +245,20 @@ static int ape_socket_connect_ready_to_connect(const char *remote_ip,
   #define EWOULDBLOCK WSAEWOULDBLOCK
   #define errno  WSAGetLastError()
 #endif
+
+    if (socket->local_port != 0) {
+        struct sockaddr_in addr_loc;
+        addr_loc.sin_family = AF_INET;
+        addr_loc.sin_port = htons(socket->local_port);
+        addr_loc.sin_addr.s_addr = inet_addr("0.0.0.0");
+        memset(&(addr_loc.sin_zero), '\0', 8);
+
+        if (bind(socket->s.fd, (struct sockaddr *)&addr_loc, sizeof(addr_loc)) == -1) {
+            printf("Socket error(%d) (fd : %d) (bind() failed) %s\n", errno, socket->s.fd, strerror(errno));
+            return -1;
+        }
+    }
+
     if (connect(socket->s.fd, (struct sockaddr *)&addr,
                 sizeof(struct sockaddr)) == -1 &&
                 (errno != EWOULDBLOCK && errno != EINPROGRESS)) {
@@ -262,7 +278,7 @@ static int ape_socket_connect_ready_to_connect(const char *remote_ip,
 }
 
 int APE_socket_connect(ape_socket *socket, uint16_t port,
-        const char *remote_ip_host)
+        const char *remote_ip_host, uint16_t localport)
 {
     if (port == 0) {
         APE_socket_destroy(socket);
@@ -270,6 +286,7 @@ int APE_socket_connect(ape_socket *socket, uint16_t port,
     }
 
     socket->remote_port = port;
+    socket->local_port  = localport;
 #ifdef _HAS_ARES_SUPPORT
     socket->dns_state = ape_gethostbyname(remote_ip_host,
             ape_socket_connect_ready_to_connect,
@@ -544,11 +561,9 @@ int APE_socket_write(ape_socket *socket, void *data,
 #else
             if ((n = write(socket->s.fd, data + t_bytes, r_bytes)) < 0) {
 #endif
-                printf("Socket failure?\n");
                 if (errno == EAGAIN && r_bytes != 0) {
                     socket->states.flags |= APE_SOCKET_WOULD_BLOCK;
                     ape_socket_queue_data(socket, data, len, t_bytes, data_type);
-                    printf("Not finished\n");
                     return r_bytes;
                 } else {
                     io_error = 1;
@@ -738,7 +753,7 @@ int ape_socket_do_jobs(ape_socket *socket)
                 socket->states.state = APE_SOCKET_ST_SHUTDOWN;
             }
             
-            return 0;
+            return -1;
         default:
             break;
         }
@@ -748,8 +763,7 @@ int ape_socket_do_jobs(ape_socket *socket)
 
     }
 
-    return 0;
-
+    return 1;
 }
 
 static int ape_socket_queue_data(ape_socket *socket,
@@ -892,7 +906,7 @@ int ape_socket_write_udp(ape_socket *from, const char *data,
     int ret = sendto(from->s.fd, data, len, 0, (struct sockaddr *)&addr, sizeof(addr));
 
     if (ret == -1) {
-        printf("[Socket warning] UDP I/O Error : %d\n", ret);
+        printf("[Socket warning] UDP I/O Error (%d): %s\n", errno, strerror(errno));
     }
 
     return ret;

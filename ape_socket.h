@@ -130,6 +130,7 @@ typedef struct {
     void (*on_connect)      (ape_socket *, ape_socket *, ape_global *, void *arg);
     void (*on_connected)    (ape_socket *, ape_global *, void *arg);
     void (*on_message)      (ape_socket *, ape_global *, const unsigned char *packet, size_t len, void *arg);
+    void (*on_drain)        (ape_socket *, ape_global *);
     void *arg;
 } ape_socket_callbacks;
 
@@ -183,6 +184,7 @@ struct _ape_socket {
 	} SSL;
 #endif
     uint16_t    remote_port;
+    uint16_t    local_port;
 };
 
 #define APE_SOCKET_FD(socket) socket->s.fd
@@ -206,7 +208,7 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape);
 int APE_socket_listen(ape_socket *socket, uint16_t port,
         const char *local_ip);
 int APE_socket_connect(ape_socket *socket, uint16_t port,
-        const char *remote_ip_host);
+        const char *remote_ip_host, uint16_t localport);
 int APE_socket_write(ape_socket *socket, void *data,
 	size_t len, ape_socket_data_autorelease data_type);
 int APE_socket_destroy(ape_socket *socket);

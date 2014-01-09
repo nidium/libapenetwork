@@ -90,8 +90,15 @@ void events_loop(ape_global *ape)
                         if (APE_SOCKET(attach)->states.state == APE_SOCKET_ST_ONLINE &&
                                 !(APE_SOCKET(attach)->states.flags & APE_SOCKET_WOULD_BLOCK)) {
 
-                            ape_socket_do_jobs(APE_SOCKET(attach));
-                            
+                            /*
+                                Execute the jobs list.
+                                If the job list is done (returns 1), call drain callback.
+                            */
+                            if (ape_socket_do_jobs(APE_SOCKET(attach)) == 1 &&
+                                APE_SOCKET(attach)->callbacks.on_drain != NULL) {
+                                APE_SOCKET(attach)->callbacks.on_drain(APE_SOCKET(attach), ape);
+                            }
+
                         } else if (APE_SOCKET(attach)->states.state == APE_SOCKET_ST_PROGRESS) {
                             int serror = 0, ret;
                             socklen_t serror_len = sizeof(serror);
