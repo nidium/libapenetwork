@@ -129,7 +129,8 @@ typedef struct {
     void (*on_disconnect)   (ape_socket *, ape_global *, void *arg);
     void (*on_connect)      (ape_socket *, ape_socket *, ape_global *, void *arg);
     void (*on_connected)    (ape_socket *, ape_global *, void *arg);
-    void (*on_message)      (ape_socket *, ape_global *, const unsigned char *packet, size_t len, void *arg);
+    void (*on_message)      (ape_socket *, ape_global *, const unsigned char *packet,
+        size_t len, struct sockaddr_in *addr, void *arg);
     void (*on_drain)        (ape_socket *, ape_global *);
     void *arg;
 } ape_socket_callbacks;
@@ -219,7 +220,7 @@ int ape_socket_do_jobs(ape_socket *socket);
 int ape_socket_accept(ape_socket *socket);
 int ape_socket_read(ape_socket *socket);
 int ape_socket_read_udp(ape_socket *socket);
-void ape_socket_connected(ape_socket *socket);
+int ape_socket_connected(ape_socket *socket);
 int ape_socket_write_udp(ape_socket *from, const char *data,
     size_t len, const char *ip, uint16_t port);
 
