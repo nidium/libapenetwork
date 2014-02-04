@@ -94,7 +94,7 @@ ape_pool_t *ape_grow_pool(ape_pool_list_t *list, size_t size, size_t n)
 
     pool = ape_new_pool(size, n);
     list->queue->next = pool;
-    list->queue = (ape_pool_t *)((char *)&pool[0])+((n-1)*size);
+    list->queue = (ape_pool_t *)(((char *)&pool[0])+((n-1)*size));
 
     return pool;
 }
