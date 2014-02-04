@@ -779,8 +779,6 @@ static int ape_socket_queue_data(ape_socket *socket,
     ape_socket_jobs_t *job;
     ape_socket_packet_t *packets;
     ape_pool_list_t *list;
-
-    printf("Queuing data !\n");
     
     /* if the data is a local scoped data, copy it */
     data_type = (data_type == APE_DATA_STATIC ? APE_DATA_COPY : data_type);
@@ -800,28 +798,17 @@ static int ape_socket_queue_data(ape_socket *socket,
     }
     packets = (ape_socket_packet_t *)list->current;
 
-    if (packets == NULL) {
-        printf("Packet is null\n");
-    }
-
     packets->pool.ptr.data = data;
     packets->len       = len;
     packets->offset    = offset;
     packets->data_type = data_type;
 
-    printf("Addr : %p %p\n", list->queue, packets);
     /* Always have spare slots */
     if (packets->pool.next == NULL) {
-        printf("==== new pool %p\n", packets->pool.next);
         ape_grow_pool(list, sizeof(ape_socket_packet_t), 8);
-        printf("==> new pool %p\n", packets->pool.next);
     }
 
     list->current = packets->pool.next;
-
-    if (list->current == NULL) {
-        printf("--- err current is null\n");
-    }
 
     return 0;
 }
