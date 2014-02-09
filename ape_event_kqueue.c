@@ -145,8 +145,6 @@ int event_kqueue_init(struct _fdevent *ev)
 	ev->revent = event_kqueue_revent;
 	ev->reload = event_kqueue_reload;
 	
-	printf("Kqueue succeed\n");
-	
 	return 1;
 }
 
