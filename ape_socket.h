@@ -220,7 +220,7 @@ int ape_socket_do_jobs(ape_socket *socket);
 int ape_socket_accept(ape_socket *socket);
 int ape_socket_read(ape_socket *socket);
 int ape_socket_read_udp(ape_socket *socket);
-int ape_socket_connected(ape_socket *socket);
+int ape_socket_connected(void *arf);
 int ape_socket_write_udp(ape_socket *from, const char *data,
     size_t len, const char *ip, uint16_t port);
 

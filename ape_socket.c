@@ -37,6 +37,11 @@
 #include <errno.h>
 #include <stdlib.h>
 
+#ifdef _MSC_VER
+  #include <ares.h>
+#else
+  #include "ares.h"
+#endif
 
 #ifdef __linux__
   #include <sys/sendfile.h>
@@ -820,8 +825,9 @@ static int ape_socket_queue_buffer(ape_socket *socket, buffer *b)
 }
 #endif
 
-int ape_socket_connected(ape_socket *socket)
+int ape_socket_connected(void *arg)
 {
+    ape_socket *socket = (ape_socket *)arg;
     if (socket->callbacks.on_connected != NULL) {
         socket->callbacks.on_connected(socket, socket->ape, socket->callbacks.arg);
     }
@@ -895,6 +901,8 @@ int ape_socket_read_udp(ape_socket *server)
         }
     }
 #undef MAX_PACKET_SIZE_UDP
+
+    return 1;
 }
 
 int ape_socket_write_udp(ape_socket *from, const char *data,

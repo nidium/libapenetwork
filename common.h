@@ -17,6 +17,8 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include <stdlib.h>
+
 #ifndef _APE_COMMON_H_
 #define _APE_COMMON_H_
 
@@ -29,12 +31,6 @@
   #define __WIN32
 #else
   #error "No suitable IO handler found"
-#endif
-
-#ifdef _MSC_VER
-  #include <ares.h>
-#else
-  #include "ares.h"
 #endif
 
 #define APE_BASEMEM 4096
@@ -65,7 +61,7 @@ struct _ape_global {
     struct _fdevent events;
 
     struct {
-        ares_channel channel;
+        struct ares_channeldata *channel;
         struct {
             struct _ares_sockets *list;
             size_t size;
