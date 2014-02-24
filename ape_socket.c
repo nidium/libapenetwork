@@ -128,7 +128,7 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
         (sock = socket(AF_INET /* TODO AF_INET6 */, proto, 0)) == -1) ||
         setnonblocking(sock) == -1) {
 
-        printf("Cant create socket\n");
+        printf("[Socket] Cant create socket(%d) : %s\n", errno, strerror(errno));
         return NULL;
     }
 
@@ -202,7 +202,7 @@ int APE_socket_listen(ape_socket *socket, uint16_t port,
 #else
         close(socket->s.fd);
 #endif
-        printf("cant bind\n");
+        printf("[Socket] bind() error : %s\n", strerror(errno));
         return -1;
     }
 #ifdef TCP_DEFER_ACCEPT
@@ -216,7 +216,7 @@ int APE_socket_listen(ape_socket *socket, uint16_t port,
 #endif
     socket->states.type = APE_SOCKET_TP_SERVER;
     socket->states.state = APE_SOCKET_ST_ONLINE;
-    printf("Socket %d listening\n", socket->s.fd);
+
     events_add(socket->s.fd, socket, EVENT_READ|EVENT_WRITE, socket->ape);
 
     return 0;
@@ -259,7 +259,7 @@ static int ape_socket_connect_ready_to_connect(const char *remote_ip,
         memset(&(addr_loc.sin_zero), '\0', 8);
 
         if (bind(socket->s.fd, (struct sockaddr *)&addr_loc, sizeof(addr_loc)) == -1) {
-            printf("Socket error(%d) (fd : %d) (bind() failed) %s\n", errno, socket->s.fd, strerror(errno));
+            printf("[Socket] bind() error(%d) on %d : %s\n", errno, socket->s.fd, strerror(errno));
             return -1;
         }
     }
@@ -267,7 +267,7 @@ static int ape_socket_connect_ready_to_connect(const char *remote_ip,
     if (connect(socket->s.fd, (struct sockaddr *)&addr,
                 sizeof(struct sockaddr)) == -1 &&
                 (errno != EWOULDBLOCK && errno != EINPROGRESS)) {
-        printf("Socket error(%d)  (fd : %d) (connect() failed) %s\n", errno, socket->s.fd, strerror(errno));
+        printf("[Socket] connect() error(%d) on %d : %s\n", errno, socket->s.fd, strerror(errno));
         APE_socket_destroy(socket);
         return -1;
     }
@@ -369,7 +369,6 @@ static void ape_socket_shutdown_force(ape_socket *socket)
         return;
     }
     if (socket->states.state != APE_SOCKET_ST_ONLINE) {
-        printf("not online\n");
         return;
     }
 #ifdef _HAVE_SSL_SUPPORT
@@ -673,15 +672,12 @@ int ape_socket_do_jobs(ape_socket *socket)
                     packet = (ape_socket_packet_t *)packet->pool.next;
 
                 }
-                printf("Call to writev\n");
+
                 /* TODO: loop until EAGAIN? */
                 n = writev(socket->s.fd, chunks, i);
                 /* ERR */
                 /* TODO : Handle this */
                 if (n == -1) {
-                    if (errno == EAGAIN) {
-                        printf("EAGAIN in writev %ld\n", n);
-                    }
                     socket->states.flags |= APE_SOCKET_WOULD_BLOCK;
                     //job = (ape_socket_jobs_t *)job->next; /* useless? */
                     return 0;
@@ -693,7 +689,6 @@ int ape_socket_do_jobs(ape_socket *socket)
 
                     /* packet not finished */
                     if (n < 0) {
-                        printf("Packet not finished\n");
                         packet->offset = packet->len + n;
                         break;
                     }
@@ -941,7 +936,6 @@ int ape_socket_read(ape_socket *socket)
     if (socket->states.state != APE_SOCKET_ST_ONLINE &&
         socket->states.state != APE_SOCKET_ST_SHUTDOWN) {
 
-        printf("socket is not online\n");
         return 0;
     }
     do {
