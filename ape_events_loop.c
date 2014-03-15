@@ -96,7 +96,10 @@ void events_loop(ape_global *ape)
                             */
                             if (ape_socket_do_jobs(APE_SOCKET(attach)) == 1 &&
                                 APE_SOCKET(attach)->callbacks.on_drain != NULL) {
-                                APE_SOCKET(attach)->callbacks.on_drain(APE_SOCKET(attach), ape);
+                                APE_SOCKET(attach)->callbacks.on_drain(
+                                    APE_SOCKET(attach), ape,
+                                    APE_SOCKET(attach)->callbacks.arg
+                                );
                             }
 
                         } else if (APE_SOCKET(attach)->states.state == APE_SOCKET_ST_PROGRESS) {

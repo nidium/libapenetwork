@@ -131,7 +131,7 @@ typedef struct {
     void (*on_connected)    (ape_socket *, ape_global *, void *arg);
     void (*on_message)      (ape_socket *, ape_global *, const unsigned char *packet,
         size_t len, struct sockaddr_in *addr, void *arg);
-    void (*on_drain)        (ape_socket *, ape_global *);
+    void (*on_drain)        (ape_socket *, ape_global *, void *arg);
     void *arg;
 } ape_socket_callbacks;
 
