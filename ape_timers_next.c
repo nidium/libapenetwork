@@ -259,6 +259,9 @@ void timers_stats_print(ape_timers *timers)
 
 ape_timer *add_timer(ape_timers *timers, int ms, timer_callback cb, void *arg)
 {
+    if (cb == NULL || timers == NULL) {
+        return NULL;
+    }
     ape_timer *timer = (ape_timer *)malloc(sizeof(ape_timer));
 
     timers->last_identifier++;
