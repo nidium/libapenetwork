@@ -30,6 +30,22 @@
 
 #define WS_GUID "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 
+void ape_ws_init(websocket_state *state)
+{
+    state->step    = WS_STEP_START;
+    state->offset  = 0;
+    state->data    = NULL;
+    state->error   = 0;
+    state->key.pos = 0;
+    state->close_sent = 0;
+
+    state->frame_payload.start  = 0;
+    state->frame_payload.length = 0;
+    state->frame_payload.extended_length = 0;
+    state->data_pos  = 0;
+    state->frame_pos = 0;
+}
+
 char *ape_ws_compute_key(const char *key, unsigned int key_len)
 {
     unsigned char digest[20];

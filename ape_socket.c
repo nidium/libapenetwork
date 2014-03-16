@@ -202,7 +202,7 @@ int APE_socket_listen(ape_socket *socket, uint16_t port,
 #else
         close(socket->s.fd);
 #endif
-        printf("[Socket] bind() error : %s\n", strerror(errno));
+        printf("[Socket] bind(%s:%u) error : %s\n", local_ip, port, strerror(errno));
         return -1;
     }
 #ifdef TCP_DEFER_ACCEPT
