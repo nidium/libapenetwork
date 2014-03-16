@@ -37,7 +37,9 @@
             '../ape_dns.c',
             '../ape_timers.c',
             '../ape_timers_next.c',
-            '../ape_base64.c'
+            '../ape_base64.c',
+            '../ape_websocket.c',
+            '../ape_sha1.c',
         ],
     }],
 }
