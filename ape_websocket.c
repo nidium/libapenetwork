@@ -67,9 +67,9 @@ char *ape_ws_compute_key(const char *key, unsigned int key_len)
 }
 
 void ape_ws_write(ape_socket *socket_client, unsigned char *data,
-    size_t len, ape_socket_data_autorelease data_type)
+    size_t len, int binary, ape_socket_data_autorelease data_type)
 {
-    unsigned char payload_head[32] = { 0x81 };
+    unsigned char payload_head[32] = { 0x80 | (binary ? 0x02 : 0x01) };
     size_t payload_length = 0;
 
     if (len <= 125) {
@@ -95,8 +95,7 @@ void ape_ws_write(ape_socket *socket_client, unsigned char *data,
         
         payload_length = 10;
     }
-    
-    printf("Writting WS to %d\n", socket_client->s.fd);
+
     PACK_TCP(socket_client->s.fd);
         APE_socket_write(socket_client, payload_head,
             payload_length, APE_DATA_STATIC);
@@ -113,7 +112,7 @@ void ape_ws_close(websocket_state *state)
     APE_socket_write(state->socket, (void *)"\x88\x00", 2, APE_DATA_STATIC);
 }
 
-void ape_ws_process_frame(websocket_state *websocket, ape_global *ape)
+void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t len)
 {
     const buffer *buffer = &websocket->socket->data_in;
     unsigned char *pData;
@@ -250,7 +249,7 @@ void ape_ws_process_frame(websocket_state *websocket, ape_global *ape)
                         default:
                             /* TODO handle binary/ASCII */
                             websocket->on_frame(websocket, websocket->data,
-                                websocket->data_inkey, ape);
+                                websocket->data_inkey);
                             #if 0
                             /* Data frame */
                             saved = buffer->data[websocket->offset+1];

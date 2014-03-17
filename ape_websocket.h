@@ -39,7 +39,7 @@ typedef struct _websocket_state
 
     unsigned char *data;
     void (*on_frame)(struct _websocket_state *,
-        const unsigned char *, ssize_t, ape_global *);
+        const unsigned char *, ssize_t);
     
     unsigned int offset;
     unsigned short int error;
@@ -74,10 +74,10 @@ extern "C" {
 #endif
 
 void ape_ws_init(websocket_state *state);
-void ape_ws_process_frame(websocket_state *websocket, ape_global *ape);
+void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t len);
 char *ape_ws_compute_key(const char *key, unsigned int key_len);
 void ape_ws_write(ape_socket *socket_client, unsigned char *data,
-    size_t len, ape_socket_data_autorelease data_type);
+    size_t len, int binary, ape_socket_data_autorelease data_type);
     
 void ape_ws_close(websocket_state *state);
 
