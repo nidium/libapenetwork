@@ -20,7 +20,7 @@
 #include "ape_socket.h"
 #include "ape_dns.h"
 #include "ape_timers_next.h"
-//#include "ape_ssl.h"
+#include "ape_ssl.h"
 #include <stdint.h>
 #include <stdio.h>
 #ifndef __WIN32

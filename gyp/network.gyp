@@ -21,6 +21,9 @@
                 ],
             }]
         ],
+        'defines': [
+            '_HAVE_SSL_SUPPORT'
+        ],
         'sources': [
             '../native_netlib.c',
             '../ape_pool.c',
@@ -40,6 +43,7 @@
             '../ape_base64.c',
             '../ape_websocket.c',
             '../ape_sha1.c',
+            '../ape_ssl.c'
         ],
     }],
 }
