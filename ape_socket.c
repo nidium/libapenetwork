@@ -823,6 +823,14 @@ static int ape_socket_queue_buffer(ape_socket *socket, buffer *b)
 int ape_socket_connected(void *arg)
 {
     ape_socket *socket = (ape_socket *)arg;
+
+#ifdef _HAVE_SSL_SUPPORT        
+        if (APE_SOCKET_ISSECURE(socket)) {
+            printf("Got a ssl client\n");
+            socket->SSL.ssl = ape_ssl_init_con(socket->ape->ssl_global_ctx, socket->s.fd, 0);
+        }
+#endif
+
     if (socket->callbacks.on_connected != NULL) {
         socket->callbacks.on_connected(socket, socket->ape, socket->callbacks.arg);
     }
@@ -858,7 +866,7 @@ int ape_socket_accept(ape_socket *socket)
 #ifdef _HAVE_SSL_SUPPORT        
         if (APE_SOCKET_ISSECURE(socket)) {
             printf("Got a ssl client\n");
-            client->SSL.ssl = ape_ssl_init_con(socket->SSL.ssl, client->s.fd);
+            client->SSL.ssl = ape_ssl_init_con(socket->SSL.ssl, client->s.fd, 1);
         }
 #endif
         events_add(client->s.fd, client, EVENT_READ|EVENT_WRITE, socket->ape);
@@ -951,7 +959,7 @@ int ape_socket_read(ape_socket *socket)
 
             if (nread < 0) {
                 unsigned long err = SSL_get_error(socket->SSL.ssl->con, nread);
-                printf("Err : %ld\n", err);
+
                 switch(err) {
                     case SSL_ERROR_ZERO_RETURN:
                         nread = 0;
@@ -960,7 +968,6 @@ int ape_socket_read(ape_socket *socket)
                         printf("Want write\n");
                         break;
                     case SSL_ERROR_WANT_READ:
-                        //printf("want read %d\n", SSL_pending(socket->SSL.ssl->con));
                         break;
                     default:
                         printf("Force shutdown %d\n", socket->s.fd);

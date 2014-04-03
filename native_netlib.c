@@ -20,6 +20,7 @@
 #include "native_netlib.h"
 #include "common.h"
 #include "ape_dns.h"
+#include "ape_ssl.h"
 
 #include <stdlib.h>
 #include <signal.h>
@@ -59,6 +60,12 @@ ape_global *native_netlib_init()
     ape->ctx = NULL;
 	
     ape_dns_init(ape);
+#ifdef _HAVE_SSL_SUPPORT
+    ape_ssl_init();
+    if ((ape->ssl_global_ctx = ape_ssl_init_global_client_ctx()) == NULL) {
+        printf("SSL: failed to init global CTX\n");
+    }
+#endif
     events_init(ape);
 	
     return ape;
