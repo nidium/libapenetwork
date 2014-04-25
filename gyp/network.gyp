@@ -4,8 +4,12 @@
         'type': 'static_library',
         'include_dirs': [
             '<(DEPTH)/<(third_party_path)/c-ares/',
+            '<(DEPTH)/<(third_party_path)/openssl/include/',
             '../network/',
             '../',
+        ],
+        'defines': [
+            '_HAVE_SSL_SUPPORT'
         ],
         'conditions': [
             ['OS=="mac"', {
