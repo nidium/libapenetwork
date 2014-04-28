@@ -5,7 +5,6 @@
         'include_dirs': [
             '<(DEPTH)/<(third_party_path)/c-ares/',
             '<(DEPTH)/<(third_party_path)/openssl/include/',
-            '../network/',
             '../',
         ],
         'defines': [
@@ -27,7 +26,8 @@
         ],
         'direct_dependent_settings': {
             'include_dirs': [
-                '../'
+                '../',
+                '<(DEPTH)/<(third_party_path)/c-ares/',
                 '<(DEPTH)/<(third_party_path)/openssl/include/',
             ],
             'conditions': [
