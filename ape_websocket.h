@@ -39,7 +39,7 @@ typedef struct _websocket_state
 
     unsigned char *data;
     void (*on_frame)(struct _websocket_state *,
-        const unsigned char *, ssize_t);
+        const unsigned char *, ssize_t, int binary);
     
     unsigned int offset;
     unsigned short int error;
