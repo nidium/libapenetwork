@@ -215,7 +215,6 @@ void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t le
                               Reply by a close response
                               TODO : include close reason
                             */
-                            printf("Got a close frame\n");
                             char payload_head[2] = { 0x88, 0x00 };
                             if (!websocket->close_sent) {
                                 APE_socket_write(websocket->socket,
@@ -246,10 +245,9 @@ void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t le
                         }
                         case 0xA: /* Never called as long as we never ask for pong */
                             break;
-                        default:
-                            /* TODO handle binary/ASCII */
+                        case 0x1:
                             websocket->on_frame(websocket, websocket->data,
-                                websocket->data_inkey);
+                                websocket->data_inkey, 0);
                             #if 0
                             /* Data frame */
                             saved = buffer->data[websocket->offset+1];
@@ -257,6 +255,12 @@ void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t le
                             //parser->onready(parser, g_ape);
                             buffer->data[websocket->offset+1] = saved;   
                             #endif
+                            break;
+                        case 0x2:
+                            websocket->on_frame(websocket, websocket->data,
+                                websocket->data_inkey, 1);                            
+                            break;
+                        default:
                             break;
                     }
                     
