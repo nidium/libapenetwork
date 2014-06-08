@@ -67,6 +67,7 @@ struct _ape_htable_item
 extern "C" {
 #endif
 
+ape_htable_t *hashtbl_init_with_size(ape_hash_type type, int table_size);
 ape_htable_t *hashtbl_init(ape_hash_type type);
 
 void hashtbl_set_cleaner(ape_htable_t *htbl, ape_hash_clean_callback cleaner);

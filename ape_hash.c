@@ -47,7 +47,7 @@ uint32_t ape_hash_str(const void *key, int len)
     return MurmurHash2(key, len, _ape_seed) % HACH_TABLE_MAX;
 }
 
-ape_htable_t *hashtbl_init(ape_hash_type type)
+ape_htable_t *hashtbl_init_with_size(ape_hash_type type, int table_size)
 {
     ape_htable_item_t **htbl_item;
     ape_htable_t *htbl;
@@ -55,9 +55,9 @@ ape_htable_t *hashtbl_init(ape_hash_type type)
     htbl = malloc(sizeof(*htbl));
 
     htbl_item = (ape_htable_item_t **)
-                    malloc(sizeof(*htbl_item) * (HACH_TABLE_MAX));
+                    malloc(sizeof(*htbl_item) * (table_size));
 
-    memset(htbl_item, 0, sizeof(*htbl_item) * (HACH_TABLE_MAX));
+    memset(htbl_item, 0, sizeof(*htbl_item) * (table_size));
 
     htbl->first = NULL;
     htbl->table = htbl_item;
@@ -65,6 +65,11 @@ ape_htable_t *hashtbl_init(ape_hash_type type)
     htbl->cleaner = NULL;
 
     return htbl;
+}
+
+ape_htable_t *hashtbl_init(ape_hash_type type)
+{
+    return hashtbl_init_with_size(type, HACH_TABLE_MAX);
 }
 
 void hashtbl_set_cleaner(ape_htable_t *htbl, ape_hash_clean_callback cleaner)

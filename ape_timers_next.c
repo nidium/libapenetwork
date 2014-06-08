@@ -263,7 +263,6 @@ ape_timer *add_timer(ape_timers *timers, int ms, timer_callback cb, void *arg)
         return NULL;
     }
     ape_timer *timer = (ape_timer *)malloc(sizeof(ape_timer));
-
     timers->last_identifier++;
     timer->callback = cb;
     timer->ticks_needs = (uint64_t)ms * 1000000LL;
