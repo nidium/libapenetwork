@@ -52,8 +52,6 @@ ape_htable_t *hashtbl_init_with_size(ape_hash_type type, int table_size)
     ape_htable_item_t **htbl_item;
     ape_htable_t *htbl;
 
-    htbl->size = table_size;
-
     htbl = malloc(sizeof(*htbl));
 
     htbl_item = (ape_htable_item_t **)
@@ -61,6 +59,7 @@ ape_htable_t *hashtbl_init_with_size(ape_hash_type type, int table_size)
 
     memset(htbl_item, 0, sizeof(*htbl_item) * (table_size));
 
+    htbl->size = table_size;
     htbl->first = NULL;
     htbl->table = htbl_item;
     htbl->type  = type;
