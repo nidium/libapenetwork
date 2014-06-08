@@ -364,6 +364,7 @@ static void ape_socket_shutdown_force(ape_socket *socket)
     }
     if (socket->states.state == APE_SOCKET_ST_PROGRESS ||
         socket->states.state == APE_SOCKET_ST_PENDING) {
+        socket->states.state = APE_SOCKET_ST_SHUTDOWN;
         ape_dns_invalidate(socket->dns_state);
         close(APE_SOCKET_FD(socket));
         return;
