@@ -40,6 +40,8 @@ typedef struct _ape_htable
     
     ape_hash_type type;
     ape_hash_clean_callback cleaner;
+
+    int size;
     
 } ape_htable_t;
 
@@ -76,7 +78,7 @@ void *hashtbl_seek64(ape_htable_t *htbl, uint64_t key);
 void hashtbl_erase64(ape_htable_t *htbl, uint64_t key);
 void hashtbl_append64(ape_htable_t *htbl, uint64_t key, void *structaddr);
 
-uint32_t ape_hash_str(const void *key, int len);
+uint32_t ape_hash_str(const void *key, int len, int max_size);
 unsigned int MurmurHash2 ( const void * key, int len, unsigned int seed );
 void hashtbl_append(ape_htable_t *htbl, const char *key, int key_len,
         void *structaddr);

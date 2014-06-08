@@ -42,15 +42,17 @@ uint64_t uniqid(const char *seed_key, int len)
 }
 #endif
 
-uint32_t ape_hash_str(const void *key, int len)
+uint32_t ape_hash_str(const void *key, int len, int max)
 {
-    return MurmurHash2(key, len, _ape_seed) % HACH_TABLE_MAX;
+    return MurmurHash2(key, len, _ape_seed) % max;
 }
 
 ape_htable_t *hashtbl_init_with_size(ape_hash_type type, int table_size)
 {
     ape_htable_item_t **htbl_item;
     ape_htable_t *htbl;
+
+    htbl->size = table_size;
 
     htbl = malloc(sizeof(*htbl));
 
@@ -83,7 +85,7 @@ void hashtbl_free(ape_htable_t *htbl)
     ape_htable_item_t *hTmp;
     ape_htable_item_t *hNext;
 
-    for (i = 0; i < (HACH_TABLE_MAX); i++) {
+    for (i = 0; i < htbl->size; i++) {
         hTmp = htbl->table[i];
         while (hTmp != 0) {
             hNext = hTmp->next;
@@ -110,7 +112,7 @@ void hashtbl_append64(ape_htable_t *htbl, uint64_t key, void *structaddr)
     unsigned int key_hash;
     ape_htable_item_t *hTmp, *hDbl;
 
-    key_hash = key % HACH_TABLE_MAX;
+    key_hash = key % htbl->size;
 
     hTmp = (ape_htable_item_t *)malloc(sizeof(*hTmp));
 
@@ -155,7 +157,7 @@ void hashtbl_erase64(ape_htable_t *htbl, uint64_t key)
     unsigned int key_hash;
     ape_htable_item_t *hTmp, *hPrev;
 
-    key_hash = key % HACH_TABLE_MAX;
+    key_hash = key % htbl->size;
 
     hTmp = htbl->table[key_hash];
     hPrev = NULL;
@@ -197,7 +199,7 @@ void *hashtbl_seek64(ape_htable_t *htbl, uint64_t key)
     unsigned int key_hash;
     ape_htable_item_t *hTmp;
 
-    key_hash = key % HACH_TABLE_MAX;
+    key_hash = key % htbl->size;
 
     hTmp = htbl->table[key_hash];
 
@@ -221,7 +223,7 @@ void hashtbl_append_val32(ape_htable_t *htbl, const char *key,
         return;
     }
 
-    key_hash = ape_hash_str(key, key_len);
+    key_hash = ape_hash_str(key, key_len, htbl->size);
 
     hTmp = (ape_htable_item_t *)malloc(sizeof(*hTmp));
 
@@ -270,7 +272,7 @@ void hashtbl_append(ape_htable_t *htbl, const char *key,
         return;
     }
 
-    key_hash = ape_hash_str(key, key_len);
+    key_hash = ape_hash_str(key, key_len, htbl->size);
 
     hTmp = (ape_htable_item_t *)malloc(sizeof(*hTmp));
 
@@ -322,7 +324,7 @@ void hashtbl_erase(ape_htable_t *htbl, const char *key, int key_len)
         return;
     }
 
-    key_hash = ape_hash_str(key, key_len);
+    key_hash = ape_hash_str(key, key_len, htbl->size);
 
     hTmp = htbl->table[key_hash];
     hPrev = NULL;
@@ -365,7 +367,7 @@ void *hashtbl_seek(ape_htable_t *htbl, const char *key, int key_len)
         return NULL;
     }
 
-    key_hash = ape_hash_str(key, key_len);
+    key_hash = ape_hash_str(key, key_len, htbl->size);
 
     hTmp = htbl->table[key_hash];
 
@@ -388,7 +390,7 @@ uint32_t hashtbl_seek_val32(ape_htable_t *htbl, const char *key, int key_len)
         return NULL;
     }
 
-    key_hash = ape_hash_str(key, key_len);
+    key_hash = ape_hash_str(key, key_len, htbl->size);
 
     hTmp = htbl->table[key_hash];
 
