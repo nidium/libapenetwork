@@ -159,8 +159,6 @@ ape_dns_state *ape_gethostbyname(const char *host, ape_gethostbyname_callback ca
                 AF_INET, ares_gethostbyname_cb, cb);
 
         if (cb->done) {
-            free(cb);
-
             return NULL;
         }
 
