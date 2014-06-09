@@ -84,8 +84,6 @@ struct _ape_global {
 	ape_timers timersng;
 	
   int is_running;
-
-  ape_htable_t *sockets;
 };
 
 

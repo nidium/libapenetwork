@@ -58,7 +58,6 @@ ape_global *native_netlib_init()
     ape->timersng.head = NULL;
     ape->timersng.last_identifier = 0;
     ape->ctx = NULL;
-    ape->sockets = hashtbl_init_with_size(APE_HASH_INT, 64000);
 	
     ape_dns_init(ape);
 #ifdef _HAVE_SSL_SUPPORT

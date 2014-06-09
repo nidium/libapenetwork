@@ -168,8 +168,6 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
     
     //printf("New socket : %d\n", sock);
 
-    hashtbl_append64(ape->sockets, (uint64_t)ret, (void *)ret);
-
     return ret;
 }
 
@@ -337,7 +335,7 @@ void APE_socket_shutdown(ape_socket *socket)
         ape_dns_invalidate(socket->dns_state);
         close(APE_SOCKET_FD(socket));
 
-        timer_dispatch_async(ape_socket_free, socket);
+        //timer_dispatch_async(ape_socket_free, socket);
         return;
     }
     
@@ -371,7 +369,7 @@ static void ape_socket_shutdown_force(ape_socket *socket)
         ape_dns_invalidate(socket->dns_state);
         close(APE_SOCKET_FD(socket));
 
-        timer_dispatch_async(ape_socket_free, socket);
+        //timer_dispatch_async(ape_socket_free, socket);
         return;
     }
     if (socket->states.state != APE_SOCKET_ST_ONLINE) {
@@ -394,8 +392,6 @@ static int ape_socket_free(void *arg)
     ape_destroy_pool(socket->jobs.head);
 
     free(socket);
-
-    hashtbl_erase64(socket->ape->sockets, socket);
 
     return 0;
 }
