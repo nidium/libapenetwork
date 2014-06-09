@@ -111,6 +111,12 @@ int ape_dns_init(ape_global *ape)
     return 0;
 }
 
+static int params_free(void *arg)
+{
+    free(arg);
+    return 0;
+}
+
 void ares_gethostbyname_cb(void *arg, int status,
         int timeout, struct hostent *host)
 {
@@ -132,8 +138,9 @@ void ares_gethostbyname_cb(void *arg, int status,
     } else {
         params->callback(NULL, params->arg, status);
     }
-
-    free(params);
+    
+    ape_global *ape = params->ape;
+    timer_dispatch_async(params_free, params);
 }
 
 ape_dns_state *ape_gethostbyname(const char *host, ape_gethostbyname_callback callback,
