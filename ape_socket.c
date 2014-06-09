@@ -48,6 +48,9 @@
 #endif
 #include <limits.h>
 #include <string.h>
+
+static int ape_socket_free(void *arg);
+static int ape_shutdown(ape_socket *socket, int rw);
       
 /*
 Use only one syscall (ioctl) if FIONBIO is defined
@@ -164,6 +167,8 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
     ape_init_job_list(&ret->jobs, 2);
     
     //printf("New socket : %d\n", sock);
+
+    hashtbl_append64(ape->sockets, (uint64_t)ret, (void *)ret);
 
     return ret;
 }
@@ -319,13 +324,20 @@ int APE_socket_connect(ape_socket *socket, uint16_t port,
 
 void APE_socket_shutdown(ape_socket *socket)
 {
+    ape_global *ape = socket->ape;
+    
     if (socket->states.state == APE_SOCKET_ST_SHUTDOWN) {
         return;
     }
     if (socket->states.state == APE_SOCKET_ST_PROGRESS ||
         socket->states.state == APE_SOCKET_ST_PENDING) {
+
+        socket->states.state = APE_SOCKET_ST_OFFLINE;
+
         ape_dns_invalidate(socket->dns_state);
         close(APE_SOCKET_FD(socket));
+
+        timer_dispatch_async(ape_socket_free, socket);
         return;
     }
     
@@ -338,18 +350,8 @@ void APE_socket_shutdown(ape_socket *socket)
         //printf("Shutdown pushed to queue\n");
         return;
     }
-#ifdef _HAVE_SSL_SUPPORT       
-    if (APE_SOCKET_ISSECURE(socket)) {
-        ape_ssl_shutdown(socket->SSL.ssl);
-    }
-#endif
-    if (socket->states.proto == APE_SOCKET_PT_UDP ||
-        shutdown(socket->s.fd, 2) != 0) {
-        //printf("Force shutdown\n");
-        APE_socket_destroy(socket);
-    } else {
-        socket->states.state = APE_SOCKET_ST_SHUTDOWN;
-    }
+
+    ape_shutdown(socket, 2);
 }
 
 void APE_socket_shutdown_now(ape_socket *socket)
@@ -359,31 +361,24 @@ void APE_socket_shutdown_now(ape_socket *socket)
 
 static void ape_socket_shutdown_force(ape_socket *socket)
 {
+    ape_global *ape = socket->ape;
     if (socket->states.state == APE_SOCKET_ST_SHUTDOWN) {
         return;
     }
     if (socket->states.state == APE_SOCKET_ST_PROGRESS ||
         socket->states.state == APE_SOCKET_ST_PENDING) {
-        socket->states.state = APE_SOCKET_ST_SHUTDOWN;
+        socket->states.state = APE_SOCKET_ST_OFFLINE;
         ape_dns_invalidate(socket->dns_state);
         close(APE_SOCKET_FD(socket));
+
+        timer_dispatch_async(ape_socket_free, socket);
         return;
     }
     if (socket->states.state != APE_SOCKET_ST_ONLINE) {
         return;
     }
-#ifdef _HAVE_SSL_SUPPORT
-    if (APE_SOCKET_ISSECURE(socket)) {
-        ape_ssl_shutdown(socket->SSL.ssl);
-    }
-#endif
 
-    if (socket->states.proto == APE_SOCKET_PT_UDP ||
-        shutdown(socket->s.fd, 2) != 0) {
-        APE_socket_destroy(socket);
-    } else {
-        socket->states.state = APE_SOCKET_ST_SHUTDOWN;
-    }
+    ape_shutdown(socket, 2);
 }
 
 static int ape_socket_free(void *arg)
@@ -399,6 +394,8 @@ static int ape_socket_free(void *arg)
     ape_destroy_pool(socket->jobs.head);
 
     free(socket);
+
+    hashtbl_erase64(socket->ape->sockets, socket);
 
     return 0;
 }
@@ -748,17 +745,8 @@ int ape_socket_do_jobs(ape_socket *socket)
         }
 #endif
         case APE_SOCKET_JOB_SHUTDOWN:
-#ifdef _HAVE_SSL_SUPPORT
-            if (APE_SOCKET_ISSECURE(socket)) {
-                ape_ssl_shutdown(socket->SSL.ssl);
-            }
-#endif
-            if (socket->states.proto == APE_SOCKET_PT_UDP
-                || shutdown(socket->s.fd, 2) != 0) {
-                APE_socket_destroy(socket);
-            } else {
-                socket->states.state = APE_SOCKET_ST_SHUTDOWN;
-            }
+
+            ape_shutdown(socket, 2);
             
             return -1;
         default:
@@ -935,6 +923,23 @@ int ape_socket_write_udp(ape_socket *from, const char *data,
     }
 
     return ret;
+}
+
+static int ape_shutdown(ape_socket *socket, int rw)
+{
+#ifdef _HAVE_SSL_SUPPORT       
+    if (APE_SOCKET_ISSECURE(socket)) {
+        ape_ssl_shutdown(socket->SSL.ssl);
+    }
+#endif
+
+    if (socket->states.proto != APE_SOCKET_PT_UDP) {
+        shutdown(socket->s.fd, rw);
+    }
+
+    APE_socket_destroy(socket);
+
+    return 1;
 }
 
 /* Consume socket buffer */

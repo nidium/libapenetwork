@@ -55,6 +55,7 @@ typedef struct _ape_global ape_global;
 #ifdef _HAVE_SSL_SUPPORT
   #include "ape_ssl.h"
 #endif
+#include "ape_hash.h"
 
 struct _ape_global {
     int basemem;
@@ -83,6 +84,8 @@ struct _ape_global {
 	ape_timers timersng;
 	
   int is_running;
+
+  ape_htable_t *sockets;
 };
 
 
