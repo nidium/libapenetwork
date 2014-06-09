@@ -335,7 +335,7 @@ void APE_socket_shutdown(ape_socket *socket)
         ape_dns_invalidate(socket->dns_state);
         close(APE_SOCKET_FD(socket));
 
-        //timer_dispatch_async(ape_socket_free, socket);
+        timer_dispatch_async(ape_socket_free, socket);
         return;
     }
     
@@ -369,7 +369,7 @@ static void ape_socket_shutdown_force(ape_socket *socket)
         ape_dns_invalidate(socket->dns_state);
         close(APE_SOCKET_FD(socket));
 
-        //timer_dispatch_async(ape_socket_free, socket);
+        timer_dispatch_async(ape_socket_free, socket);
         return;
     }
     if (socket->states.state != APE_SOCKET_ST_ONLINE) {
