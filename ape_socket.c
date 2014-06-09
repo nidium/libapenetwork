@@ -330,12 +330,8 @@ void APE_socket_shutdown(ape_socket *socket)
     if (socket->states.state == APE_SOCKET_ST_PROGRESS ||
         socket->states.state == APE_SOCKET_ST_PENDING) {
 
-        socket->states.state = APE_SOCKET_ST_OFFLINE;
-
-        ape_dns_invalidate(socket->dns_state);
-        close(APE_SOCKET_FD(socket));
-
-        timer_dispatch_async(ape_socket_free, socket);
+        APE_socket_destroy(socket);
+    
         return;
     }
     
@@ -365,11 +361,8 @@ static void ape_socket_shutdown_force(ape_socket *socket)
     }
     if (socket->states.state == APE_SOCKET_ST_PROGRESS ||
         socket->states.state == APE_SOCKET_ST_PENDING) {
-        socket->states.state = APE_SOCKET_ST_OFFLINE;
-        ape_dns_invalidate(socket->dns_state);
-        close(APE_SOCKET_FD(socket));
 
-        timer_dispatch_async(ape_socket_free, socket);
+        APE_socket_destroy(socket);
         return;
     }
     if (socket->states.state != APE_SOCKET_ST_ONLINE) {
