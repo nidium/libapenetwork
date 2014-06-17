@@ -111,11 +111,19 @@ int ape_dns_init(ape_global *ape)
     return 0;
 }
 
+static int params_free(void *arg)
+{
+    free(arg);
+    return 0;
+}
+
 void ares_gethostbyname_cb(void *arg, int status,
         int timeout, struct hostent *host)
 {
     struct _ape_dns_cb_argv *params = arg;
     char ret[46];
+
+    params->done = 1;
 
     if (params->invalidate) {
         free(params);
@@ -130,8 +138,9 @@ void ares_gethostbyname_cb(void *arg, int status,
     } else {
         params->callback(NULL, params->arg, status);
     }
-
-    //free(params);
+    
+    ape_global *ape = params->ape;
+    timer_dispatch_async(params_free, params);
 }
 
 ape_dns_state *ape_gethostbyname(const char *host, ape_gethostbyname_callback callback,
@@ -151,9 +160,14 @@ ape_dns_state *ape_gethostbyname(const char *host, ape_gethostbyname_callback ca
         cb->origin          = host;
         cb->arg             = arg;
         cb->invalidate      = 0;
+        cb->done            = 0;
 
         ares_gethostbyname(ape->dns.channel, host,
                 AF_INET, ares_gethostbyname_cb, cb);
+
+        if (cb->done) {
+            return NULL;
+        }
 
         return cb;
     }

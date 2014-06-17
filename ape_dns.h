@@ -37,7 +37,8 @@ typedef struct _ape_dns_cb_argv {
     ape_gethostbyname_callback callback;
     const char *origin;
     void *arg;
-    int invalidate;
+    int invalidate:4;
+    int done:4;
 } ape_dns_state;
 
 void ape_dns_invalidate(ape_dns_state *state);
