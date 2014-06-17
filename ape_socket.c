@@ -172,7 +172,7 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
 }
 
 int APE_socket_listen(ape_socket *socket, uint16_t port,
-        const char *local_ip)
+        const char *local_ip, int defer_accept)
 {
     struct sockaddr_in addr;
 #ifdef __WIN32
@@ -208,15 +208,17 @@ int APE_socket_listen(ape_socket *socket, uint16_t port,
         printf("[Socket] bind(%s:%u) error : %s\n", local_ip, port, strerror(errno));
         return -1;
     }
+    if (defer_accept) {
 #ifdef TCP_DEFER_ACCEPT
-    setsockopt(socket->s.fd, IPPROTO_TCP, TCP_DEFER_ACCEPT, &timeout,
-            sizeof(int));
+        setsockopt(socket->s.fd, IPPROTO_TCP, TCP_DEFER_ACCEPT, &timeout,
+                sizeof(int));
 #elif SO_ACCEPTFILTER
-    {
-        accept_filter_arg afa = {"dataready", ""};
-        setsockopt(socket->s.fd, SOL_SOCKET, SO_ACCEPTFILTER, &afa, sizeof(afa));
-    }
+        {
+            accept_filter_arg afa = {"dataready", ""};
+            setsockopt(socket->s.fd, SOL_SOCKET, SO_ACCEPTFILTER, &afa, sizeof(afa));
+        }
 #endif
+    }
     socket->states.type = APE_SOCKET_TP_SERVER;
     socket->states.state = APE_SOCKET_ST_ONLINE;
 

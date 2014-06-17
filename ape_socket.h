@@ -113,6 +113,7 @@ enum ape_socket_state {
     APE_SOCKET_ST_SHUTDOWN
 };
 
+
 typedef enum _ape_socket_data_autorelease {
 	APE_DATA_STATIC,
 	APE_DATA_GLOBAL_STATIC,
@@ -207,7 +208,7 @@ extern "C" {
 ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape);
 
 int APE_socket_listen(ape_socket *socket, uint16_t port,
-        const char *local_ip);
+        const char *local_ip, int defer_accept);
 int APE_socket_connect(ape_socket *socket, uint16_t port,
         const char *remote_ip_host, uint16_t localport);
 int APE_socket_write(ape_socket *socket, void *data,
