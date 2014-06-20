@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <ctype.h>
 
 void buffer_init(buffer *b)
 {
@@ -102,6 +103,19 @@ void buffer_append_data(buffer *b, const unsigned char *data, size_t size)
     memcpy(b->data + b->used, data, size);
     b->data[b->used+size] = '\0';
     b->used += size;
+}
+
+void buffer_append_data_tolower(buffer *b, const unsigned char *data, size_t size)
+{
+    buffer_prepare(b, size+1);
+    int i;
+
+    for (i = 0; i < size; i++) {
+        b->data[b->used+i] = tolower(data[i]);
+    }
+    
+    b->data[b->used+size] = '\0';
+    b->used += size;   
 }
 
 void buffer_append_char(buffer *b, const unsigned char data)
