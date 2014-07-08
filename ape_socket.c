@@ -390,9 +390,9 @@ static int _ape_socket_destroy(void *arg)
 
     if (socket == NULL || socket->states.state == APE_SOCKET_ST_OFFLINE)
         return 0;
+
     ape_global *ape = socket->ape;
     ape_dns_invalidate(socket->dns_state);
-    
     socket->states.state = APE_SOCKET_ST_OFFLINE;
     if (socket->callbacks.on_disconnect != NULL) {
         socket->callbacks.on_disconnect(socket, ape, socket->callbacks.arg);
@@ -405,7 +405,8 @@ static int _ape_socket_destroy(void *arg)
 
 static int ape_socket_destroy_async(ape_socket *socket)
 {
-    if (socket == NULL || socket->states.state == APE_SOCKET_ST_OFFLINE)
+    if (socket == NULL || socket->states.state == APE_SOCKET_ST_OFFLINE ||
+        socket->states.state == APE_SOCKET_ST_SHUTDOWN)
         return -1;
 
     ape_global *ape = socket->ape;
@@ -940,6 +941,9 @@ int ape_socket_write_udp(ape_socket *from, const char *data,
 
 static int ape_shutdown(ape_socket *socket, int rw)
 {
+    if (socket->states.state == APE_SOCKET_ST_SHUTDOWN) {
+        return 1;
+    }
 #ifdef _HAVE_SSL_SUPPORT       
     if (APE_SOCKET_ISSECURE(socket)) {
         ape_ssl_shutdown(socket->SSL.ssl);
@@ -949,6 +953,8 @@ static int ape_shutdown(ape_socket *socket, int rw)
     if (socket->states.proto != APE_SOCKET_PT_UDP) {
         shutdown(socket->s.fd, rw);
     }
+
+    socket->states.state = APE_SOCKET_ST_SHUTDOWN;
 
     ape_socket_destroy_async(socket);
 
