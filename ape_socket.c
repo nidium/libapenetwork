@@ -51,7 +51,8 @@
 
 static int ape_socket_free(void *arg);
 static int ape_shutdown(ape_socket *socket, int rw);
-      
+static int ape_socket_destroy_async(ape_socket *socket);
+
 /*
 Use only one syscall (ioctl) if FIONBIO is defined
 It behaves the same for socket file descriptor to use
@@ -380,6 +381,36 @@ static int ape_socket_free(void *arg)
     free(socket);
 
     return 0;
+}
+
+
+static int _ape_socket_destroy(void *arg)
+{
+    ape_socket *socket = arg;
+
+    if (socket == NULL || socket->states.state == APE_SOCKET_ST_OFFLINE)
+        return 0;
+    ape_global *ape = socket->ape;
+    ape_dns_invalidate(socket->dns_state);
+    
+    socket->states.state = APE_SOCKET_ST_OFFLINE;
+    if (socket->callbacks.on_disconnect != NULL) {
+        socket->callbacks.on_disconnect(socket, ape, socket->callbacks.arg);
+    }
+
+    ape_socket_free(socket);
+
+    return 0;
+}
+
+static int ape_socket_destroy_async(ape_socket *socket)
+{
+    if (socket == NULL || socket->states.state == APE_SOCKET_ST_OFFLINE)
+        return -1;
+
+    ape_global *ape = socket->ape;
+
+    timer_dispatch_async(_ape_socket_destroy, socket);
 }
 
 int APE_socket_destroy(ape_socket *socket)
@@ -919,7 +950,7 @@ static int ape_shutdown(ape_socket *socket, int rw)
         shutdown(socket->s.fd, rw);
     }
 
-    APE_socket_destroy(socket);
+    ape_socket_destroy_async(socket);
 
     return 1;
 }
