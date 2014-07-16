@@ -222,6 +222,7 @@ int APE_socket_listen(ape_socket *socket, uint16_t port,
     }
     socket->states.type = APE_SOCKET_TP_SERVER;
     socket->states.state = APE_SOCKET_ST_ONLINE;
+    socket->local_port = port;
 
     events_add(socket->s.fd, socket, EVENT_READ|EVENT_WRITE, socket->ape);
 
@@ -397,7 +398,11 @@ static int _ape_socket_destroy(void *arg)
     if (socket->callbacks.on_disconnect != NULL) {
         socket->callbacks.on_disconnect(socket, ape, socket->callbacks.arg);
     }
-
+#ifdef __WIN32
+    closesocket(APE_SOCKET_FD(socket));
+#else
+    close(APE_SOCKET_FD(socket));
+#endif
     ape_socket_free(socket);
 
     return 0;
@@ -405,8 +410,7 @@ static int _ape_socket_destroy(void *arg)
 
 static int ape_socket_destroy_async(ape_socket *socket)
 {
-    if (socket == NULL || socket->states.state == APE_SOCKET_ST_OFFLINE ||
-        socket->states.state == APE_SOCKET_ST_SHUTDOWN)
+    if (socket == NULL || socket->states.state == APE_SOCKET_ST_OFFLINE)
         return -1;
 
     ape_global *ape = socket->ape;
@@ -955,9 +959,12 @@ static int ape_shutdown(ape_socket *socket, int rw)
     }
 
     socket->states.state = APE_SOCKET_ST_SHUTDOWN;
-
-    ape_socket_destroy_async(socket);
-
+    
+    if (socket->states.type == APE_SOCKET_TP_SERVER) {
+        APE_socket_destroy(socket);
+    } else {
+        ape_socket_destroy_async(socket);
+    }
     return 1;
 }
 
