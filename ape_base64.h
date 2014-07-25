@@ -24,8 +24,9 @@
 extern "C" {
 #endif
 
-void base64_encode_b(unsigned char * src, char *dst, int len);
 int base64_decode(unsigned char * out, const char *in, int out_length);
+
+void base64_encode_b(unsigned char * src, char *dst, int len);
 char *base64_encode(unsigned char * src, int len);
 
 #ifdef __cplusplus
