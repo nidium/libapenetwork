@@ -114,7 +114,7 @@ void events_loop(ape_global *ape)
                                 ape_socket_connected(APE_SOCKET(attach));
                                 
                             } else {
-                                APE_socket_destroy(APE_SOCKET(attach));
+                                ape_socket_destroy(APE_SOCKET(attach));
                             }
                         }
                     }

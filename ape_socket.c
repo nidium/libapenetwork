@@ -89,7 +89,6 @@ static ape_socket_jobs_t *ape_socket_job_get_slot(ape_socket *socket, int type);
 static ape_pool_list_t *ape_socket_new_packet_queue(size_t n);
 static int ape_socket_queue_data(ape_socket *socket, unsigned char *data, size_t len, size_t offset, ape_socket_data_autorelease data_type);
 static void ape_init_job_list(ape_pool_list_t *list, size_t n);
-static void ape_socket_shutdown_force(ape_socket *socket);
 
 __inline static void ape_socket_release_data(unsigned char *data, ape_socket_data_autorelease data_type)
 {
@@ -240,7 +239,7 @@ static int ape_socket_connect_ready_to_connect(const char *remote_ip,
 
 #ifdef _HAS_ARES_SUPPORT
     if (status != ARES_SUCCESS) {
-        APE_socket_destroy(socket);
+        ape_socket_destroy(socket);
         return -1;
     }
 #endif
@@ -275,7 +274,7 @@ static int ape_socket_connect_ready_to_connect(const char *remote_ip,
                 sizeof(struct sockaddr)) == -1 &&
                 (errno != EWOULDBLOCK && errno != EINPROGRESS)) {
         printf("[Socket] connect() error(%d) on %d : %s\n", errno, socket->s.fd, strerror(errno));
-        APE_socket_destroy(socket);
+        ape_socket_destroy(socket);
         return -1;
     }
     socket->states.type = APE_SOCKET_TP_CLIENT;
@@ -298,7 +297,7 @@ int APE_socket_connect(ape_socket *socket, uint16_t port,
         const char *remote_ip_host, uint16_t localport)
 {
     if (port == 0) {
-        APE_socket_destroy(socket);
+        ape_socket_destroy(socket);
         return -1;
     }
 
@@ -315,6 +314,9 @@ int APE_socket_connect(ape_socket *socket, uint16_t port,
     return 0;
 }
 
+/*
+    Queue a shutdown
+*/
 void APE_socket_shutdown(ape_socket *socket)
 {
     ape_global *ape = socket->ape;
@@ -325,7 +327,7 @@ void APE_socket_shutdown(ape_socket *socket)
     if (socket->states.state == APE_SOCKET_ST_PROGRESS ||
         socket->states.state == APE_SOCKET_ST_PENDING) {
 
-        APE_socket_destroy(socket);
+        ape_socket_destroy(socket);
     
         return;
     }
@@ -343,12 +345,11 @@ void APE_socket_shutdown(ape_socket *socket)
     ape_shutdown(socket, 2);
 }
 
-void APE_socket_shutdown_now(ape_socket *socket)
-{
-    ape_socket_shutdown_force(socket);
-}
 
-static void ape_socket_shutdown_force(ape_socket *socket)
+/*
+    Shutdown the socket without pushing the action to the job list
+*/
+void APE_socket_shutdown_now(ape_socket *socket)
 {
     ape_global *ape = socket->ape;
     if (socket->states.state == APE_SOCKET_ST_SHUTDOWN) {
@@ -357,7 +358,7 @@ static void ape_socket_shutdown_force(ape_socket *socket)
     if (socket->states.state == APE_SOCKET_ST_PROGRESS ||
         socket->states.state == APE_SOCKET_ST_PENDING) {
 
-        APE_socket_destroy(socket);
+        ape_socket_destroy(socket);
         return;
     }
     if (socket->states.state != APE_SOCKET_ST_ONLINE) {
@@ -365,6 +366,27 @@ static void ape_socket_shutdown_force(ape_socket *socket)
     }
 
     ape_shutdown(socket, 2);
+}
+
+static int ape_socket_close(ape_socket *socket)
+{
+    if (socket == NULL || socket->states.state == APE_SOCKET_ST_OFFLINE)
+        return 0;
+
+    ape_global *ape = socket->ape;
+    ape_dns_invalidate(socket->dns_state);
+    socket->states.state = APE_SOCKET_ST_OFFLINE;
+
+    if (socket->callbacks.on_disconnect != NULL) {
+        socket->callbacks.on_disconnect(socket, ape, socket->callbacks.arg);
+    }
+#ifdef __WIN32
+    closesocket(APE_SOCKET_FD(socket));
+#else
+    close(APE_SOCKET_FD(socket));
+#endif
+
+    return 1;
 }
 
 static int ape_socket_free(void *arg)
@@ -389,21 +411,9 @@ static int _ape_socket_destroy(void *arg)
 {
     ape_socket *socket = arg;
 
-    if (socket == NULL || socket->states.state == APE_SOCKET_ST_OFFLINE)
-        return 0;
-
-    ape_global *ape = socket->ape;
-    ape_dns_invalidate(socket->dns_state);
-    socket->states.state = APE_SOCKET_ST_OFFLINE;
-    if (socket->callbacks.on_disconnect != NULL) {
-        socket->callbacks.on_disconnect(socket, ape, socket->callbacks.arg);
+    if (ape_socket_close(socket)) {
+        ape_socket_free(socket);
     }
-#ifdef __WIN32
-    closesocket(APE_SOCKET_FD(socket));
-#else
-    close(APE_SOCKET_FD(socket));
-#endif
-    ape_socket_free(socket);
 
     return 0;
 }
@@ -418,31 +428,16 @@ static int ape_socket_destroy_async(ape_socket *socket)
     timer_dispatch_async(_ape_socket_destroy, socket);
 }
 
-int APE_socket_destroy(ape_socket *socket)
+int ape_socket_destroy(ape_socket *socket)
 {
     ape_global *ape;
 
-    if (socket == NULL || socket->states.state == APE_SOCKET_ST_OFFLINE)
+    if (!ape_socket_close(socket)) {
         return -1;
-    
-    ape = socket->ape;
-
-    /* Set disconnect flag before callback in case of recursion */
-    socket->states.state = APE_SOCKET_ST_OFFLINE;
-    ape_dns_invalidate(socket->dns_state);
-    
-    if (socket->callbacks.on_disconnect != NULL) {
-        socket->callbacks.on_disconnect(socket, ape, socket->callbacks.arg);
     }
-    
-    //printf("====== Destroy : %d ======\n", APE_SOCKET_FD(socket));
-#ifdef __WIN32
-    closesocket(APE_SOCKET_FD(socket));
-#else
-    close(APE_SOCKET_FD(socket));
-#endif
-    timer_dispatch_async(ape_socket_free, socket);
 
+    ape = socket->ape;
+    timer_dispatch_async(ape_socket_free, socket);
     /* TODO: Free any pending job !!! */
 
     return 0;
@@ -609,7 +604,7 @@ int APE_socket_write(ape_socket *socket, void *data,
     
     if (io_error) {
         printf("IO error (%d) : %s\n", APE_SOCKET_FD(socket), strerror(rerrno));
-        ape_socket_shutdown_force(socket);
+        APE_socket_shutdown_now(socket);
         return -1;
     }
     
@@ -667,7 +662,7 @@ int ape_socket_do_jobs(ape_socket *socket)
                                 socket->states.flags |= APE_SOCKET_WOULD_BLOCK;
                                 return 0;
                             default:
-                                ape_socket_shutdown_force(socket);
+                                APE_socket_shutdown_now(socket);
                                 return 0;
                         }
                     }
@@ -945,7 +940,7 @@ int ape_socket_write_udp(ape_socket *from, const char *data,
 
 static int ape_shutdown(ape_socket *socket, int rw)
 {
-    if (socket->states.state == APE_SOCKET_ST_SHUTDOWN) {
+    if (socket->states.state != APE_SOCKET_ST_ONLINE) {
         return 1;
     }
 #ifdef _HAVE_SSL_SUPPORT       
@@ -961,7 +956,7 @@ static int ape_shutdown(ape_socket *socket, int rw)
     socket->states.state = APE_SOCKET_ST_SHUTDOWN;
     
     if (socket->states.type == APE_SOCKET_TP_SERVER) {
-        APE_socket_destroy(socket);
+        ape_socket_destroy(socket);
     } else {
         ape_socket_destroy_async(socket);
     }
@@ -1003,7 +998,7 @@ int ape_socket_read(ape_socket *socket)
                         break;
                     default:
                         printf("Force shutdown %d\n", socket->s.fd);
-                        ape_socket_shutdown_force(socket);
+                        APE_socket_shutdown_now(socket);
                         return 0;
                 }
             }
@@ -1041,7 +1036,7 @@ socket_reread:
         socket->data_in.used = 0;
     }
     if (nread == 0) {
-        APE_socket_destroy(socket);
+        ape_socket_destroy(socket);
 
         return -1;
     }
