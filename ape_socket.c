@@ -968,8 +968,7 @@ int ape_socket_read(ape_socket *socket)
 {
     ssize_t nread;
 
-    if (socket->states.state != APE_SOCKET_ST_ONLINE &&
-        socket->states.state != APE_SOCKET_ST_SHUTDOWN) {
+    if (socket->states.state != APE_SOCKET_ST_ONLINE) {
 
         return 0;
     }
