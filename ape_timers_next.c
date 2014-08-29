@@ -168,7 +168,7 @@ int process_timers(ape_timers *timers)
 
     //printf("Next timer in : %lld or %d\n", inums-lastsample,  ape_max(1, (int)((inums-lastsample+500000)/1000000)));
 
-    return ape_max(1, (int)((inums-lastsample+500000)/1000000));
+    return ape_max((timers->run_in_low_resolution ? 100 : 1), (int)((inums-lastsample+500000)/1000000));
 }
 
 ape_timer *get_timer_by_id(ape_timers *timers, int identifier)
@@ -286,4 +286,9 @@ ape_timer *add_timer(ape_timers *timers, int ms, timer_callback cb, void *arg)
     timers->head = timer;
     //printf("Timer added %d %p\n", ms, timers->head);
     return timer;
+}
+
+void set_timer_to_low_resolution(ape_timers *timers, int low)
+{
+    timers->run_in_low_resolution = low;
 }

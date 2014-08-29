@@ -54,6 +54,7 @@ ape_global *native_netlib_init()
     ape->is_running = 1;
     ape->timers.ntimers = 0;
     ape->timers.timers  = NULL;
+    ape->timersng.run_in_low_resolution = 0;
 
     ape->timersng.head = NULL;
     ape->timersng.last_identifier = 0;

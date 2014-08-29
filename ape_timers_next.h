@@ -56,6 +56,7 @@ typedef struct _ape_timers
 {
 	ape_timer *head;
 	int last_identifier;
+    int run_in_low_resolution;
 } ape_timers;
 
 #ifdef __cplusplus
@@ -70,6 +71,7 @@ void clear_timer_by_id(ape_timers *timers, int identifier, int force);
 void timer_stats_print(ape_timer *timer);
 void timers_stats_print(ape_timers *timers);
 void del_timers_unprotected(ape_timers *timers);
+void set_timer_to_low_resolution(ape_timers *timers, int low);
 
 #ifdef __cplusplus
 }
