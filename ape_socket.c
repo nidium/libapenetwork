@@ -194,7 +194,15 @@ int APE_socket_listen(ape_socket *socket, uint16_t port,
 
     setsockopt(socket->s.fd, SOL_SOCKET, SO_REUSEADDR, &reuse_addr, sizeof(int));
 #ifdef SO_REUSEPORT
-    setsockopt(socket->s.fd, SOL_SOCKET, SO_REUSEPORT, &reuse_port, sizeof(int));
+    if (reuse_port && setsockopt(socket->s.fd, SOL_SOCKET, SO_REUSEPORT,
+        &reuse_port, sizeof(int)) != 0) {
+
+        printf("[Socket] setsockopt (SO_REUSEPORT) (%s:%u) warning : %s\n", local_ip, port, strerror(errno));
+    }
+#else
+    if (reuse_port) {
+        printf("[Socket] SO_REUSEPORT is requested but compiled on an unsuported target\n"):
+    }
 #endif
 
     if (bind(socket->s.fd,
