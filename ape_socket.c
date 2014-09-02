@@ -201,7 +201,7 @@ int APE_socket_listen(ape_socket *socket, uint16_t port,
     }
 #else
     if (reuse_port) {
-        printf("[Socket] SO_REUSEPORT is requested but compiled on an unsuported target\n"):
+        printf("[Socket] SO_REUSEPORT is requested but compiled on an unsuported target\n");
     }
 #endif
 
