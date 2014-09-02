@@ -172,7 +172,7 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
 }
 
 int APE_socket_listen(ape_socket *socket, uint16_t port,
-        const char *local_ip, int defer_accept)
+        const char *local_ip, int defer_accept, int reuse_port)
 {
     struct sockaddr_in addr;
 #ifdef __WIN32
@@ -193,6 +193,9 @@ int APE_socket_listen(ape_socket *socket, uint16_t port,
     memset(&(addr.sin_zero), '\0', 8);
 
     setsockopt(socket->s.fd, SOL_SOCKET, SO_REUSEADDR, &reuse_addr, sizeof(int));
+#ifdef SO_REUSEPORT
+    setsockopt(socket->s.fd, SOL_SOCKET, SO_REUSEPORT, &reuse_port, sizeof(int));
+#endif
 
     if (bind(socket->s.fd,
                 (struct sockaddr *)&addr, sizeof(struct sockaddr)) == -1 ||
@@ -226,7 +229,6 @@ int APE_socket_listen(ape_socket *socket, uint16_t port,
     events_add(socket->s.fd, socket, EVENT_READ|EVENT_WRITE, socket->ape);
 
     return 0;
-
 }
 
 static int ape_socket_connect_ready_to_connect(const char *remote_ip,

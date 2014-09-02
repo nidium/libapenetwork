@@ -208,7 +208,7 @@ extern "C" {
 ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape);
 
 int APE_socket_listen(ape_socket *socket, uint16_t port,
-        const char *local_ip, int defer_accept);
+        const char *local_ip, int defer_accept, int reuse_port);
 int APE_socket_connect(ape_socket *socket, uint16_t port,
         const char *remote_ip_host, uint16_t localport);
 int APE_socket_write(ape_socket *socket, void *data,
