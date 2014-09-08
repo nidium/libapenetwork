@@ -2,6 +2,10 @@
     'targets': [{
         'target_name': 'nativenetwork',
         'type': 'static_library',
+        'includes': [
+            'common.gypi',
+            'config.gypi'
+        ],
         'include_dirs': [
             '<(DEPTH)/<(third_party_path)/c-ares/',
             '<(DEPTH)/<(third_party_path)/openssl/include/',
