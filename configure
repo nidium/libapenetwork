@@ -11,7 +11,7 @@ from konstructor import Konstruct
 
 Gyp = Builder.Gyp
 
-DEPEDENCY_REPO = "http://deps.nativejs.org"
+DEPEDENCY_REPO = "http://deps.nidium.com"
 
 Platform.setEnviron("CC=clang", "CXX=clang++")
 
