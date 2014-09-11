@@ -8,12 +8,12 @@
                     '-g',
                 ],
                 'ldflags': [
-                    '-L<(native_output)/third-party/',
+                    '-L<(native_output_third_party)',
                 ],
                 'xcode_settings': {
                     "OTHER_LDFLAGS": [
-                        '-L<(native_output)/third-party/',
-                        '-F<(native_output)/third-party/',
+                        '-L<(native_output_third_party)',
+                        '-F<(native_output_third_party)',
                     ],
                     'ARCHS': [
                         'x86_64',
@@ -37,12 +37,12 @@
                     '-Wall',
                 ],
                 'ldflags': [
-                    '-L<(native_output)/third-party/',
+                    '-L<(native_output_third_party)',
                 ],
                 'xcode_settings': {
                     "OTHER_LDFLAGS": [
-                        '-L<(native_output)/third-party/',
-                        '-F<(native_output)/third-party/'
+                        '-L<(native_output_third_party)',
+                        '-F<(native_output_third_party)'
                     ],
                     'ARCHS': [
                         'x86_64',

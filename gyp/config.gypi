@@ -1,6 +1,7 @@
 {
     'variables' : {
-        'native_output%': '../build/',
+        'native_output%': '../out/',
+        'native_output_third_party%': '../out/third-party-libs/release/',
         # Hack to workaround two gyp issues : 
         # - Variables defined in command line are not relativized (at all)
         #   https://code.google.com/p/gyp/issues/detail?id=72
