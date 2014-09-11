@@ -8,7 +8,7 @@
         # - Variables named with a "%" at the end are not relativized
         #   https://code.google.com/p/gyp/issues/detail?id=444
         'variables': {
-            'third_party%': '../third-party2'
+            'third_party%': '../third-party'
         },
         'third_party_path': '<(DEPTH)/<(third_party)',
         'asan%': 0,

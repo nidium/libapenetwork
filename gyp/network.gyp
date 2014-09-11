@@ -7,8 +7,8 @@
             'config.gypi'
         ],
         'include_dirs': [
-            '<(DEPTH)/<(third_party_path)/c-ares/',
-            '<(DEPTH)/<(third_party_path)/openssl/include/',
+            '<(third_party_path)/c-ares/',
+            '<(third_party_path)/openssl/include/',
             '../',
         ],
         'defines': [
@@ -31,8 +31,8 @@
         'direct_dependent_settings': {
             'include_dirs': [
                 '../',
-                '<(DEPTH)/<(third_party_path)/c-ares/',
-                '<(DEPTH)/<(third_party_path)/openssl/include/',
+                '<(third_party_path)/c-ares/',
+                '<(third_party_path)/openssl/include/',
             ],
             'conditions': [
                 ['OS=="linux"', {
