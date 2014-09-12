@@ -87,6 +87,16 @@
                     ]
                 }
             }],
+            ['profiler==1', {
+                'ldflags': [
+                    '-lprofiler'
+                ],
+                'xcode_settings': {
+                    "OTHER_LDFLAGS": [
+                        '-fsanitize=address'
+                    ],
+                }
+            }]
         ],
     },
 }

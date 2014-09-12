@@ -8,6 +8,8 @@ from konstructor import Builder
 from konstructor import Platform
 from konstructor import Variables
 from konstructor import Konstruct
+from konstructor import Utils
+from konstructor import ROOT
 
 Gyp = Builder.Gyp
 
@@ -45,7 +47,23 @@ def openssl():
         "outputs": ["libssl(.a|.lib)", "libcrypto(.a|.lib)"]
     }
 
+@Deps.register("gperftools")
+def gperftools():
+    return {
+        "location": "https://googledrive.com/host/0B6NtGsLhIcf7MWxMMF9JdTN3UVk/gperftools-2.2.1.zip",
+        "build": ["autoconf", "./configure", "make"],
+        "outputs": [[".libs/libprofiler.so", "libprofiler.so.0"], {"src": "src/pprof", "dest": "../../tools/pprof"}]
+    }
+
 #####
+
+@CommandLine.option("--profiler", default=False)
+def profiler(profiler):
+    if profiler:
+        Gyp.set("profiler", 1)
+        Deps.set("gperftools")
+        Platform.exportEnviron("CPUPROFILE=/tmp/profile.nidium")
+        Platform.exportEnviron("LD_LIBRARY_PATH=" + ROOT + "/build/third-party/${LD_LIBRARY_PATH:+:}${LD_LIBRARY_PATH:-}")
 
 @CommandLine.option("--debug", default=False)
 def debug(debug):
