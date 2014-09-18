@@ -266,7 +266,8 @@ static int ape_socket_connect_ready_to_connect(const char *remote_ip,
   #define EWOULDBLOCK WSAEWOULDBLOCK
   #define errno  WSAGetLastError()
 #endif
-
+    int ntry = 0;
+retry_connect:
     if (socket->local_port != 0) {
         struct sockaddr_in addr_loc;
         addr_loc.sin_family = AF_INET;
@@ -283,7 +284,18 @@ static int ape_socket_connect_ready_to_connect(const char *remote_ip,
     if (connect(socket->s.fd, (struct sockaddr *)&addr,
                 sizeof(struct sockaddr)) == -1 &&
                 (errno != EWOULDBLOCK && errno != EINPROGRESS)) {
-        printf("[Socket] connect() error(%d) on %d : %s\n", errno, socket->s.fd, strerror(errno));
+        printf("[Socket] connect() error(%d) on %d : %s (retry : %d)\n", errno, socket->s.fd, strerror(errno), ntry);
+
+        switch (errno) {
+            case EADDRNOTAVAIL:
+                ntry++;
+                if (ntry < 10) {
+                    goto retry_connect;
+                }
+            default:
+                break;
+        }
+
         ape_socket_destroy(socket);
         return -1;
     }
