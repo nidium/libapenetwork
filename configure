@@ -70,12 +70,13 @@ def debug(debug):
     if debug:
         Variables.set("debug", True)
         Gyp.setConfiguration("Debug");
-        Konstruct.setConfigs("debug")
+        Konstruct.setConfigs(["debug"])
 
 @CommandLine.option("--third-party-path", default="")
 def gypConfig(thirdPartyPath):
     if thirdPartyPath:
         Deps.setDir(thirdPartyPath)
+        Variables.set("thirdPartyPath", thirdPartyPath)
         Gyp.set("third_party", thirdPartyPath)
         Gyp.setExec(os.path.join(thirdPartyPath, "gyp", "gyp"))
 
