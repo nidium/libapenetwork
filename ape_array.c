@@ -130,12 +130,14 @@ static ape_array_item_t *ape_array_add_s(ape_array_t *array, buffer *key)
     return slot;
 }
 
-void ape_array_add_b(ape_array_t *array, buffer *key, buffer *value)
+ape_array_item_t *ape_array_add_b(ape_array_t *array, buffer *key, buffer *value)
 {
     ape_array_item_t *slot = ape_array_add_s(array, key);
 
     slot->pool.flags |= APE_ARRAY_VAL_BUF;
     slot->pool.ptr.buf = value;
+
+    return slot;
 }
 
 ape_array_item_t *ape_array_add_ptr(ape_array_t *array, buffer *key, void *ptr)
@@ -158,7 +160,7 @@ ape_array_item_t *ape_array_add_ptrn(ape_array_t *array, const char *key,
     return ape_array_add_ptr(array, k, ptr);
 }
 
-void ape_array_add_n(ape_array_t *array, const char *key,
+ape_array_item_t *ape_array_add_n(ape_array_t *array, const char *key,
         int klen, const char *value, int vlen)
 {
     buffer *k, *v;
@@ -169,12 +171,29 @@ void ape_array_add_n(ape_array_t *array, const char *key,
     buffer_append_string_n(k, key, klen);
     buffer_append_string_n(v, value, vlen);
 
-    ape_array_add_b(array, k, v);
+    return ape_array_add_b(array, k, v);
 }
 
-void ape_array_add(ape_array_t *array, const char *key, const char *value)
+ape_array_item_t *ape_array_add_camelkey_n(ape_array_t *array, const char *key,
+        int klen, const char *value, int vlen)
 {
-    ape_array_add_n(array, key, strlen(key), value, strlen(value));
+    buffer *k, *v;
+
+    k = buffer_new(klen+1);
+    v = buffer_new(vlen+1);
+
+    buffer_append_string_n(k, key, klen);
+    buffer_append_string_n(v, value, vlen);
+
+    buffer_camelify(k);
+
+    return ape_array_add_b(array, k, v);
+}
+
+
+ape_array_item_t *ape_array_add(ape_array_t *array, const char *key, const char *value)
+{
+    return ape_array_add_n(array, key, strlen(key), value, strlen(value));
 }
 
 void ape_array_destroy(ape_array_t *array)
