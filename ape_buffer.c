@@ -139,6 +139,16 @@ void buffer_append_string_n(buffer *b, const char *string, size_t length)
     b->data[b->used] = '\0';
 }
 
+void buffer_camelify(buffer *b)
+{
+    for (unsigned char *pSource = b->data, pchar = '-'; *pSource; pSource++) {
+        if (pchar == '-') {
+            *pSource = toupper(*pSource);
+        }
+        pchar = *pSource;
+    }
+}
+
 /* taken from PHP 5.3 */
 buffer *buffer_to_buffer_utf8(buffer *b)
 {
