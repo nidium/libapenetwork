@@ -162,6 +162,8 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
     ret->remote_port = 0;
     ret->local_port  = 0;
 
+    memset(&ret->sockaddr, 0, sizeof(struct sockaddr_in));
+
     buffer_init(&ret->data_in);
 
     ape_init_job_list(&ret->jobs, 2);
@@ -633,6 +635,17 @@ int APE_socket_write(ape_socket *socket, void *data,
     return 0;
 }
 
+char *APE_socket_ipv4(ape_socket *socket)
+{
+    if (!socket) {
+        return NULL;
+    }
+
+    char *ip = inet_ntoa(socket->sockaddr.sin_addr);
+
+    return ip;
+}
+
 int ape_socket_do_jobs(ape_socket *socket)
 {
     int njobsdone = 0;
@@ -880,6 +893,8 @@ int ape_socket_accept(ape_socket *socket)
         }
 
         client = APE_socket_new(socket->states.proto, fd, socket->ape);
+
+        memcpy(&client->sockaddr, &their_addr, sizeof(struct sockaddr_in));
 
         /* clients inherits server callbacks */
         client->callbacks    = socket->callbacks;

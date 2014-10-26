@@ -158,8 +158,10 @@ typedef struct _ape_socket_jobs_t {
 
 
 struct _ape_socket {
+    sockaddr_in sockaddr;
+    ape_socket_callbacks callbacks;
+
     ape_fds s;
-	
     buffer data_in;
 	
     ape_pool_list_t jobs;
@@ -169,8 +171,6 @@ struct _ape_socket {
     ape_global *ape;
     ape_socket *parent; /* server socket in case of client */
 
-    ape_socket_callbacks    callbacks;
-
     struct _ape_dns_cb_argv *dns_state;
 
     struct {
@@ -179,10 +179,11 @@ struct _ape_socket {
         uint8_t type;
         uint8_t state;
     } states;
-#ifdef _HAVE_SSL_SUPPORT  	
+
+#ifdef _HAVE_SSL_SUPPORT
 	struct {
-		uint8_t issecure;
 		struct _ape_ssl *ssl;
+        uint8_t issecure;
 	} SSL;
 #endif
     uint16_t    remote_port;
@@ -216,6 +217,7 @@ int APE_socket_write(ape_socket *socket, void *data,
 void APE_socket_shutdown(ape_socket *socket);
 void APE_socket_shutdown_now(ape_socket *socket);
 int APE_sendfile(ape_socket *socket, const char *file);
+char *APE_socket_ipv4(ape_socket *socket);
 
 int ape_socket_destroy(ape_socket *socket);
 int ape_socket_do_jobs(ape_socket *socket);
