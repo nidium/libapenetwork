@@ -158,13 +158,13 @@ typedef struct _ape_socket_jobs_t {
 
 
 struct _ape_socket {
-    struct sockaddr_in sockaddr;
-    ape_socket_callbacks callbacks;
-
     ape_fds s;
     buffer data_in;
     
     ape_pool_list_t jobs;
+
+    struct sockaddr_in sockaddr;
+    ape_socket_callbacks callbacks;
 
     void *ctx;  /* public pointer */
     void *_ctx; /* internal public pointer */
