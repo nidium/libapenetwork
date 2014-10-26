@@ -158,7 +158,7 @@ typedef struct _ape_socket_jobs_t {
 
 
 struct _ape_socket {
-    sockaddr_in sockaddr;
+    struct sockaddr_in sockaddr;
     ape_socket_callbacks callbacks;
 
     ape_fds s;
