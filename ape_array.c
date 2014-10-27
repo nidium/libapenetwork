@@ -198,6 +198,9 @@ ape_array_item_t *ape_array_add(ape_array_t *array, const char *key, const char 
 
 void ape_array_destroy(ape_array_t *array)
 {
+    if (!array) {
+        return;
+    }
     ape_destroy_pool_list_ordered((ape_pool_list_t *)array, ape_array_clean_cb);
 }
 
