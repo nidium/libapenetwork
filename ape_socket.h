@@ -218,6 +218,7 @@ void APE_socket_shutdown(ape_socket *socket);
 void APE_socket_shutdown_now(ape_socket *socket);
 int APE_sendfile(ape_socket *socket, const char *file);
 char *APE_socket_ipv4(ape_socket *socket);
+int APE_socket_is_online(ape_socket *socket);
 
 int ape_socket_destroy(ape_socket *socket);
 int ape_socket_do_jobs(ape_socket *socket);

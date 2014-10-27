@@ -655,6 +655,15 @@ char *APE_socket_ipv4(ape_socket *socket)
     return ip;
 }
 
+int APE_socket_is_online(ape_socket *socket)
+{
+    if (!socket) {
+        return 0;
+    }
+
+    return (socket->states.state == APE_SOCKET_ST_ONLINE);
+}
+
 int ape_socket_do_jobs(ape_socket *socket)
 {
     int njobsdone = 0;
