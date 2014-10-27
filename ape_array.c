@@ -39,6 +39,9 @@ ape_array_item_t *ape_array_lookup_item(ape_array_t *array,
         const char *key, int klen)
 {
     buffer *k, *v;
+    if (!array) {
+        return NULL;
+    }
     APE_A_FOREACH(array, k, v) {
         if (k->used == klen && memcmp(key, k->data, klen) == 0) {
             return __array_item;
@@ -51,6 +54,10 @@ ape_array_item_t *ape_array_lookup_item(ape_array_t *array,
 buffer *ape_array_lookup(ape_array_t *array, const char *key, int klen)
 {
     buffer *k, *v;
+    if (!array) {
+        return NULL;
+    }
+
     APE_A_FOREACH(array, k, v) {
         if (k->used == klen && strncasecmp(key, (const char *)k->data, klen) == 0) {
             return v;
@@ -60,9 +67,28 @@ buffer *ape_array_lookup(ape_array_t *array, const char *key, int klen)
     return NULL;
 }
 
+buffer *ape_array_lookup_nocase(ape_array_t *array, const char *key, int klen)
+{
+    buffer *k, *v;
+    if (!array) {
+        return NULL;
+    }
+    APE_A_FOREACH(array, k, v) {
+        if (k->used == klen && strncmp(key, (const char *)k->data, klen) == 0) {
+            return v;
+        }
+    }
+
+    return NULL;
+}
+
+
 void *ape_array_lookup_data(ape_array_t *array, const char *key, int klen)
 {
     buffer *k, *v;
+    if (!array) {
+        return NULL;
+    }
     APE_A_FOREACH(array, k, v) {
         if (k->used == klen && strncasecmp(key, (const char *)k->data, klen) == 0) {
             return __array_item->pool.ptr.data;
@@ -74,6 +100,9 @@ void *ape_array_lookup_data(ape_array_t *array, const char *key, int klen)
 
 void ape_array_delete(ape_array_t *array, const char *key, int klen)
 {
+    if (!array) {
+        return;
+    }
     ape_array_item_t *item = ape_array_lookup_item(array, key, klen);
 
     if (item != NULL) {
