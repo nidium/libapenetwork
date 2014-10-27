@@ -320,6 +320,9 @@ retry_connect:
 int APE_socket_connect(ape_socket *socket, uint16_t port,
         const char *remote_ip_host, uint16_t localport)
 {
+    if (!socket) {
+        return -1;
+    }
     if (port == 0) {
         ape_socket_destroy(socket);
         return -1;
@@ -343,6 +346,9 @@ int APE_socket_connect(ape_socket *socket, uint16_t port,
 */
 void APE_socket_shutdown(ape_socket *socket)
 {
+    if (!socket) {
+        return;
+    }
     ape_global *ape = socket->ape;
     
     if (socket->states.state == APE_SOCKET_ST_SHUTDOWN) {
@@ -375,6 +381,9 @@ void APE_socket_shutdown(ape_socket *socket)
 */
 void APE_socket_shutdown_now(ape_socket *socket)
 {
+    if (!socket) {
+        return;
+    }
     ape_global *ape = socket->ape;
     if (socket->states.state == APE_SOCKET_ST_SHUTDOWN) {
         return;
@@ -523,7 +532,7 @@ int APE_sendfile(ape_socket *socket, const char *file)
 
 int APE_socket_writev(ape_socket *socket, const struct iovec *iov, int iovcnt)
 {
-    if (socket->states.state != APE_SOCKET_ST_ONLINE ||
+    if (!socket || socket->states.state != APE_SOCKET_ST_ONLINE ||
             iovcnt == 0) {
         return -1;        
     }
@@ -548,7 +557,7 @@ int APE_socket_write(ape_socket *socket, void *data,
     ssize_t t_bytes = 0, r_bytes = len, n = 0;
     int io_error = 0, rerrno = 0;
 
-    if (socket->states.state != APE_SOCKET_ST_ONLINE ||
+    if (!socket || socket->states.state != APE_SOCKET_ST_ONLINE ||
             len == 0) {
 
         ape_socket_release_data(data,
