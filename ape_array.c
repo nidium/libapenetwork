@@ -67,7 +67,7 @@ buffer *ape_array_lookup(ape_array_t *array, const char *key, int klen)
     return NULL;
 }
 
-buffer *ape_array_lookup_nocase(ape_array_t *array, const char *key, int klen)
+buffer *ape_array_lookup_case(ape_array_t *array, const char *key, int klen)
 {
     buffer *k, *v;
     if (!array) {
