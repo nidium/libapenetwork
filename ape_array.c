@@ -20,6 +20,7 @@
 //#include "common.h"
 #include "ape_array.h"
 #include <string.h>
+#include <stdio.h>
 
 #ifdef _MSC_VER
 #define strncasecmp _strnicmp
@@ -75,8 +76,8 @@ buffer *ape_array_lookup_cstr(ape_array_t *array, const char *key, int klen)
     }
 
     APE_A_FOREACH(array, k, v) {
-        if (k->data[k->used-1] == '0' && k->used == klen+1 &&
-            strncasecmp(key, (const char *)k->data, klen) == 0) {
+        if (k->data[k->used-1] == '\0' && k->used == klen+1 &&
+            strcasecmp(key, (const char *)k->data) == 0) {
             return v;
         }
     }
