@@ -74,6 +74,7 @@ static void ares_socket_cb(void *data, int s, int read, int write)
             if (read == 0 && write == 0) {
                 ape->dns.sockets.list[i].s.fd = 0;
                 close(s);
+                events_del(s, ape);
             }
             return;
         }

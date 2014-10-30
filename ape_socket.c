@@ -418,7 +418,8 @@ static int ape_socket_close(ape_socket *socket)
 #else
     close(APE_SOCKET_FD(socket));
 #endif
-
+    events_del(APE_SOCKET_FD(socket), ape);
+    
     return 1;
 }
 

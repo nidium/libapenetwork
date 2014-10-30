@@ -1,6 +1,6 @@
 /*
     APE Network Library
-    Copyright (C) 2010-2013 Anthony Catel <paraboul@gmail.com>
+    Copyright (C) 2010-2014 Anthony Catel <paraboul@gmail.com>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -79,16 +79,13 @@ typedef struct {
 #endif
 
 struct _fdevent {
-    /* Common values */
-    int *basemem;
-
     /* Interface */
     int (*add)      (struct _fdevent *, int, int, void *);
     int (*del)      (struct _fdevent *, int);
     int (*poll)     (struct _fdevent *, int);
     int (*revent)   (struct _fdevent *, int);
     int (*reload)   (struct _fdevent *);
-    void (*growup)  (struct _fdevent *);
+    void (*setsize)  (struct _fdevent *, int size);
     void *(*get_current_fd) (struct _fdevent *, int);
 
     /* Specifics values */
@@ -102,9 +99,11 @@ struct _fdevent {
 #endif
 #ifdef USE_SELECT_HANDLER
 	select_fd_t fds[FD_SETSIZE];
-	select_fd_t **events; /* Pointers into fds */
+	select_fd_t **events;       /* Pointers into fds */
 #endif
-    fdevent_handler_t handler;
+    int basemem;                /* Number of elements in events */
+    int nfd;                    /* Number of managed file descriptor */
+    fdevent_handler_t handler;  /* Type of handler (enum) */
 };
 
 int events_init(ape_global *ape);
@@ -112,6 +111,8 @@ int events_add(int fd, void *attach, int bitadd, ape_global *ape);
 int events_del(int fd, ape_global *ape);
 void *events_get_current_fd(struct _fdevent *ev, int i);
 int events_poll(struct _fdevent *ev, int timeout_ms);
+void events_shrink(struct _fdevent *ev);
+void events_setsize(struct _fdevent *ev, int size);
 
 int event_kqueue_init(struct _fdevent *ev);
 int event_epoll_init(struct _fdevent *ev);
