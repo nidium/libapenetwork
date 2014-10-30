@@ -61,7 +61,7 @@ ape_array_item_t *ape_array_add(ape_array_t *array, const char *key, const char 
 void ape_array_destroy(ape_array_t *array);
 ape_array_item_t *ape_array_add_ptr(ape_array_t *array, buffer *key, void *ptr);
 ape_array_item_t *ape_array_add_ptrn(ape_array_t *array, const char *key, int klen, void *ptr);
-
+void ape_array_delete(ape_array_t *array, const char *key, int klen);
 
 #ifdef __cplusplus
 }
