@@ -1,5 +1,41 @@
 {
     'targets': [{
+        'target_name': 'nativenetwork-includes',
+        'type': 'none',
+        'direct_dependent_settings': {
+            'include_dirs': [
+                '../',
+                '<(third_party_path)/c-ares/',
+                '<(third_party_path)/openssl/include/',
+            ],
+            'defines': [
+                '_HAVE_SSL_SUPPORT'
+            ]
+        },
+    }, {
+        'target_name': 'nativenetwork-link',
+        'type': 'none',
+        'direct_dependent_settings': {
+            'conditions': [
+                ['OS=="linux"', {
+                    "link_settings": {
+                        'libraries': [
+                            '-lssl',
+                            '-lcrypto'
+                        ]
+                    }
+                }],
+                ['OS=="mac"', {
+                    "link_settings": {
+                        'libraries': [
+                            'libssl.a',
+                            'libcrypto.a'
+                        ]
+                    }
+                }]
+            ],
+        },
+    }, {
         'target_name': 'nativenetwork',
         'type': 'static_library',
         'includes': [
@@ -28,34 +64,6 @@
                 ],
             }]
         ],
-        'direct_dependent_settings': {
-            'include_dirs': [
-                '../',
-                '<(third_party_path)/c-ares/',
-                '<(third_party_path)/openssl/include/',
-            ],
-            'conditions': [
-                ['OS=="linux"', {
-                    "link_settings": {
-                        'libraries': [
-                            '-lssl',
-                            '-lcrypto'
-                        ]
-                    }
-                }],
-                ['OS=="mac"', {
-                    "link_settings": {
-                        'libraries': [
-                            'libssl.a',
-                            'libcrypto.a'
-                        ]
-                    }
-                }]
-            ],
-            'defines': [
-                '_HAVE_SSL_SUPPORT'
-            ]
-        },
         'sources': [
             '../native_netlib.c',
             '../ape_pool.c',
