@@ -26,7 +26,10 @@
                 'cflags': [
                     '-fvisibility=hidden',
                 ],
-            }]
+            }],
+            ['target_os=="android"', {
+                'defines': ['ANDROID'],
+            }],
         ],
         'direct_dependent_settings': {
             'include_dirs': [

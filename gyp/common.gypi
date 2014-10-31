@@ -35,9 +35,12 @@
                 'cflags': [
                     '-O2',
                     '-Wall',
+                    '-fexception',
+                    '-frtti'
                 ],
                 'ldflags': [
                     '-L<(native_output_third_party)',
+                    '-L/mnt/stockage/dev/android/android-ndk-r10b/sources/cxx-stl/llvm-libc++/libs/armeabi/thumb/',
                 ],
                 'xcode_settings': {
                     "OTHER_LDFLAGS": [
@@ -71,6 +74,9 @@
             }
         },
         'conditions': [
+            ['target_os=="android"', {
+                'defines': ['ANDROID'],
+            }],
             ['asan==1', {
                 'cflags': [
                     '-fsanitize=address'

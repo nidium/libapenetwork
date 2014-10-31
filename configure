@@ -6,7 +6,7 @@ from konstructor import CommandLine
 from konstructor import Build
 from konstructor import Builder
 from konstructor import Platform
-from konstructor import Variables
+from konstructor import Variables as Var
 from konstructor import Konstruct
 from konstructor import Utils
 from konstructor import ROOT
@@ -15,7 +15,7 @@ Gyp = Builder.Gyp
 
 DEPEDENCY_REPO = "http://deps.nidium.com"
 
-Platform.setEnviron("CC=clang", "CXX=clang++")
+#Platform.setEnviron("CC=clang", "CXX=clang++")
 
 Gyp.setArgs("--depth=./")
 Gyp.setExec("third-party/gyp/gyp")
@@ -29,16 +29,22 @@ def gyp():
 
 @Deps.register("c-ares")
 def cares():
+    configure = "./configure"
+    if Konstruct.config("android"):
+        configure += " --host=" + Var.get("targetTriplet")
+
     return {
         "location": DEPEDENCY_REPO + "/c-ares-1.9.1.tar.gz",
-        "build": ["./configure", "make"],
+        "build": [configure, "make"],
         "outputs": [".libs/libcares.a"]
     }
 
 @Deps.register("openssl")
 def openssl():
     configure = "./config"
-    if Platform.system == "Darwin":
+    if Konstruct.config("android"):
+        configure = "MACHINE=armv7 SYSTEM=android CROSS_COMPILE= ARCH=arm ANDROID_DEV=" + Var.get("toolchainPath") +"/sysroot/ HOSTCC=" + Platform.getEnviron("CC") + " " + configure
+    elif  Platform.system == "Darwin":
         configure = "./Configure darwin64-x86_64-cc -no-shared"
 
     return {
@@ -68,9 +74,9 @@ def profiler(profiler):
 @CommandLine.option("--debug", default=False)
 def debug(debug):
     if debug:
-        Variables.set("debug", True)
+        Var.set("debug", True)
         Gyp.setConfiguration("Debug");
-        Konstruct.setConfigs("debug")
+        Konstruct.setConfigs(["debug"])
 
 @CommandLine.option("--third-party-path", default="")
 def gypConfig(thirdPartyPath):
@@ -79,10 +85,70 @@ def gypConfig(thirdPartyPath):
         Gyp.set("third_party", thirdPartyPath)
         Gyp.setExec(os.path.join(thirdPartyPath, "gyp", "gyp"))
 
+@CommandLine.option("--target-cpu", default="")
+def targetCpu(cpu):
+    Gyp.set("target_cpu", cpu)
+    Var.set("target_cpu", cpu);
+
+@CommandLine.option("--target-os", default="")
+def targetCpu(cpu):
+    Gyp.set("target_os", cpu)
+    Var.set("target_os", cpu);
+
+@CommandLine.option("--android", default=False)
+def android(android):
+    if android:
+        Gyp.set("target_cpu", Var.get("target_cpu", "arm"));
+        Gyp.set("target_os", "android");
+
+        Konstruct.setConfigs(["android"])
+
+        hostArch = "x86" if Platform.wordSize == 32 else "x64"
+        toolchainPath = "toolchain/android"
+
+        #Utils.mkdir("toolchain/android/")
+        #Utils.run("./build/tools/make-standalone-toolchain.sh --platform=android-19 --install-dir=/mnt/stockage/dev/wtf/ --arch=arm --llvm-version=3.4")
+
+        toolchainPath = "/mnt/stockage/dev/wtf/"
+        Var.set("toolchainPath", toolchainPath);
+        Var.set("targetTriplet", "arm-linux-androideabi")
+        Var.set("androidPlatform", "android-14")
+        Platform.setEnviron(
+            "ANDROID_NDK_ROOT=/mnt/stockage/dev/android/android-ndk-r10b/", 
+            "ANDROID_SDK_ROOT=/mnt/stockage/dev/android/android-sdk-linux_x86/",
+            "AR=%s/bin/arm-linux-androideabi-ar" % toolchainPath, 
+            "CC=%s/bin/arm-linux-androideabi-gcc" % toolchainPath, 
+            "CXX=%s/bin/arm-linux-androideabi-g++" % toolchainPath, 
+            "RANLIB=%s/bin/arm-linux-androideabi-ranlib" % toolchainPath,
+            "LD=%s/bin/ld.mcld" % toolchainPath, 
+            "CFLAGS=--target=" + Var.get("targetTriplet")
+        )
+
+
+@Konstruct.preBuild
+def preBuild():
+    if not Konstruct.config("android"):
+        return
+
+    # Many of our dependencies does not support cross compiling against clang
+    # but Nidium (at least NativeJSCore) only build with clang
+    # So switch to clang/llvm for building Nidium
+    #
+    # FIXME : This approach is basically broken and uber wrong. 
+    # We should either move all dependency to gyp/clang or make Nidium compatible with g++ 
+    toolchainPath = Var.get("toolchainPath");
+    Platform.setEnviron( 
+        "CC=%s/bin/arm-linux-androideabi-clang" % toolchainPath, 
+        "CXX=%s/bin/arm-linux-androideabi-clang++ --sysroot=/mnt/stockage/dev/wtf/sysroot/" % toolchainPath, 
+        "RANLIB=%s/bin/arm-linux-androideabi-ranlib" % toolchainPath,
+        "LD=%s/bin/ld.mcld" % toolchainPath, 
+        "CFLAGS=--target=" + Var.get("targetTriplet")
+    )
 #####
 
+
 Deps.set("gyp", "c-ares", "openssl")
-Variables.set("depsRepo", DEPEDENCY_REPO)
+Var.set("depsRepo", DEPEDENCY_REPO)
 
 # Temporary fix to make deps.py & Konstructor works 
 Gyp.set("native_output", "../build/")
