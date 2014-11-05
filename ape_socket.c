@@ -1090,7 +1090,7 @@ socket_reread:
 
         socket->data_in.used = 0;
     }
-    if (nread == 0) {
+    if (nread == 0 && socket->states.state != APE_SOCKET_ST_SHUTDOWN) {
         ape_socket_destroy(socket);
 
         return -1;
