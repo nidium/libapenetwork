@@ -15,7 +15,13 @@ Gyp = Builder.Gyp
 
 DEPEDENCY_REPO = "http://deps.nidium.com"
 
-Platform.setEnviron("CC=clang", "CXX=clang++")
+Platform.setEnviron(
+    "CC=clang",
+    "CXX=clang++", 
+    #"CXXFLAGS=-stdlib=libc++",
+    #"LDFLAGS=-stdlib=libc++",
+    "MACOSX_DEPLOYMENT_TARGET=10.7"
+)
 
 Gyp.setArgs("--depth=./")
 Gyp.setExec("third-party/gyp/gyp")
@@ -86,8 +92,8 @@ Deps.set("gyp", "c-ares", "openssl")
 Variables.set("depsRepo", DEPEDENCY_REPO)
 
 # Temporary fix to make deps.py & Konstructor works 
-Gyp.set("native_output", "../build/")
-Gyp.set("native_output_third_party", "../build/third-party/")
+Gyp.set("native_output", "<(DEPTH)/build/")
+Gyp.set("native_output_third_party", "<(DEPTH)/build/third-party/")
 
 if __name__ == '__main__':
     Build.add(Gyp("gyp/network.gyp"));
