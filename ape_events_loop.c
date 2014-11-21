@@ -128,7 +128,8 @@ void events_loop(ape_global *ape)
             case APE_FILE:
                 break;
             case APE_DELEGATE:
-                ((struct _ape_fd_delegate *)attach)->on_io(fd, bitev, ape); /* punning */
+                ((struct _ape_fd_delegate *)attach)->on_io(fd, bitev,
+                    ((struct _ape_fd_delegate *)attach)->data, ape); /* punning */
                 break;
             }
         }

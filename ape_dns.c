@@ -54,7 +54,7 @@ static __inline int setnonblocking(int fd)
 #define setnonblocking(fd) fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NONBLOCK)
 #endif
 
-static void ares_io(int fd, int ev, ape_global *ape)
+static void ares_io(int fd, int ev, void *data, ape_global *ape)
 {
     ares_process_fd(ape->dns.channel,
         (ev & EVENT_READ ? fd : ARES_SOCKET_BAD),
@@ -83,6 +83,7 @@ static void ares_socket_cb(void *data, int s, int read, int write)
     ape->dns.sockets.list[f].s.fd   = s;
     ape->dns.sockets.list[f].s.type = APE_DELEGATE;
     ape->dns.sockets.list[f].on_io  = ares_io;
+    ape->dns.sockets.list[f].data   = NULL;
 
     events_add(s, &ape->dns.sockets.list[f], EVENT_READ|EVENT_WRITE|EVENT_LEVEL, ape);
 }

@@ -43,7 +43,8 @@
 
 #define _APE_FD_DELEGATE_TPL  \
     ape_fds s; \
-    void (*on_io)(int fd, int ev, ape_global *ape);
+    void (*on_io)(int fd, int ev, void *data, ape_global *ape); \
+    void *data;
 
 typedef enum {
     EVENT_UNKNOWN,
