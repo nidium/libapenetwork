@@ -107,6 +107,10 @@ struct _fdevent {
     fdevent_handler_t handler;  /* Type of handler (enum) */
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int events_init(ape_global *ape);
 int events_add(int fd, void *attach, int bitadd, ape_global *ape);
 int events_del(int fd, ape_global *ape);
@@ -119,7 +123,15 @@ int event_kqueue_init(struct _fdevent *ev);
 int event_epoll_init(struct _fdevent *ev);
 int event_select_init(struct _fdevent *ev);
 int events_revent(struct _fdevent *ev, int i);
+
+#ifdef __cplusplus
+}
 #endif
+
+
+#endif
+
+
 
 // vim: ts=4 sts=4 sw=4 et
 
