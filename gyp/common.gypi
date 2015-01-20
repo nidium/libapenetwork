@@ -36,6 +36,7 @@
             'Release': {
                 'defines': ['NDEBUG'],
                 'cflags': [
+                    '-g',
                     '-O2',
                     '-Wall',
                 ],
