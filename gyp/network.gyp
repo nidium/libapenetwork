@@ -54,7 +54,7 @@
             ['OS=="mac"', {
 				'xcode_settings': {
 					'OTHER_CFLAGS': [
-                        '-fvisibility=hidden'
+                        #'-fvisibility=hidden'
 					],
 				},
 			}],

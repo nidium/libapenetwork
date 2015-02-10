@@ -20,7 +20,6 @@
 //#include "common.h"
 #include "ape_array.h"
 #include <string.h>
-#include <stdio.h>
 
 #ifdef _MSC_VER
 #define strncasecmp _strnicmp
@@ -135,8 +134,7 @@ static ape_array_item_t *ape_array_add_s(ape_array_t *array, buffer *key)
     slot = (ape_array_item_t *)array->current;
 
     if (slot == NULL || slot->pool.flags & APE_ARRAY_USED_SLOT) {
-        slot = (ape_array_item_t *)ape_grow_pool(array,
-                sizeof(ape_array_item_t), 4);
+        slot = (ape_array_item_t *)ape_grow_pool(array, 4);
     }
 
     slot->pool.flags |= APE_ARRAY_USED_SLOT;

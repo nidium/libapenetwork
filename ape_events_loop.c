@@ -34,7 +34,7 @@ extern int ape_running;
 void events_loop(ape_global *ape)
 {
     int nfd, fd, bitev;
-    
+
     void *attach;
     int nexttimeout = 1;
     //uint64_t start_monotonic = mach_absolute_time(), end_monotonic;

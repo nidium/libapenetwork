@@ -861,7 +861,7 @@ static int ape_socket_queue_data(ape_socket *socket,
 
     /* Always have spare slots */
     if (packets->pool.next == NULL) {
-        ape_grow_pool(list, sizeof(ape_socket_packet_t), 8);
+        ape_grow_pool(list, 8);
     }
 
     list->current = packets->pool.next;
@@ -1115,7 +1115,7 @@ static ape_socket_jobs_t *ape_socket_job_get_slot(ape_socket *socket, int type)
     }
 
     jobs = (ape_socket_jobs_t *)(jobs == (ape_socket_jobs_t *)socket->jobs.queue ?
-        ape_grow_pool(&socket->jobs, sizeof(ape_socket_jobs_t), 2) :
+        ape_grow_pool(&socket->jobs, 2) :
         jobs->next);
 
     socket->jobs.current = (ape_pool_t *)jobs;
