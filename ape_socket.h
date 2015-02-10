@@ -96,7 +96,7 @@ enum ape_socket_flags {
 enum ape_socket_proto {
     APE_SOCKET_PT_TCP,
     APE_SOCKET_PT_UDP,
-	APE_SOCKET_PT_SSL
+    APE_SOCKET_PT_SSL
 };
 
 enum ape_socket_type {
@@ -115,11 +115,11 @@ enum ape_socket_state {
 
 
 typedef enum _ape_socket_data_autorelease {
-	APE_DATA_STATIC,
-	APE_DATA_GLOBAL_STATIC,
-	APE_DATA_AUTORELEASE,
-	APE_DATA_OWN,
-	APE_DATA_COPY
+    APE_DATA_STATIC,
+    APE_DATA_GLOBAL_STATIC,
+    APE_DATA_AUTORELEASE,
+    APE_DATA_OWN,
+    APE_DATA_COPY
 } ape_socket_data_autorelease;
 
 typedef struct _ape_socket ape_socket;
@@ -153,23 +153,23 @@ typedef struct _ape_socket_jobs_t {
     } ptr; /* public */
     struct _ape_pool *next;
     uint32_t flags;
-	off_t offset;
+    off_t offset;
 } ape_socket_jobs_t;
 
 
 struct _ape_socket {
     ape_fds s;
-	
     buffer data_in;
-	
+    
     ape_pool_list_t jobs;
+
+    struct sockaddr_in sockaddr;
+    ape_socket_callbacks callbacks;
 
     void *ctx;  /* public pointer */
     void *_ctx; /* internal public pointer */
     ape_global *ape;
     ape_socket *parent; /* server socket in case of client */
-
-    ape_socket_callbacks    callbacks;
 
     struct _ape_dns_cb_argv *dns_state;
 
@@ -179,11 +179,12 @@ struct _ape_socket {
         uint8_t type;
         uint8_t state;
     } states;
-#ifdef _HAVE_SSL_SUPPORT  	
-	struct {
-		uint8_t issecure;
-		struct _ape_ssl *ssl;
-	} SSL;
+
+#ifdef _HAVE_SSL_SUPPORT
+    struct {
+        struct _ape_ssl *ssl;
+        uint8_t issecure;
+    } SSL;
 #endif
     uint16_t    remote_port;
     uint16_t    local_port;
@@ -198,7 +199,7 @@ struct _ape_socket_packet {
     ape_pool_t pool;
     size_t len;
     size_t offset;
-	ape_socket_data_autorelease data_type;
+    ape_socket_data_autorelease data_type;
 } typedef ape_socket_packet_t;
 
 #ifdef __cplusplus
@@ -212,10 +213,12 @@ int APE_socket_listen(ape_socket *socket, uint16_t port,
 int APE_socket_connect(ape_socket *socket, uint16_t port,
         const char *remote_ip_host, uint16_t localport);
 int APE_socket_write(ape_socket *socket, void *data,
-	size_t len, ape_socket_data_autorelease data_type);
+    size_t len, ape_socket_data_autorelease data_type);
 void APE_socket_shutdown(ape_socket *socket);
 void APE_socket_shutdown_now(ape_socket *socket);
 int APE_sendfile(ape_socket *socket, const char *file);
+char *APE_socket_ipv4(ape_socket *socket);
+int APE_socket_is_online(ape_socket *socket);
 
 int ape_socket_destroy(ape_socket *socket);
 int ape_socket_do_jobs(ape_socket *socket);

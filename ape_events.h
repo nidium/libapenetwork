@@ -1,6 +1,6 @@
 /*
     APE Network Library
-    Copyright (C) 2010-2013 Anthony Catel <paraboul@gmail.com>
+    Copyright (C) 2010-2014 Anthony Catel <paraboul@gmail.com>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -43,7 +43,8 @@
 
 #define _APE_FD_DELEGATE_TPL  \
     ape_fds s; \
-    void (*on_io)(int fd, int ev, ape_global *ape);
+    void (*on_io)(int fd, int ev, void *data, ape_global *ape); \
+    void *data;
 
 typedef enum {
     EVENT_UNKNOWN,
@@ -79,16 +80,13 @@ typedef struct {
 #endif
 
 struct _fdevent {
-    /* Common values */
-    int *basemem;
-
     /* Interface */
     int (*add)      (struct _fdevent *, int, int, void *);
     int (*del)      (struct _fdevent *, int);
     int (*poll)     (struct _fdevent *, int);
     int (*revent)   (struct _fdevent *, int);
     int (*reload)   (struct _fdevent *);
-    void (*growup)  (struct _fdevent *);
+    void (*setsize)  (struct _fdevent *, int size);
     void *(*get_current_fd) (struct _fdevent *, int);
 
     /* Specifics values */
@@ -102,22 +100,38 @@ struct _fdevent {
 #endif
 #ifdef USE_SELECT_HANDLER
 	select_fd_t fds[FD_SETSIZE];
-	select_fd_t **events; /* Pointers into fds */
+	select_fd_t **events;       /* Pointers into fds */
 #endif
-    fdevent_handler_t handler;
+    int basemem;                /* Number of elements in events */
+    int nfd;                    /* Number of managed file descriptor */
+    fdevent_handler_t handler;  /* Type of handler (enum) */
 };
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 int events_init(ape_global *ape);
 int events_add(int fd, void *attach, int bitadd, ape_global *ape);
 int events_del(int fd, ape_global *ape);
 void *events_get_current_fd(struct _fdevent *ev, int i);
 int events_poll(struct _fdevent *ev, int timeout_ms);
+void events_shrink(struct _fdevent *ev);
+void events_setsize(struct _fdevent *ev, int size);
 
 int event_kqueue_init(struct _fdevent *ev);
 int event_epoll_init(struct _fdevent *ev);
 int event_select_init(struct _fdevent *ev);
 int events_revent(struct _fdevent *ev, int i);
+
+#ifdef __cplusplus
+}
 #endif
+
+
+#endif
+
+
 
 // vim: ts=4 sts=4 sw=4 et
 

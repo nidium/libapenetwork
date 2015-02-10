@@ -162,6 +162,8 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
     ret->remote_port = 0;
     ret->local_port  = 0;
 
+    memset(&ret->sockaddr, 0, sizeof(struct sockaddr_in));
+
     buffer_init(&ret->data_in);
 
     ape_init_job_list(&ret->jobs, 2);
@@ -266,7 +268,8 @@ static int ape_socket_connect_ready_to_connect(const char *remote_ip,
   #define EWOULDBLOCK WSAEWOULDBLOCK
   #define errno  WSAGetLastError()
 #endif
-
+    int ntry = 0;
+retry_connect:
     if (socket->local_port != 0) {
         struct sockaddr_in addr_loc;
         addr_loc.sin_family = AF_INET;
@@ -283,7 +286,18 @@ static int ape_socket_connect_ready_to_connect(const char *remote_ip,
     if (connect(socket->s.fd, (struct sockaddr *)&addr,
                 sizeof(struct sockaddr)) == -1 &&
                 (errno != EWOULDBLOCK && errno != EINPROGRESS)) {
-        printf("[Socket] connect() error(%d) on %d : %s\n", errno, socket->s.fd, strerror(errno));
+        printf("[Socket] connect() error(%d) on %d : %s (retry : %d)\n", errno, socket->s.fd, strerror(errno), ntry);
+
+        switch (errno) {
+            case EADDRNOTAVAIL:
+                ntry++;
+                if (ntry < 10) {
+                    goto retry_connect;
+                }
+            default:
+                break;
+        }
+
         ape_socket_destroy(socket);
         return -1;
     }
@@ -306,6 +320,9 @@ static int ape_socket_connect_ready_to_connect(const char *remote_ip,
 int APE_socket_connect(ape_socket *socket, uint16_t port,
         const char *remote_ip_host, uint16_t localport)
 {
+    if (!socket) {
+        return -1;
+    }
     if (port == 0) {
         ape_socket_destroy(socket);
         return -1;
@@ -329,6 +346,9 @@ int APE_socket_connect(ape_socket *socket, uint16_t port,
 */
 void APE_socket_shutdown(ape_socket *socket)
 {
+    if (!socket) {
+        return;
+    }
     ape_global *ape = socket->ape;
     
     if (socket->states.state == APE_SOCKET_ST_SHUTDOWN) {
@@ -361,6 +381,9 @@ void APE_socket_shutdown(ape_socket *socket)
 */
 void APE_socket_shutdown_now(ape_socket *socket)
 {
+    if (!socket) {
+        return;
+    }
     ape_global *ape = socket->ape;
     if (socket->states.state == APE_SOCKET_ST_SHUTDOWN) {
         return;
@@ -395,7 +418,8 @@ static int ape_socket_close(ape_socket *socket)
 #else
     close(APE_SOCKET_FD(socket));
 #endif
-
+    events_del(APE_SOCKET_FD(socket), ape);
+    
     return 1;
 }
 
@@ -509,7 +533,7 @@ int APE_sendfile(ape_socket *socket, const char *file)
 
 int APE_socket_writev(ape_socket *socket, const struct iovec *iov, int iovcnt)
 {
-    if (socket->states.state != APE_SOCKET_ST_ONLINE ||
+    if (!socket || socket->states.state != APE_SOCKET_ST_ONLINE ||
             iovcnt == 0) {
         return -1;        
     }
@@ -534,7 +558,7 @@ int APE_socket_write(ape_socket *socket, void *data,
     ssize_t t_bytes = 0, r_bytes = len, n = 0;
     int io_error = 0, rerrno = 0;
 
-    if (socket->states.state != APE_SOCKET_ST_ONLINE ||
+    if (!socket || socket->states.state != APE_SOCKET_ST_ONLINE ||
             len == 0) {
 
         ape_socket_release_data(data,
@@ -619,6 +643,26 @@ int APE_socket_write(ape_socket *socket, void *data,
     }
     
     return 0;
+}
+
+char *APE_socket_ipv4(ape_socket *socket)
+{
+    if (!socket) {
+        return NULL;
+    }
+
+    char *ip = inet_ntoa(socket->sockaddr.sin_addr);
+
+    return ip;
+}
+
+int APE_socket_is_online(ape_socket *socket)
+{
+    if (!socket) {
+        return 0;
+    }
+
+    return (socket->states.state == APE_SOCKET_ST_ONLINE);
 }
 
 int ape_socket_do_jobs(ape_socket *socket)
@@ -817,7 +861,7 @@ static int ape_socket_queue_data(ape_socket *socket,
 
     /* Always have spare slots */
     if (packets->pool.next == NULL) {
-        ape_grow_pool(list, sizeof(ape_socket_packet_t), 8);
+        ape_grow_pool(list, 8);
     }
 
     list->current = packets->pool.next;
@@ -868,6 +912,8 @@ int ape_socket_accept(ape_socket *socket)
         }
 
         client = APE_socket_new(socket->states.proto, fd, socket->ape);
+
+        memcpy(&client->sockaddr, &their_addr, sizeof(struct sockaddr_in));
 
         /* clients inherits server callbacks */
         client->callbacks    = socket->callbacks;
@@ -1044,7 +1090,7 @@ socket_reread:
 
         socket->data_in.used = 0;
     }
-    if (nread == 0) {
+    if (nread == 0 && socket->states.state != APE_SOCKET_ST_SHUTDOWN) {
         ape_socket_destroy(socket);
 
         return -1;
@@ -1069,7 +1115,7 @@ static ape_socket_jobs_t *ape_socket_job_get_slot(ape_socket *socket, int type)
     }
 
     jobs = (ape_socket_jobs_t *)(jobs == (ape_socket_jobs_t *)socket->jobs.queue ?
-        ape_grow_pool(&socket->jobs, sizeof(ape_socket_jobs_t), 2) :
+        ape_grow_pool(&socket->jobs, 2) :
         jobs->next);
 
     socket->jobs.current = (ape_pool_t *)jobs;

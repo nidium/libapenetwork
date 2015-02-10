@@ -51,6 +51,8 @@ void buffer_append_string_n(buffer *b, const char *string, size_t length);
 buffer *buffer_to_buffer_utf8(buffer *b);
 buffer *buffer_utf8_to_buffer(buffer *b);
 
+void buffer_camelify(buffer *b);
+
 #ifdef __cplusplus
 }
 #endif

@@ -119,10 +119,6 @@ void hashtbl_append64(ape_htable_t *htbl, uint64_t key, void *structaddr)
     hTmp->lnext = htbl->first;
     hTmp->lprev = NULL;
 
-    if (htbl->first != NULL) {
-        htbl->first->lprev = hTmp;
-    }
-
     hTmp->key.integer = key;
 
     hTmp->content.addrs = (void *)structaddr;
@@ -143,6 +139,10 @@ void hashtbl_append64(ape_htable_t *htbl, uint64_t key, void *structaddr)
             }
         }
         hTmp->next = htbl->table[key_hash];
+    }
+
+    if (htbl->first != NULL) {
+        htbl->first->lprev = hTmp;
     }
 
     htbl->first = hTmp;
@@ -230,10 +230,6 @@ void hashtbl_append_val32(ape_htable_t *htbl, const char *key,
     hTmp->lnext = htbl->first;
     hTmp->lprev = NULL;
 
-    if (htbl->first != NULL) {
-        htbl->first->lprev = hTmp;
-    }
-
     hTmp->key.str = malloc(sizeof(char) * (key_len+1));
 
     hTmp->content.scalar = val;
@@ -254,6 +250,10 @@ void hashtbl_append_val32(ape_htable_t *htbl, const char *key,
             }
         }
         hTmp->next = htbl->table[key_hash];
+    }
+
+    if (htbl->first != NULL) {
+        htbl->first->lprev = hTmp;
     }
 
     htbl->first = hTmp;
@@ -279,10 +279,6 @@ void hashtbl_append(ape_htable_t *htbl, const char *key,
     hTmp->lnext = htbl->first;
     hTmp->lprev = NULL;
 
-    if (htbl->first != NULL) {
-        htbl->first->lprev = hTmp;
-    }
-
     hTmp->key.str = malloc(sizeof(char) * (key_len+1));
 
     hTmp->content.addrs = (void *)structaddr;
@@ -306,6 +302,10 @@ void hashtbl_append(ape_htable_t *htbl, const char *key,
             }
         }
         hTmp->next = htbl->table[key_hash];
+    }
+    
+    if (htbl->first != NULL) {
+        htbl->first->lprev = hTmp;
     }
 
     htbl->first = hTmp;

@@ -33,8 +33,6 @@
   #error "No suitable IO handler found"
 #endif
 
-#define APE_BASEMEM 4096
-
 #ifndef APE_TIMER_RESOLUTION
   #define APE_TIMER_RESOLUTION 8 /* ms */
 #endif
@@ -58,7 +56,6 @@ typedef struct _ape_global ape_global;
 #include "ape_hash.h"
 
 struct _ape_global {
-    int basemem;
     void *ctx; /* public */
 #ifdef _HAVE_SSL_SUPPORT
     ape_ssl_t *ssl_global_ctx;

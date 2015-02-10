@@ -24,6 +24,11 @@
 ape_pool_t *ape_new_pool(size_t size, size_t n)
 {
     unsigned int i;
+    
+    if (size == 0) {
+        size = sizeof(ape_pool_t);
+    }
+
     ape_pool_t *pool = malloc(size * n), *current = NULL;
 
     for (i = 0; i < n; i++) {
@@ -48,11 +53,16 @@ ape_pool_list_t *ape_new_pool_list(size_t size, size_t n)
 
 void ape_init_pool_list(ape_pool_list_t *list, size_t size, size_t n)
 {
+    if (size == 0) {
+        size = sizeof(ape_pool_t);
+    }
+
     ape_pool_t *pool = ape_new_pool(size, n);
 
     list->head  = pool;
     list->current   = pool;
     list->queue     = ((void *)&pool[0])+((n-1)*size);
+    list->size = size;
 }
 
 ape_pool_t *ape_pool_head_to_queue(ape_pool_list_t *list)
@@ -88,24 +98,24 @@ ape_pool_t *ape_pool_head_to_current(ape_pool_list_t *list)
 
 }
 
-ape_pool_t *ape_grow_pool(ape_pool_list_t *list, size_t size, size_t n)
+ape_pool_t *ape_grow_pool(ape_pool_list_t *list, size_t n)
 {
     ape_pool_t *pool;
 
-    pool = ape_new_pool(size, n);
+    pool = ape_new_pool(list->size, n);
     list->queue->next = pool;
-    list->queue = (ape_pool_t *)(((char *)&pool[0])+((n-1)*size));
+    list->queue = (ape_pool_t *)(((char *)&pool[0])+((n-1)*list->size));
 
     return pool;
 }
 
-void ape_destroy_pool_ordered(ape_pool_t *pool, ape_pool_clean_callback cleaner)
+void ape_destroy_pool_ordered(ape_pool_t *pool, ape_pool_clean_callback cleaner, void *ctx)
 {
     ape_pool_t *tPool = NULL;
 
     while (pool != NULL) {
         if (cleaner != NULL) {
-            cleaner(pool);
+            cleaner(pool, ctx);
         }
         if (pool->flags & APE_POOL_ALLOC) {
             if (tPool != NULL) {
@@ -161,10 +171,24 @@ void ape_destroy_pool_list(ape_pool_list_t *list)
 }
 
 void ape_destroy_pool_list_ordered(ape_pool_list_t *list,
-            ape_pool_clean_callback cleaner)
+            ape_pool_clean_callback cleaner, void *ctx)
 {
-    ape_destroy_pool_ordered(list->head, cleaner);
+    ape_destroy_pool_ordered(list->head, cleaner, ctx);
     free(list);
+}
+
+void ape_pool_push(ape_pool_list_t *list, void *data)
+{
+    if (!list) {
+        return;
+    }
+
+    if (list->current->next == NULL) {
+        ape_grow_pool(list, 8);
+    }
+
+    list->current->ptr.data = data;
+    list->current = list->current->next;
 }
 
 // vim: ts=4 sts=4 sw=4 et

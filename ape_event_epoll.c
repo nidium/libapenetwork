@@ -76,7 +76,7 @@ static int event_epoll_del(struct _fdevent *ev, int fd)
 static int event_epoll_poll(struct _fdevent *ev, int timeout_ms)
 {
     int nfds;
-    if ((nfds = epoll_wait(ev->epoll_fd, ev->events, *ev->basemem,
+    if ((nfds = epoll_wait(ev->epoll_fd, ev->events, ev->basemem,
                     timeout_ms)) == -1) {
         return -1;
     }
@@ -90,10 +90,10 @@ static void *event_epoll_get_fd(struct _fdevent *ev, int i)
     return ev->events[i].data.ptr;
 }
 
-static void event_epoll_growup(struct _fdevent *ev)
+static void event_epoll_setsize(struct _fdevent *ev, int size)
 {
     ev->events = realloc(ev->events,
-            sizeof(struct epoll_event) * (*ev->basemem));
+            sizeof(struct epoll_event) * (size));
 }
 
 static int event_epoll_revent(struct _fdevent *ev, int i)
@@ -131,17 +131,17 @@ int event_epoll_init(struct _fdevent *ev)
         return 0;
     }
 
-    ev->events = malloc(sizeof(struct epoll_event) * (*ev->basemem));
+    ev->events = malloc(sizeof(struct epoll_event) * (ev->basemem));
 
     ev->add     = event_epoll_add;
     ev->del     = event_epoll_del;
     ev->poll    = event_epoll_poll;
     ev->get_current_fd = event_epoll_get_fd;
-    ev->growup  = event_epoll_growup;
+    ev->setsize  = event_epoll_setsize;
     ev->revent  = event_epoll_revent;
     ev->reload  = event_epoll_reload;
 
-    printf("epoll() started with %i slots\n", *ev->basemem);
+    printf("epoll() started with %i slots\n", ev->basemem);
 
     return 1;
 }

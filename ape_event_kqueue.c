@@ -1,6 +1,6 @@
 /*
     APE Network Library
-    Copyright (C) 2010-2013 Anthony Catel <paraboul@gmail.com>
+    Copyright (C) 2010-2014 Anthony Catel <paraboul@gmail.com>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -80,7 +80,7 @@ static int event_kqueue_poll(struct _fdevent *ev, int timeout_ms)
 	ts.tv_sec = timeout_ms / 1000;
 	ts.tv_nsec = (timeout_ms % 1000) * 1000000;
 
-	if ((nfds = kevent(ev->kq_fd, NULL, 0, ev->events, *ev->basemem * 2, &ts)) == -1) {
+	if ((nfds = kevent(ev->kq_fd, NULL, 0, ev->events, ev->basemem * 2, &ts)) == -1) {
 		return -1;
 	}
 
@@ -95,9 +95,9 @@ static void *event_kqueue_get_fd(struct _fdevent *ev, int i)
 	return ev->events[i].udata;
 }
 
-static void event_kqueue_growup(struct _fdevent *ev)
+static void event_kqueue_setsize(struct _fdevent *ev, int size)
 {
-	//ev->events = realloc(ev->events, sizeof(struct epoll_event) * (*ev->basemem));
+	ev->events = realloc(ev->events, sizeof(struct kevent) * (size * 2));
 }
 
 static int event_kqueue_revent(struct _fdevent *ev, int i)
@@ -135,15 +135,17 @@ int event_kqueue_init(struct _fdevent *ev)
 		return 0;
 	}
 
-	ev->events = malloc(sizeof(struct kevent) * (*ev->basemem * 2));
-	memset(ev->events, 0, sizeof(struct kevent) * (*ev->basemem * 2));
+	ev->events = malloc(sizeof(struct kevent) * (ev->basemem * 2));
+	memset(ev->events, 0, sizeof(struct kevent) * (ev->basemem * 2));
 	
-	ev->add = event_kqueue_add;
-	ev->poll = event_kqueue_poll;
-	ev->get_current_fd = event_kqueue_get_fd;
-	ev->growup = event_kqueue_growup;
-	ev->revent = event_kqueue_revent;
-	ev->reload = event_kqueue_reload;
+	ev->add 			= event_kqueue_add;
+	ev->poll 			= event_kqueue_poll;
+	ev->get_current_fd 	= event_kqueue_get_fd;
+	ev->setsize 		= event_kqueue_setsize;
+	ev->revent 			= event_kqueue_revent;
+	ev->reload 			= event_kqueue_reload;
+
+	printf("kqueue() started with %i slots\n", ev->basemem);
 	
 	return 1;
 }

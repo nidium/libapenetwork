@@ -194,7 +194,7 @@ int event_select_reload(struct _fdevent *ev)
 int event_select_init(struct _fdevent *ev)
 {
 
-	ev->events = malloc(sizeof(*ev->events) * (*ev->basemem));
+	ev->events = malloc(sizeof(*ev->events) * (ev->basemem));
 	memset(ev->fds, 0, sizeof(ev->fds));
 
 	ev->add               = event_select_add;

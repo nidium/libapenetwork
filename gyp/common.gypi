@@ -24,6 +24,9 @@
                     'SDKROOT': [
                         'macosx10.9'
                     ],
+                    'OTHER_CPLUSPLUSFLAGS': [ 
+		        '-stdlib=libc++',
+                    ],
                     'OTHER_CFLAGS': [ 
                         '-g',
                         '-O0'
@@ -33,6 +36,7 @@
             'Release': {
                 'defines': ['NDEBUG'],
                 'cflags': [
+                    '-g',
                     '-O2',
                     '-Wall',
                     '-fexception',
@@ -45,7 +49,7 @@
                 'xcode_settings': {
                     "OTHER_LDFLAGS": [
                         '-L<(native_output_third_party)',
-                        '-F<(native_output_third_party)'
+                        '-F<(native_output_third_party)',
                     ],
                     'ARCHS': [
                         'x86_64',
@@ -67,7 +71,6 @@
                         '-g',
                         '-O2',
                         '-Wall',
-                        '-stdlib=libc++',
                         '-Wno-invalid-offsetof'
                     ]
                 },

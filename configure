@@ -15,7 +15,13 @@ Gyp = Builder.Gyp
 
 DEPEDENCY_REPO = "http://deps.nidium.com"
 
-#Platform.setEnviron("CC=clang", "CXX=clang++")
+Platform.setEnviron(
+    "CC=clang",
+    "CXX=clang++", 
+    #"CXXFLAGS=-stdlib=libc++",
+    #"LDFLAGS=-stdlib=libc++",
+    "MACOSX_DEPLOYMENT_TARGET=10.7"
+)
 
 Gyp.setArgs("--depth=./")
 Gyp.setExec("third-party/gyp/gyp")
@@ -58,12 +64,12 @@ def gperftools():
     return {
         "location": "https://googledrive.com/host/0B6NtGsLhIcf7MWxMMF9JdTN3UVk/gperftools-2.2.1.zip",
         "build": ["autoconf", "./configure", "make"],
-        "outputs": [[".libs/libprofiler.so", "libprofiler.so.0"], {"src": "src/pprof", "dest": "../../tools/pprof"}]
+        "outputs": [[".libs/libprofiler.so.0$", "libprofiler.so"], {"src": "src/pprof", "dest": "../../tools/pprof"}]
     }
 
 #####
 
-@CommandLine.option("--profiler", default=False)
+@CommandLine.option("--cpu-profiling", default=False)
 def profiler(profiler):
     if profiler:
         Gyp.set("profiler", 1)
@@ -82,6 +88,7 @@ def debug(debug):
 def gypConfig(thirdPartyPath):
     if thirdPartyPath:
         Deps.setDir(thirdPartyPath)
+        Variables.set("thirdPartyPath", thirdPartyPath)
         Gyp.set("third_party", thirdPartyPath)
         Gyp.setExec(os.path.join(thirdPartyPath, "gyp", "gyp"))
 
@@ -144,8 +151,13 @@ def preBuild():
         "LD=%s/bin/ld.mcld" % toolchainPath, 
         "CFLAGS=--target=" + Var.get("targetTriplet")
     )
-#####
 
+@CommandLine.option("--asan", default=False)
+def asan(asan):
+    if asan:
+        Gyp.set("asan", 1)
+
+####
 
 Deps.set("gyp", "c-ares", "openssl")
 Var.set("depsRepo", DEPEDENCY_REPO)

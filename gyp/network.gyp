@@ -1,42 +1,21 @@
 {
     'targets': [{
-        'target_name': 'nativenetwork',
-        'type': 'static_library',
-        'includes': [
-            'common.gypi',
-            'config.gypi'
-        ],
-        'include_dirs': [
-            '<(third_party_path)/c-ares/',
-            '<(third_party_path)/openssl/include/',
-            '../',
-        ],
-        'defines': [
-            '_HAVE_SSL_SUPPORT'
-        ],
-        'conditions': [
-            ['OS=="mac"', {
-				'xcode_settings': {
-					'OTHER_CFLAGS': [
-                        '-fvisibility=hidden'
-					],
-				},
-			}],
-            ['OS=="linux"', {
-                'cflags': [
-                    '-fvisibility=hidden',
-                ],
-            }],
-            ['target_os=="android"', {
-                'defines': ['ANDROID'],
-            }],
-        ],
+        'target_name': 'nativenetwork-includes',
+        'type': 'none',
         'direct_dependent_settings': {
             'include_dirs': [
                 '../',
                 '<(third_party_path)/c-ares/',
                 '<(third_party_path)/openssl/include/',
             ],
+            'defines': [
+                '_HAVE_SSL_SUPPORT'
+            ]
+        },
+    }, {
+        'target_name': 'nativenetwork-link',
+        'type': 'none',
+        'direct_dependent_settings': {
             'conditions': [
                 ['OS=="linux"', {
                     "link_settings": {
@@ -55,10 +34,39 @@
                     }
                 }]
             ],
-            'defines': [
-                '_HAVE_SSL_SUPPORT'
-            ]
         },
+    }, {
+        'target_name': 'nativenetwork',
+        'type': 'static_library',
+        'includes': [
+            'common.gypi',
+            'config.gypi'
+        ],
+        'include_dirs': [
+            '<(third_party_path)/c-ares/',
+            '<(third_party_path)/openssl/include/',
+            '../',
+        ],
+        'defines': [
+            '_HAVE_SSL_SUPPORT'
+        ],
+        'conditions': [
+            ['OS=="mac"', {
+				'xcode_settings': {
+					'OTHER_CFLAGS': [
+                        #'-fvisibility=hidden'
+					],
+				},
+			}],
+            ['OS=="linux"', {
+                'cflags': [
+                    '-fvisibility=hidden',
+                ],
+            }],
+            ['target_os=="android"', {
+                'defines': ['ANDROID'],
+            }],
+        ],
         'sources': [
             '../native_netlib.c',
             '../ape_pool.c',

@@ -34,13 +34,15 @@ extern int ape_running;
 void events_loop(ape_global *ape)
 {
     int nfd, fd, bitev;
-    
+
     void *attach;
     int nexttimeout = 1;
     //uint64_t start_monotonic = mach_absolute_time(), end_monotonic;
 
     while(ape->is_running && ape_running) {
         int i;
+
+        events_shrink(&ape->events);
         //printf("Next timeout in %d\n", nexttimeout);
         if ((nfd = events_poll(&ape->events, nexttimeout)) == -1) {
             continue;
@@ -126,7 +128,8 @@ void events_loop(ape_global *ape)
             case APE_FILE:
                 break;
             case APE_DELEGATE:
-                ((struct _ape_fd_delegate *)attach)->on_io(fd, bitev, ape); /* punning */
+                ((struct _ape_fd_delegate *)attach)->on_io(fd, bitev,
+                    ((struct _ape_fd_delegate *)attach)->data, ape); /* punning */
                 break;
             }
         }
