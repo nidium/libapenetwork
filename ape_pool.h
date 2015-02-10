@@ -43,7 +43,7 @@ typedef struct _ape_pool_list {
     size_t size;
 } ape_pool_list_t;
 
-typedef void (*ape_pool_clean_callback)(ape_pool_t *);
+typedef void (*ape_pool_clean_callback)(ape_pool_t *, void *ctx);
 
 #ifdef __cplusplus
 extern "C" {
@@ -59,14 +59,17 @@ void ape_pool_push(ape_pool_list_t *list, void *data);
 void ape_init_pool_list(ape_pool_list_t *list, size_t size, size_t n);
 void ape_destroy_pool(ape_pool_t *pool);
 void ape_destroy_pool_ordered(ape_pool_t *pool,
-    ape_pool_clean_callback cleaner);
+    ape_pool_clean_callback cleaner, void *ctx);
 void ape_destroy_pool_list(ape_pool_list_t *list);
 void ape_destroy_pool_list_ordered(ape_pool_list_t *list,
-    ape_pool_clean_callback cleaner);
+    ape_pool_clean_callback cleaner, void *ctx);
 #ifdef __cplusplus
 }
 #endif
 
+#define APE_P_FOREACH(_list, _val) \
+        ape_pool_t *__pool_item; \
+        for (__pool_item = _list->head; __pool_item != NULL && (_val = __pool_item->ptr.data) != NULL; __pool_item = __pool_item->next)
 
 #endif
 

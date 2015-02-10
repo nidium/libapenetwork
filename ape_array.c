@@ -25,7 +25,7 @@
 #define strncasecmp _strnicmp
 #endif
 
-static void ape_array_clean_cb(ape_pool_t *item);
+static void ape_array_clean_cb(ape_pool_t *item, void *ctx);
 
 ape_array_t *ape_array_new(size_t n)
 {
@@ -230,10 +230,10 @@ void ape_array_destroy(ape_array_t *array)
     if (!array) {
         return;
     }
-    ape_destroy_pool_list_ordered((ape_pool_list_t *)array, ape_array_clean_cb);
+    ape_destroy_pool_list_ordered((ape_pool_list_t *)array, ape_array_clean_cb, NULL);
 }
 
-static void ape_array_clean_cb(ape_pool_t *item)
+static void ape_array_clean_cb(ape_pool_t *item, void *ctx)
 {
     ape_array_item_t *array = (ape_array_item_t *)item;
 
