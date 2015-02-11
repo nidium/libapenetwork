@@ -55,6 +55,7 @@ ape_pool_t *ape_grow_pool(ape_pool_list_t *list, size_t n);
 ape_pool_t *ape_pool_head_to_queue(ape_pool_list_t *list);
 ape_pool_t *ape_pool_head_to_current(ape_pool_list_t *list);
 void ape_pool_push(ape_pool_list_t *list, void *data);
+void ape_pool_rewind(ape_pool_list_t *list);
 
 void ape_init_pool_list(ape_pool_list_t *list, size_t size, size_t n);
 void ape_destroy_pool(ape_pool_t *pool);
