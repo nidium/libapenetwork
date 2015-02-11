@@ -32,6 +32,7 @@ typedef struct _ape_pool {
         buffer *buf;
     } ptr; /* public */
     struct _ape_pool *next;
+    struct _ape_pool *prev;
     uint32_t flags;
 } ape_pool_t;
 
@@ -69,8 +70,14 @@ void ape_destroy_pool_list_ordered(ape_pool_list_t *list,
 #endif
 
 #define APE_P_FOREACH(_list, _val) \
-        ape_pool_t *__pool_item; \
+        ape_pool_t *__pool_item = NULL; \
         for (__pool_item = _list->head; __pool_item != NULL && (_val = __pool_item->ptr.data) != NULL; __pool_item = __pool_item->next)
+
+#define APE_P_FOREACH_REVERSE(_list, _val) \
+        ape_pool_t *__pool_item = NULL; \
+        _val = NULL; \
+        if (_list->current) \
+            for (__pool_item = _list->current->prev; __pool_item != NULL && (_val = __pool_item->ptr.data) != NULL; __pool_item = __pool_item->prev)
 
 #endif
 
