@@ -111,18 +111,24 @@ def android(android):
         Konstruct.setConfigs(["android"])
 
         hostArch = "x86" if Platform.wordSize == 32 else "x64"
-        toolchainPath = "toolchain/android"
+        toolchainPath = "build/toolchain/android/"
+        androidNdkPath = "/home/efyx/dev/android/android-ndk-r10d/"
 
-        #Utils.mkdir("toolchain/android/")
-        #Utils.run("./build/tools/make-standalone-toolchain.sh --platform=android-19 --install-dir=/mnt/stockage/dev/wtf/ --arch=arm --llvm-version=3.4")
+        if not os.path.isdir(toolchainPath):
+            Utils.mkdir(toolchainPath)
+            Utils.run("%s/build/tools/make-standalone-toolchain.sh \
+                    --platform=android-19 --install-dir=%s --arch=arm \
+                    --llvm-version=3.4" % (androidNdkPath, toolchainPath))
 
-        toolchainPath = "/mnt/stockage/dev/wtf/"
         Var.set("toolchainPath", toolchainPath);
-        Var.set("targetTriplet", "arm-linux-androideabi")
+
+        # FIXME : Should be command line argument
         Var.set("androidPlatform", "android-14")
+        Var.set("targetTriplet", "arm-linux-androideabi")
+
         Platform.setEnviron(
-            "ANDROID_NDK_ROOT=/mnt/stockage/dev/android/android-ndk-r10b/", 
-            "ANDROID_SDK_ROOT=/mnt/stockage/dev/android/android-sdk-linux_x86/",
+            "ANDROID_NDK_ROOT=%s" % (androidNdkPath), 
+            "ANDROID_SDK_ROOT=/home/efyx/dev/android/android-sdk-linux_x86/",
             "AR=%s/bin/arm-linux-androideabi-ar" % toolchainPath, 
             "CC=%s/bin/arm-linux-androideabi-gcc" % toolchainPath, 
             "CXX=%s/bin/arm-linux-androideabi-g++" % toolchainPath, 
