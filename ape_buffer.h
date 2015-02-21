@@ -23,6 +23,17 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <stdint.h>
+#include <zlib.h>
+
+typedef struct {
+    z_stream zstream;
+    int crc32;
+
+    unsigned char *buf;
+    size_t buf_size;
+    size_t pending_size;
+    int flush:1;
+} zbuffer;
 
 typedef struct {
     unsigned char *data;
@@ -31,7 +42,14 @@ typedef struct {
     size_t used;
     
     uint32_t pos;
+
+    zbuffer *zbuf;
 } buffer;
+/*
+    static u_char  gzheader[10] =
+                               { 0x1f, 0x8b, Z_DEFLATED, 0, 0, 0, 0, 0, 0, 3 };
+*/
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,6 +57,9 @@ extern "C" {
 
 void buffer_init(buffer *b);
 buffer *buffer_new(size_t size);
+void buffer_set_gzip(buffer *b);
+unsigned char *buffer_data(buffer *b, int *len);
+
 void buffer_delete(buffer *b);
 void buffer_destroy(buffer *b);
 void buffer_prepare(buffer *b, size_t size);
