@@ -20,6 +20,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "ape_base64.h"
+
 static uint8_t map2[] =
 {
      0x3e, 0xff, 0xff, 0xff, 0x3f, 0x34, 0x35, 0x36,
@@ -57,7 +59,16 @@ int base64_decode(unsigned char* out, const char *in, int out_length)
 
 void base64_encode_b(unsigned char * src, char *dst, int len)
 {
+    base64_encode_b_safe(src, dst, len, 0);
+}
+
+void base64_encode_b_safe(unsigned char * src, char *dst, int len, int safe)
+{
     static const char b64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    static const char b64_safe[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+
+    const char *b = safe ? b64_safe : b64;
+
     unsigned i_bits = 0;
     int i_shift = 0;
     int bytes_remaining = len;
@@ -70,12 +81,15 @@ void base64_encode_b(unsigned char * src, char *dst, int len)
             i_shift += 8;
             
             do {
-                *dst++ = b64[(i_bits << 6 >> i_shift) & 0x3f];
+                *dst++ = b[(i_bits << 6 >> i_shift) & 0x3f];
                 i_shift -= 6;
             } while (i_shift > 6 || (bytes_remaining == 0 && i_shift > 0));
-    }
-    while ((dst - ret) & 3)
-        *dst++ = '=';
+        }
+        if (!safe) {
+            while ((dst - ret) & 3)
+                *dst++ = '=';
+        }
+
     }
     *dst = '\0';
 }
@@ -91,3 +105,13 @@ char *base64_encode(unsigned char * src, int len)
     return dst;
 }
 
+char *base64_encode_safe(unsigned char * src, int len)
+{
+    char *dst;
+
+    dst = malloc(len * 4 / 3 + 12);
+    
+    base64_encode_b_safe(src, dst, len, 1);
+    
+    return dst;
+}
