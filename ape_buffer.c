@@ -23,13 +23,68 @@
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
+#include "common.h"
+
+#define ZBUF_BUFSIZE 1024
+
+struct gztrailer {
+    uint32_t  crc32;
+    uint32_t  zlen;
+};
 
 void buffer_init(buffer *b)
 {
-    b->data = NULL;
-    b->size = 0;
-    b->used = 0;
-    b->pos  = 0;
+    memset(b, 0, sizeof(buffer));
+}
+
+static void *zbuffer_allocate(void *opaque, uint items, uint size)
+{
+    printf("Allocate memory from zlib %d\n", items * size);
+    return malloc(items * size);
+}
+
+static void zbuffer_adjust_outbuf(buffer *b)
+{
+    b->zbuf->zstream.avail_out = b->size - b->used;
+    b->zbuf->zstream.next_out = b->data + b->used;
+}
+
+static void zbuffer_prepapre_buf(buffer *b, size_t input_size)
+{
+    if (!b->zbuf) {
+        return;
+    }
+
+    /* No pending data, don't need a buffer */
+    if (!b->zbuf->zstream.avail_in) {
+        return;
+    }
+
+    ssize_t remaining = b->zbuf->buf_size - b->zbuf->zstream.avail_in;
+
+    if (remaining >= (ssize_t)input_size) {
+        return;
+    }
+
+    size_t bufsize = ape_max(ZBUF_BUFSIZE, b->zbuf->buf_size);
+
+    while (bufsize - b->zbuf->zstream.avail_in < input_size) {
+        bufsize <<= 1;
+    }
+
+    printf("zbuf prepared for size %ld\n", bufsize);
+
+    b->zbuf->buf_size = bufsize;
+
+    if (b->zbuf->buf) {
+        b->zbuf->buf = realloc(b->zbuf->buf, bufsize);
+        printf("Realloc input buffer for size %ld\n", bufsize);
+    } else {
+        b->zbuf->buf = malloc(bufsize);
+        printf("Alloc input buffer for size %ld\n", bufsize);
+    }
+
+    b->zbuf->zstream.avail_out = bufsize - b->zbuf->zstream.avail_in;
 }
 
 buffer *buffer_new(size_t size)
@@ -47,7 +102,86 @@ buffer *buffer_new(size_t size)
         b->size = 0;
     }
 
+    b->zbuf = NULL;
     return b;
+}
+
+void buffer_set_gzip(buffer *b)
+{
+    if (b->zbuf) {
+        return;
+    }
+
+    /* Reset buffer */
+    b->used = 0;
+
+    b->zbuf = malloc(sizeof(zbuffer));
+    memset(b->zbuf, 0, sizeof(zbuffer));
+
+    zbuffer *zbuf = b->zbuf;
+
+    zbuf->zstream.zalloc = zbuffer_allocate;
+    zbuf->zstream.next_in = NULL;
+
+    int rc = deflateInit2(&zbuf->zstream, Z_DEFAULT_COMPRESSION,
+        Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY);
+
+    if (rc != Z_OK) {
+        printf("Failed to init zlib\n");
+        return;
+    }
+
+    zbuf->zstream.avail_in  = 0;
+
+    zbuffer_adjust_outbuf(b);
+
+    zbuf->crc32 = crc32(0, Z_NULL, 0);
+}
+
+static void buffer_gzip_reset(buffer *b)
+{
+    deflateReset(&b->zbuf->zstream);
+    if (b->zbuf->buf) {
+        free(b->zbuf->buf);
+        b->zbuf->buf = NULL;
+        b->zbuf->buf_size = 0;
+    }
+    b->zbuf->crc32 = 0;
+}
+
+unsigned char *buffer_data(buffer *b, int *len)
+{
+    if (!b->zbuf) {
+        *len = b->used;
+        return b->data;
+    }
+
+    int ret = Z_OK;
+    *len = 0;
+
+    if (b->zbuf->zstream.next_out == NULL) {
+        return NULL;
+    }
+
+    while (ret == Z_OK || ret == Z_BUF_ERROR) {
+        ret = deflate(&b->zbuf->zstream, Z_FINISH);
+        if (ret == Z_STREAM_END) {
+            b->used = b->zbuf->zstream.total_out;
+            *len = b->used;
+            buffer_gzip_reset(b);
+
+            return b->data;
+        } else if (ret == Z_BUF_ERROR) {
+            b->used = b->zbuf->zstream.total_out;
+            buffer_prepare(b, ZBUF_BUFSIZE);
+        } else if (ret == Z_STREAM_ERROR) {
+            printf("Gzip stream error\n");
+
+            return NULL;
+        }
+    }
+
+    return NULL;
 }
 
 void buffer_delete(buffer *b)
@@ -55,14 +189,19 @@ void buffer_delete(buffer *b)
     if (b->data != NULL) {
         free(b->data);
     }
+
+    if (b->zbuf) {
+        if (b->zbuf->buf) {
+            free(b->zbuf->buf);
+        }
+        deflateEnd(&b->zbuf->zstream);
+    }
 }
 
 void buffer_destroy(buffer *b)
 {
     if (b != NULL) {
-        if (b->data != NULL) {
-            free(b->data);
-        }
+        buffer_delete(b);
         free(b);
     }
 }
@@ -80,6 +219,10 @@ void buffer_prepare(buffer *b, size_t size)
         b->size += size;
         b->data = realloc(b->data, sizeof(char) * b->size);
     }
+
+    if (b->zbuf) {
+        zbuffer_adjust_outbuf(b);
+    }
 }
 
 static void buffer_prepare_for(buffer *b, size_t size, size_t forsize)
@@ -94,15 +237,69 @@ static void buffer_prepare_for(buffer *b, size_t size, size_t forsize)
         }
         b->size += size;
         b->data = realloc(b->data, sizeof(char) * b->size);
-    }    
+    }
+
+    if (b->zbuf) {
+        zbuffer_adjust_outbuf(b);
+    }
 }
 
 void buffer_append_data(buffer *b, const unsigned char *data, size_t size)
 {
-    buffer_prepare(b, size+1);
-    memcpy(b->data + b->used, data, size);
-    b->data[b->used+size] = '\0';
-    b->used += size;
+    if (!size) {
+        return;
+    }
+
+    if (b->zbuf) {
+        buffer_prepare(b, deflateBound(&b->zbuf->zstream, b->zbuf->zstream.avail_in+size));
+
+        zbuffer_prepapre_buf(b, size);
+        int flush = b->zbuf->flush ? Z_FINISH : Z_NO_FLUSH;
+
+        if (b->zbuf->zstream.next_in) {
+            /* Pending data already in the in buffer */
+            memcpy(b->zbuf->buf + b->zbuf->zstream.avail_in, data, size);
+        } else {
+            /* Nothing awaiting, read directly from the data */
+            b->zbuf->zstream.next_in = (unsigned char *)data;
+        }
+
+        int consumed = b->zbuf->zstream.avail_in + size;
+        int outsize = b->zbuf->zstream.avail_out;
+
+        b->zbuf->zstream.avail_in += size;
+        b->zbuf->crc32 = crc32(b->zbuf->crc32, data, size);
+
+        int ret = deflate(&b->zbuf->zstream, flush);
+
+        b->used += outsize - b->zbuf->zstream.avail_out;
+
+        consumed -= b->zbuf->zstream.avail_in;
+
+        if (b->zbuf->zstream.avail_in == 0) {
+            /* All input processed */
+            b->zbuf->zstream.next_in = NULL;
+        }
+
+        if (ret == Z_OK && b->zbuf->zstream.avail_in) {
+            zbuffer_prepapre_buf(b, b->zbuf->zstream.avail_in);
+            memmove(b->zbuf->buf, b->zbuf->zstream.next_in, size - consumed);
+            b->zbuf->zstream.next_in = b->zbuf->buf;
+
+        } else if (ret == Z_STREAM_ERROR || ret == Z_BUF_ERROR) {
+            printf("Got an error.%d\n", ret);
+        } else {
+            if (ret == Z_STREAM_END) {
+                deflateReset(&b->zbuf->zstream);
+            }
+        }
+
+    } else {
+        buffer_prepare(b, size+1);
+        memcpy(b->data + b->used, data, size);
+        b->data[b->used+size] = '\0';
+        b->used += size;
+    }
 }
 
 void buffer_append_data_tolower(buffer *b, const unsigned char *data, size_t size)
@@ -120,7 +317,7 @@ void buffer_append_data_tolower(buffer *b, const unsigned char *data, size_t siz
 
 void buffer_append_char(buffer *b, const unsigned char data)
 {
-    buffer_prepare_for(b, 2048, 1);
+    buffer_prepare_for(b, 1024, 1);
     b->data[b->used] = data;
     b->used++;
 }

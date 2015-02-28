@@ -30,6 +30,7 @@ ape_pool_t *ape_new_pool(size_t size, size_t n)
     }
 
     ape_pool_t *pool = malloc(size * n), *current = NULL;
+    pool->prev = NULL;
 
     for (i = 0; i < n; i++) {
         current            = ((void *)&pool[0])+(i*size);
@@ -37,6 +38,9 @@ ape_pool_t *ape_new_pool(size_t size, size_t n)
         current->next      = (i == n-1 ? NULL : ((void *)&pool[0])+((i+1)*size));
         current->ptr.data  = NULL;
         current->flags     = (i == 0 ? APE_POOL_ALLOC : 0);
+        if (current->next) {
+            current->next->prev = current;
+        }
     }
 
     return pool;
@@ -104,6 +108,8 @@ ape_pool_t *ape_grow_pool(ape_pool_list_t *list, size_t n)
 
     pool = ape_new_pool(list->size, n);
     list->queue->next = pool;
+    pool->prev = list->queue;
+
     list->queue = (ape_pool_t *)(((char *)&pool[0])+((n-1)*list->size));
 
     return pool;
@@ -189,6 +195,11 @@ void ape_pool_push(ape_pool_list_t *list, void *data)
 
     list->current->ptr.data = data;
     list->current = list->current->next;
+}
+
+void ape_pool_rewind(ape_pool_list_t *list)
+{
+    list->current = list->head;
 }
 
 // vim: ts=4 sts=4 sw=4 et
