@@ -20,8 +20,10 @@
                 ['OS=="linux"', {
                     "link_settings": {
                         'libraries': [
+                            '-lcares',
                             '-lssl',
-                            '-lcrypto'
+                            '-lcrypto',
+                            '-lm',
                         ]
                     }
                 }],
@@ -51,6 +53,9 @@
             '_HAVE_SSL_SUPPORT'
         ],
         'conditions': [
+            ['target_os=="android"', {
+                'defines': ['__ANDROID__', 'ANDROID'],
+            }],
             ['OS=="mac"', {
 				'xcode_settings': {
 					'OTHER_CFLAGS': [
@@ -62,9 +67,6 @@
                 'cflags': [
                     '-fvisibility=hidden',
                 ],
-            }],
-            ['target_os=="android"', {
-                'defines': ['ANDROID'],
             }],
         ],
         'sources': [

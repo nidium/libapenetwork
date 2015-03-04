@@ -39,12 +39,13 @@
                     '-g',
                     '-O2',
                     '-Wall',
-                    '-fexception',
-                    '-frtti'
+                    '-fexceptions',
+                    '-fno-rtti',
+                    '-Wno-uninitialized',
                 ],
                 'ldflags': [
                     '-L<(native_output_third_party)',
-                    '-L/mnt/stockage/dev/android/android-ndk-r10b/sources/cxx-stl/llvm-libc++/libs/armeabi/thumb/',
+#'-Wl,--no-undefined'
                 ],
                 'xcode_settings': {
                     "OTHER_LDFLAGS": [

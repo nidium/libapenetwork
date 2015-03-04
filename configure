@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import os 
+import sys
 
 from konstructor import Deps
 from konstructor import CommandLine
@@ -49,7 +50,7 @@ def cares():
 def openssl():
     configure = "./config"
     if Konstruct.config("android"):
-        configure = "MACHINE=armv7 SYSTEM=android CROSS_COMPILE= ARCH=arm ANDROID_DEV=" + Var.get("toolchainPath") +"/sysroot/ HOSTCC=" + Platform.getEnviron("CC") + " " + configure
+        configure = "MACHINE=armv5 SYSTEM=android CROSS_COMPILE= ARCH=arm ANDROID_DEV=" + Var.get("toolchainPath") +"/sysroot/ HOSTCC=" + Platform.getEnviron("CC") + " " + configure
     elif  Platform.system == "Darwin":
         configure = "./Configure darwin64-x86_64-cc -no-shared"
 
@@ -88,7 +89,7 @@ def debug(debug):
 def gypConfig(thirdPartyPath):
     if thirdPartyPath:
         Deps.setDir(thirdPartyPath)
-        Variables.set("thirdPartyPath", thirdPartyPath)
+        Var.set("thirdPartyPath", thirdPartyPath)
         Gyp.set("third_party", thirdPartyPath)
         Gyp.setExec(os.path.join(thirdPartyPath, "gyp", "gyp"))
 
@@ -99,44 +100,56 @@ def targetCpu(cpu):
 
 @CommandLine.option("--target-os", default="")
 def targetCpu(cpu):
-    Gyp.set("target_os", cpu)
-    Var.set("target_os", cpu);
+    #Gyp.set("target_os", cpu)
+    #Var.set("target_os", cpu);
+    pass
 
 @CommandLine.option("--android", default=False)
 def android(android):
     if android:
         Gyp.set("target_cpu", Var.get("target_cpu", "arm"));
         Gyp.set("target_os", "android");
+        Gyp.setOutputFormat("ninja-android")
+
+        Gyp.setArgs("--depth ./ --include=gyp/config.gypi --include=gyp/common.gypi")
 
         Konstruct.setConfigs(["android"])
 
         hostArch = "x86" if Platform.wordSize == 32 else "x64"
-        toolchainPath = "build/toolchain/android/"
+        toolchainPath = os.getcwd() + "/build/toolchain/android/"
         androidNdkPath = "/home/efyx/dev/android/android-ndk-r10d/"
+        Gyp.set("android_ndk_path", androidNdkPath)
 
         if not os.path.isdir(toolchainPath):
             Utils.mkdir(toolchainPath)
             Utils.run("%s/build/tools/make-standalone-toolchain.sh \
-                    --platform=android-19 --install-dir=%s --arch=arm \
-                    --llvm-version=3.4" % (androidNdkPath, toolchainPath))
+                    --platform=android-14 --install-dir=%s --arch=arm \
+                    --stl=stlport --llvm-version=3.4" % (androidNdkPath, toolchainPath))
 
         Var.set("toolchainPath", toolchainPath);
 
         # FIXME : Should be command line argument
         Var.set("androidPlatform", "android-14")
+        Var.set("androidNdkPath", androidNdkPath)
         Var.set("targetTriplet", "arm-linux-androideabi")
+        Var.set("targetArch", "arm")
+        Var.set("targetCpu", "arm")
 
-        Platform.setEnviron(
-            "ANDROID_NDK_ROOT=%s" % (androidNdkPath), 
-            "ANDROID_SDK_ROOT=/home/efyx/dev/android/android-sdk-linux_x86/",
-            "AR=%s/bin/arm-linux-androideabi-ar" % toolchainPath, 
-            "CC=%s/bin/arm-linux-androideabi-gcc" % toolchainPath, 
-            "CXX=%s/bin/arm-linux-androideabi-g++" % toolchainPath, 
-            "RANLIB=%s/bin/arm-linux-androideabi-ranlib" % toolchainPath,
-            "LD=%s/bin/ld.mcld" % toolchainPath, 
-            "CFLAGS=--target=" + Var.get("targetTriplet")
-        )
+        setAndroidEnviron()
 
+def setAndroidEnviron():
+    print("toto")
+    androidNdkPath = Var.get("androidNdkPath")
+    toolchainPath = Var.get("toolchainPath")
+    Platform.setEnviron(
+        "ANDROID_NDK_ROOT=%s" % (androidNdkPath), 
+        "ANDROID_SDK_ROOT=/home/efyx/dev/android/android-sdk-linux/",
+        "AR=%s/bin/arm-linux-androideabi-ar" % toolchainPath, 
+        "CC=%s/bin/arm-linux-androideabi-gcc" % toolchainPath, 
+        "CXX=%s/bin/arm-linux-androideabi-g++" % toolchainPath, 
+        "RANLIB=%s/bin/arm-linux-androideabi-ranlib" % toolchainPath,
+        "LD=%s/bin/ld.mcld" % toolchainPath
+    )
 
 @Konstruct.preBuild
 def preBuild():
@@ -152,7 +165,7 @@ def preBuild():
     toolchainPath = Var.get("toolchainPath");
     Platform.setEnviron( 
         "CC=%s/bin/arm-linux-androideabi-clang" % toolchainPath, 
-        "CXX=%s/bin/arm-linux-androideabi-clang++ --sysroot=/mnt/stockage/dev/wtf/sysroot/" % toolchainPath, 
+        "CXX=%s/bin/arm-linux-androideabi-clang++ --sysroot=%s/sysroot/" % (toolchainPath, toolchainPath),
         "RANLIB=%s/bin/arm-linux-androideabi-ranlib" % toolchainPath,
         "LD=%s/bin/ld.mcld" % toolchainPath, 
         "CFLAGS=--target=" + Var.get("targetTriplet")
@@ -163,6 +176,11 @@ def asan(asan):
     if asan:
         Gyp.set("asan", 1)
 
+@CommandLine.option("-I", default="")
+def include(f):
+    if f:
+        Gyp.include(f)
+
 ####
 
 Deps.set("gyp", "c-ares", "openssl")
@@ -170,7 +188,7 @@ Var.set("depsRepo", DEPEDENCY_REPO)
 
 # Temporary fix to make deps.py & Konstructor works 
 Gyp.set("native_output", "../build/")
-Gyp.set("native_output_third_party", "../build/third-party/")
+Gyp.set("native_output_third_party", "../../build/third-party/")
 
 if __name__ == '__main__':
     Build.add(Gyp("gyp/network.gyp"));
