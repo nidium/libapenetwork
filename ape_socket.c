@@ -39,6 +39,7 @@
 
 #ifdef _MSC_VER
   #include <ares.h>
+  #include "port\windows.h"
 #else
   #include "ares.h"
 #endif
@@ -131,7 +132,7 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
         (sock = socket(AF_INET /* TODO AF_INET6 */, proto, 0)) == -1) ||
         setnonblocking(sock) == -1) {
 
-        printf("[Socket] Cant create socket(%d) : %s\n", errno, strerror(errno));
+		printf("[Socket] Cant create socket(%d) : %s\n", SOCKERRNO, strerror(SOCKERRNO));
         return NULL;
     }
 
@@ -213,12 +214,9 @@ int APE_socket_listen(ape_socket *socket, uint16_t port,
                 ((socket->states.proto == APE_SOCKET_PT_TCP ||
                     socket->states.proto == APE_SOCKET_PT_SSL) &&
                 listen(socket->s.fd, APE_SOCKET_BACKLOG) == -1)) {
-#ifdef __WIN32
-        closesocket(socket->s.fd);
-#else
-        close(socket->s.fd);
-#endif
-        printf("[Socket] bind(%s:%u) error : %s\n", local_ip, port, strerror(errno));
+
+		sclose(socket->s.fd);
+		printf("[Socket] bind(%s:%u) error : %s\n", local_ip, port, strerror(SOCKERRNO));
         return -1;
     }
     if (defer_accept) {
@@ -259,15 +257,7 @@ static int ape_socket_connect_ready_to_connect(const char *remote_ip,
     addr.sin_port = htons(socket->remote_port);
     addr.sin_addr.s_addr = inet_addr(remote_ip);
     memset(&(addr.sin_zero), '\0', 8);
-#ifdef __WIN32
-  #undef EINPROGRESS
-  #undef EWOULDBLOCK
-  #undef errno
 
-  #define EINPROGRESS WSAEINPROGRESS
-  #define EWOULDBLOCK WSAEWOULDBLOCK
-  #define errno  WSAGetLastError()
-#endif
     int ntry = 0;
 retry_connect:
     if (socket->local_port != 0) {
@@ -278,17 +268,17 @@ retry_connect:
         memset(&(addr_loc.sin_zero), '\0', 8);
 
         if (bind(socket->s.fd, (struct sockaddr *)&addr_loc, sizeof(addr_loc)) == -1) {
-            printf("[Socket] bind() error(%d) on %d : %s\n", errno, socket->s.fd, strerror(errno));
+			printf("[Socket] bind() error(%d) on %d : %s\n", SOCKERRNO, socket->s.fd, SOCKERRNO);
             return -1;
         }
     }
 
     if (connect(socket->s.fd, (struct sockaddr *)&addr,
                 sizeof(struct sockaddr)) == -1 &&
-                (errno != EWOULDBLOCK && errno != EINPROGRESS)) {
-        printf("[Socket] connect() error(%d) on %d : %s (retry : %d)\n", errno, socket->s.fd, strerror(errno), ntry);
+				(SOCKERRNO != EWOULDBLOCK && SOCKERRNO != EINPROGRESS)) {
+		printf("[Socket] connect() error(%d) on %d : %s (retry : %d)\n", SOCKERRNO, socket->s.fd, strerror(SOCKERRNO), ntry);
 
-        switch (errno) {
+		switch (SOCKERRNO) {
             case EADDRNOTAVAIL:
                 ntry++;
                 if (ntry < 10) {
@@ -413,11 +403,8 @@ static int ape_socket_close(ape_socket *socket)
     if (socket->callbacks.on_disconnect != NULL) {
         socket->callbacks.on_disconnect(socket, ape, socket->callbacks.arg);
     }
-#ifdef __WIN32
-    closesocket(APE_SOCKET_FD(socket));
-#else
-    close(APE_SOCKET_FD(socket));
-#endif
+	sclose(APE_SOCKET_FD(socket));
+
     events_del(APE_SOCKET_FD(socket), ape);
     
     return 1;
@@ -611,17 +598,17 @@ int APE_socket_write(ape_socket *socket, void *data,
 #endif
         while (t_bytes < len) {
 #ifdef __WIN32
-            if ((n = send(socket->s.fd, data + t_bytes, r_bytes, 0)) < 0) {
+            if ((n = send(socket->s.fd, (char *)data + t_bytes, r_bytes, 0)) < 0) {
 #else
             if ((n = write(socket->s.fd, data + t_bytes, r_bytes)) < 0) {
 #endif
-                if (errno == EAGAIN && r_bytes != 0) {
+				if (SOCKERRNO == EAGAIN && r_bytes != 0) {
                     socket->states.flags |= APE_SOCKET_WOULD_BLOCK;
                     ape_socket_queue_data(socket, data, len, t_bytes, data_type);
                     return r_bytes;
                 } else {
                     io_error = 1;
-                    rerrno = errno;
+					rerrno = SOCKERRNO;
                     break;
                 }
             }
