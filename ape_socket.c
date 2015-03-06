@@ -23,7 +23,7 @@
 #include "ape_ssl.h"
 #include <stdint.h>
 #include <stdio.h>
-#ifndef __WIN32
+#ifndef _WIN32
   #include <sys/time.h>
   #include <unistd.h>
   #include <sys/uio.h>

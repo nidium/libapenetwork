@@ -1,4 +1,4 @@
-/*
+﻿/*
     APE Network Library
     Copyright (C) 2010-2014 Anthony Catel <paraboul@gmail.com>
 

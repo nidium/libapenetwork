@@ -17,7 +17,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifdef _MSC_VER
+#ifdef _WIN32
   #include <ares.h>
   #include <WinSock2.h>
   #include <io.h>
