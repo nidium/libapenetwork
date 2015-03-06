@@ -132,7 +132,7 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
         (sock = socket(AF_INET /* TODO AF_INET6 */, proto, 0)) == -1) ||
         setnonblocking(sock) == -1) {
 
-		printf("[Socket] Cant create socket(%d) : %s\n", SOCKERRNO, strerror(SOCKERRNO));
+        printf("[Socket] Cant create socket(%d) : %s\n", SOCKERRNO, strerror(SOCKERRNO));
         return NULL;
     }
 
@@ -215,8 +215,8 @@ int APE_socket_listen(ape_socket *socket, uint16_t port,
                     socket->states.proto == APE_SOCKET_PT_SSL) &&
                 listen(socket->s.fd, APE_SOCKET_BACKLOG) == -1)) {
 
-		sclose(socket->s.fd);
-		printf("[Socket] bind(%s:%u) error : %s\n", local_ip, port, strerror(SOCKERRNO));
+        sclose(socket->s.fd);
+        printf("[Socket] bind(%s:%u) error : %s\n", local_ip, port, strerror(SOCKERRNO));
         return -1;
     }
     if (defer_accept) {
@@ -268,17 +268,17 @@ retry_connect:
         memset(&(addr_loc.sin_zero), '\0', 8);
 
         if (bind(socket->s.fd, (struct sockaddr *)&addr_loc, sizeof(addr_loc)) == -1) {
-			printf("[Socket] bind() error(%d) on %d : %s\n", SOCKERRNO, socket->s.fd, SOCKERRNO);
+            printf("[Socket] bind() error(%d) on %d : %s\n", SOCKERRNO, socket->s.fd, SOCKERRNO);
             return -1;
         }
     }
 
     if (connect(socket->s.fd, (struct sockaddr *)&addr,
                 sizeof(struct sockaddr)) == -1 &&
-				(SOCKERRNO != EWOULDBLOCK && SOCKERRNO != EINPROGRESS)) {
-		printf("[Socket] connect() error(%d) on %d : %s (retry : %d)\n", SOCKERRNO, socket->s.fd, strerror(SOCKERRNO), ntry);
+                (SOCKERRNO != EWOULDBLOCK && SOCKERRNO != EINPROGRESS)) {
+        printf("[Socket] connect() error(%d) on %d : %s (retry : %d)\n", SOCKERRNO, socket->s.fd, strerror(SOCKERRNO), ntry);
 
-		switch (SOCKERRNO) {
+        switch (SOCKERRNO) {
             case EADDRNOTAVAIL:
                 ntry++;
                 if (ntry < 10) {
@@ -404,7 +404,7 @@ static int ape_socket_close(ape_socket *socket)
     if (socket->callbacks.on_disconnect != NULL) {
         socket->callbacks.on_disconnect(socket, ape, socket->callbacks.arg);
     }
-	sclose(APE_SOCKET_FD(socket));
+    sclose(APE_SOCKET_FD(socket));
 
     events_del(APE_SOCKET_FD(socket), ape);
     
@@ -603,13 +603,13 @@ int APE_socket_write(ape_socket *socket, void *data,
 #else
             if ((n = write(socket->s.fd, data + t_bytes, r_bytes)) < 0) {
 #endif
-				if (SOCKERRNO == EAGAIN && r_bytes != 0) {
+                if (SOCKERRNO == EAGAIN && r_bytes != 0) {
                     socket->states.flags |= APE_SOCKET_WOULD_BLOCK;
                     ape_socket_queue_data(socket, data, len, t_bytes, data_type);
                     return r_bytes;
                 } else {
                     io_error = 1;
-					rerrno = SOCKERRNO;
+                    rerrno = SOCKERRNO;
                     break;
                 }
             }
