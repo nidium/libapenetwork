@@ -374,6 +374,7 @@ void APE_socket_shutdown_now(ape_socket *socket)
     if (!socket) {
         return;
     }
+
     ape_global *ape = socket->ape;
     if (socket->states.state == APE_SOCKET_ST_SHUTDOWN) {
         return;
