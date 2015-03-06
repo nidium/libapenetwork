@@ -94,7 +94,6 @@
     <ClCompile Include="..\ape_sha1.c" />
     <ClCompile Include="..\ape_socket.c" />
     <ClCompile Include="..\ape_ssl.c" />
-    <ClCompile Include="..\ape_timers.c" />
     <ClCompile Include="..\ape_timers_next.c" />
     <ClCompile Include="..\ape_websocket.c" />
     <ClCompile Include="..\native_netlib.c" />

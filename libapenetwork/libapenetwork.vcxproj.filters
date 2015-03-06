@@ -63,9 +63,6 @@
     <ClCompile Include="..\ape_ssl.c">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="..\ape_timers.c">
-      <Filter>Fichiers sources</Filter>
-    </ClCompile>
     <ClCompile Include="..\ape_timers_next.c">
       <Filter>Fichiers sources</Filter>
     </ClCompile>

@@ -64,7 +64,7 @@ static void ares_io(int fd, int ev, void *data, ape_global *ape)
 static void ares_socket_cb(void *data, int s, int read, int write)
 {
     ape_global *ape = data;
-    int i, f = 0;
+    unsigned i, f = 0u;
 
     for (i = 0; i < ape->dns.sockets.size; i++) {
         if (!f && ape->dns.sockets.list[i].s.fd == 0) {

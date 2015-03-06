@@ -17,7 +17,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef __APE_PORT_WINDOWS_H && defined(_MSC_VER)
+#ifndef __APE_PORT_WINDOWS_H
+
 #define __APE_PORT_WINDOWS_H
 
 #if defined(_WIN64)
@@ -26,6 +27,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   #define ssize_t int
 #endif
 
+#define strncasecmp _strnicmp
+#define strcasecmp _stricmp
+
 typedef int socklen_t;
 
 #define sclose(x)  closesocket((x))
@@ -33,6 +37,7 @@ typedef int socklen_t;
 #define SOCKERRNO         ((int)WSAGetLastError())
 #define SET_SOCKERRNO(x)  (WSASetLastError((int)(x)))
 
+#define _INC_ERRNO
 
 #undef  EBADF            /* override definition in errno.h */
 #define EBADF            WSAEBADF

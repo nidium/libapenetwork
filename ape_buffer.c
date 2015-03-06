@@ -194,6 +194,10 @@ buffer *buffer_new(size_t size)
     } else {
         b->size = 0;
     }
+#if APE_USE_ZLIB
+    b->zbuf = NULL;
+#endif
+    return b;
 }
 
 unsigned char *buffer_data(buffer *b, int *len)
@@ -362,7 +366,7 @@ void buffer_append_data(buffer *b, const unsigned char *data, size_t size)
 void buffer_append_data_tolower(buffer *b, const unsigned char *data, size_t size)
 {
     buffer_prepare(b, size+1);
-    int i;
+    unsigned i;
 
     for (i = 0; i < size; i++) {
         b->data[b->used+i] = tolower(data[i]);

@@ -394,10 +394,12 @@ void APE_socket_shutdown_now(ape_socket *socket)
 
 static int ape_socket_close(ape_socket *socket)
 {
+    ape_global *ape;
+
     if (socket == NULL || socket->states.state == APE_SOCKET_ST_OFFLINE)
         return 0;
 
-    ape_global *ape = socket->ape;
+    ape = socket->ape;
     ape_dns_invalidate(socket->dns_state);
     socket->states.state = APE_SOCKET_ST_OFFLINE;
 
@@ -428,7 +430,6 @@ static int ape_socket_free(void *arg)
     return 0;
 }
 
-
 static int _ape_socket_destroy(void *arg)
 {
     ape_socket *socket = arg;
@@ -442,12 +443,16 @@ static int _ape_socket_destroy(void *arg)
 
 static int ape_socket_destroy_async(ape_socket *socket)
 {
+    ape_global *ape;
+
     if (socket == NULL || socket->states.state == APE_SOCKET_ST_OFFLINE)
         return -1;
 
-    ape_global *ape = socket->ape;
+    ape = socket->ape;
 
     timer_dispatch_async(_ape_socket_destroy, socket);
+
+    return 0;
 }
 
 int ape_socket_destroy(ape_socket *socket)
@@ -543,7 +548,8 @@ int APE_socket_write(ape_socket *socket, void *data,
 #ifdef __WIN32
   #define ssize_t int
 #endif
-    ssize_t t_bytes = 0, r_bytes = len, n = 0;
+    size_t t_bytes = 0, r_bytes = len;
+    ssize_t n = 0;
     int io_error = 0, rerrno = 0;
 
     if (!socket || socket->states.state != APE_SOCKET_ST_ONLINE ||
@@ -615,7 +621,7 @@ int APE_socket_write(ape_socket *socket, void *data,
             }
             
             t_bytes += n;
-            r_bytes -= n;
+            r_bytes -= ape_min(n, 0);
         }
 #ifdef _HAVE_SSL_SUPPORT
     }
@@ -682,7 +688,7 @@ int ape_socket_do_jobs(ape_socket *socket)
         switch(job->flags & ~(APE_POOL_ALL_FLAGS | APE_SOCKET_JOB_ACTIVE)) {
         case APE_SOCKET_JOB_WRITEV:
         {
-            int i;
+            unsigned i;
             ssize_t n;
             ape_pool_list_t *plist = (ape_pool_list_t *)job->ptr.data;
             ape_socket_packet_t *packet = (ape_socket_packet_t *)plist->head;
