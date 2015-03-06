@@ -73,6 +73,46 @@
   <ItemGroup>
     <Text Include="ReadMe.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\ape_array.c" />
+    <ClCompile Include="..\ape_base64.c" />
+    <ClCompile Include="..\ape_buffer.c" />
+    <ClCompile Include="..\ape_dns.c" />
+    <ClCompile Include="..\ape_events.c" />
+    <ClCompile Include="..\ape_events_loop.c" />
+    <ClCompile Include="..\ape_event_epoll.c" />
+    <ClCompile Include="..\ape_event_kqueue.c" />
+    <ClCompile Include="..\ape_event_select.c" />
+    <ClCompile Include="..\ape_hash.c" />
+    <ClCompile Include="..\ape_http_parser.c" />
+    <ClCompile Include="..\ape_pool.c" />
+    <ClCompile Include="..\ape_sha1.c" />
+    <ClCompile Include="..\ape_socket.c" />
+    <ClCompile Include="..\ape_ssl.c" />
+    <ClCompile Include="..\ape_timers.c" />
+    <ClCompile Include="..\ape_timers_next.c" />
+    <ClCompile Include="..\ape_websocket.c" />
+    <ClCompile Include="..\native_netlib.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\ape_array.h" />
+    <ClInclude Include="..\ape_base64.h" />
+    <ClInclude Include="..\ape_buffer.h" />
+    <ClInclude Include="..\ape_dns.h" />
+    <ClInclude Include="..\ape_events.h" />
+    <ClInclude Include="..\ape_events_loop.h" />
+    <ClInclude Include="..\ape_hash.h" />
+    <ClInclude Include="..\ape_http_parser.h" />
+    <ClInclude Include="..\ape_pool.h" />
+    <ClInclude Include="..\ape_sha1.h" />
+    <ClInclude Include="..\ape_socket.h" />
+    <ClInclude Include="..\ape_ssl.h" />
+    <ClInclude Include="..\ape_timers.h" />
+    <ClInclude Include="..\ape_timers_next.h" />
+    <ClInclude Include="..\ape_websocket.h" />
+    <ClInclude Include="..\common.h" />
+    <ClInclude Include="..\native_netlib.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
