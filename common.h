@@ -33,6 +33,10 @@
   #error "No suitable IO handler found"
 #endif
 
+#ifdef _WIN32
+#include "port/windows.h"
+#endif
+
 #ifndef APE_TIMER_RESOLUTION
   #define APE_TIMER_RESOLUTION 8 /* ms */
 #endif

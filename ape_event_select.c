@@ -200,9 +200,9 @@ int event_select_init(struct _fdevent *ev)
 	ev->add               = event_select_add;
 	ev->poll              = event_select_poll;
 	ev->get_current_fd    = event_select_get_fd;
-	ev->growup            = event_select_growup;
 	ev->revent            = event_select_revent;
 	ev->reload            = event_select_reload;
+    ev->setsize           = NULL;
 
     return 1;
 }
