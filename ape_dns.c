@@ -19,8 +19,8 @@
 
 #ifdef _WIN32
   #include <ares.h>
-  #include <WinSock2.h>
   #include <io.h>
+  #include <winsock2.h>
 #else
   #include "ares.h"
   #include <netdb.h>

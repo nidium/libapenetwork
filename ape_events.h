@@ -29,7 +29,7 @@
 #include <sys/epoll.h>
 #endif
 #ifdef USE_SELECT_HANDLER
-  #include <WinSock2.h>
+  #include <winsock2.h>
   #ifndef FD_SETSIZE
     #define FD_SETSIZE 1024
   #endif
