@@ -73,6 +73,9 @@ static unsigned int _nextpoweroftwo(unsigned int v)
 
 void events_shrink(struct _fdevent *ev)
 {
+#ifdef _WIN32
+    return;
+#endif
     int curmem = ev->basemem;
 
     if (curmem == APE_DEFAULT_EVENTS_SIZE) {

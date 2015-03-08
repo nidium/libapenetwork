@@ -109,21 +109,6 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
 
     ape_socket *ret = NULL;
     
-#ifdef __WIN32
-    WORD wVersionRequested;
-    WSADATA wsaData;
-    int err;
-
-    wVersionRequested = MAKEWORD( 2, 2 );
-
-    err = WSAStartup(wVersionRequested, &wsaData);
-    if (err != 0) {
-        printf("WSA failed\n");
-        return NULL;
-    }
-
-    /* TODO WSAClean et al */
-#endif
     _nco++;
     proto = (pt == APE_SOCKET_PT_UDP ? SOCK_DGRAM : SOCK_STREAM);
 
@@ -134,6 +119,8 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
 
         printf("[Socket] Cant create socket(%d) : %s\n", SOCKERRNO, strerror(SOCKERRNO));
         return NULL;
+    } else {
+        printf("New Ape socket with FD : %d\n", sock);
     }
 
     ret             = malloc(sizeof(*ret));

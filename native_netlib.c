@@ -27,16 +27,35 @@
 #include <time.h>
 #include <sys/types.h>
 
+
+#if _WIN32
+#include <WinSock2.h>
+#endif
+
+int ape_running = 1;
+
 ape_global *native_netlib_init()
 {
     ape_global *ape;
     struct _fdevent *fdev;
 
-    if ((ape = malloc(sizeof(*ape))) == NULL) return NULL;
-
 #ifndef __WIN32
     signal(SIGPIPE, SIG_IGN);
+#else
+    WORD wVersionRequested;
+    WSADATA wsaData;
+    int err;
+
+    wVersionRequested = MAKEWORD(2, 2);
+
+    err = WSAStartup(wVersionRequested, &wsaData);
+    if (err != 0) {
+        printf("WSA failed\n");
+        return NULL;
+    }
 #endif
+
+    if ((ape = malloc(sizeof(*ape))) == NULL) return NULL;
     fdev = &ape->events;
     fdev->handler = EVENT_UNKNOWN;
     #ifdef USE_EPOLL_HANDLER

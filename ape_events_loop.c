@@ -43,10 +43,10 @@ void events_loop(ape_global *ape)
         int i;
 
         events_shrink(&ape->events);
-        //printf("Next timeout in %d\n", nexttimeout);
         if ((nfd = events_poll(&ape->events, nexttimeout)) == -1) {
             continue;
         }
+
         for (i = 0; i < nfd; i++) {
 			if ((attach  = events_get_current_fd(&ape->events, i)) == NULL) {
 				continue;
@@ -134,7 +134,6 @@ void events_loop(ape_global *ape)
                 break;
             }
         }
-
         nexttimeout = process_timers(&ape->timersng);
     }
 }

@@ -22,6 +22,8 @@
 #ifndef __WIN32
 #include <sys/time.h>
 #include <unistd.h>
+#else
+#include "port\windows.h"
 #endif
 #include <time.h>
 #include <string.h>
@@ -54,7 +56,7 @@ static int event_select_add(struct _fdevent *ev, int fd, int bitadd,
 {
 	printf("Adding %d to list %d\n", fd, FD_SETSIZE);
 	if (fd < 0 || fd > FD_SETSIZE) {
-		printf("cant add event\n");
+		printf("cant add event %d\n", fd);
 		return -1;
 	}
   
@@ -99,12 +101,10 @@ static int event_select_poll(struct _fdevent *ev, int timeout_ms)
   for (fd=0, maxfd=0; fd < FD_SETSIZE; fd++)
   {
     if (ev->fds[fd].read) {
-      FD_SET(fd, &rfds);
-    
+        FD_SET((SOCKET)fd, &rfds);
     }
     if (ev->fds[fd].write & evsb_writeWatch) {
-      
-      FD_SET(fd, &wfds);
+        FD_SET((SOCKET)fd, &wfds);
     }
     if (ev->fds[fd].read || ev->fds[fd].write & evsb_writeWatch)
     {
@@ -119,9 +119,10 @@ static int event_select_poll(struct _fdevent *ev, int timeout_ms)
   switch(numfds)
   {
     case -1:
-      //fprintf(stderr, "Error calling select: %s\n", strerror(errno));
+        Sleep(1000);
+        fprintf(stderr, "Error calling select: %s, %d, %d, %d\n", strerror(SOCKERRNO), maxfd, numfds, SOCKERRNO); 
     case 0:
-      return numfds;
+        return numfds;
   }
  
   /* Mark pending data */
@@ -193,7 +194,7 @@ int event_select_reload(struct _fdevent *ev)
 
 int event_select_init(struct _fdevent *ev)
 {
-
+    ev->basemem = 2048;
 	ev->events = malloc(sizeof(*ev->events) * (ev->basemem));
 	memset(ev->fds, 0, sizeof(ev->fds));
 
