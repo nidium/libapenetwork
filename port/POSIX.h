@@ -20,11 +20,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __APE_PORT_POSIX_H
 #define __APE_PORT_POSIX_H
 
+#include <errno.h>
+
 #define sclose(x)  close((x))
 
 
 #define SOCKERRNO         (errno)
 #define SET_SOCKERRNO(x)  (errno = (x))
-
 
 #endif

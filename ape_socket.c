@@ -255,7 +255,7 @@ retry_connect:
         memset(&(addr_loc.sin_zero), '\0', 8);
 
         if (bind(socket->s.fd, (struct sockaddr *)&addr_loc, sizeof(addr_loc)) == -1) {
-            printf("[Socket] bind() error(%d) on %d : %s\n", SOCKERRNO, socket->s.fd, SOCKERRNO);
+            printf("[Socket] bind() error(%d) on %d : %s\n", SOCKERRNO, socket->s.fd, strerror(SOCKERRNO));
             return -1;
         }
     }

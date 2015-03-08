@@ -29,9 +29,11 @@
 #include <sys/epoll.h>
 #endif
 #ifdef USE_SELECT_HANDLER
-  #include <winsock2.h>
+  #ifndef _WIN32
+    #include <sys/select.h>
+  #endif
   #ifndef FD_SETSIZE
-    #define FD_SETSIZE 1024
+    #error "FD_SETSIZE NOT DEFINED"
   #endif
 #endif
 
@@ -93,12 +95,10 @@ struct _fdevent {
 #ifdef USE_KQUEUE_HANDLER
     struct kevent *events;
     int kq_fd;
-#endif
-#ifdef USE_EPOLL_HANDLER
+#elif defined USE_EPOLL_HANDLER
     struct epoll_event *events;
     int epoll_fd;
-#endif
-#ifdef USE_SELECT_HANDLER
+#elif defined USE_SELECT_HANDLER
 	select_fd_t fds[FD_SETSIZE];
 	select_fd_t **events;       /* Pointers into fds */
 #endif

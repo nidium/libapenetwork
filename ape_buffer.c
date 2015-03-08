@@ -126,51 +126,6 @@ static void buffer_gzip_reset(buffer *b)
     }
     b->zbuf->crc32 = 0;
 }
-void buffer_set_gzip(buffer *b)
-{
-    if (b->zbuf) {
-        return;
-    }
-
-    /* Reset buffer */
-    b->used = 0;
-
-    b->zbuf = malloc(sizeof(zbuffer));
-    memset(b->zbuf, 0, sizeof(zbuffer));
-
-    zbuffer *zbuf = b->zbuf;
-
-    zbuf->zstream.zalloc = zbuffer_allocate;
-    zbuf->zstream.next_in = NULL;
-
-    int rc = deflateInit2(&zbuf->zstream, Z_DEFAULT_COMPRESSION,
-        Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY);
-
-    if (rc != Z_OK) {
-        printf("Failed to init zlib\n");
-        return;
-    }
-
-    zbuf->zstream.avail_in = 0;
-
-    zbuffer_adjust_outbuf(b);
-
-    zbuf->crc32 = crc32(0, Z_NULL, 0);
-}
-
-static void buffer_gzip_reset(buffer *b)
-{
-    deflateReset(&b->zbuf->zstream);
-    if (b->zbuf->buf) {
-        free(b->zbuf->buf);
-        b->zbuf->buf = NULL;
-        b->zbuf->buf_size = 0;
-    }
-    b->zbuf->crc32 = 0;
-}
-b->zbuf = NULL;
-return b;
-}
 
 #endif
 
