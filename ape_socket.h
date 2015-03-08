@@ -24,10 +24,10 @@
 #include "ape_buffer.h"
 #include "ape_pool.h"
 
-#ifdef __WIN32
+#ifdef _WIN32
 
-#include <winsock2.h>
-#pragma comment(lib, "ws2_32.lib")
+//#include <winsock2.h>
+//#pragma comment(lib, "ws2_32.lib")
 
 #if 0
 #define ECONNRESET WSAECONNRESET

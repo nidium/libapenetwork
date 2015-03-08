@@ -29,12 +29,10 @@
 #include <sys/epoll.h>
 #endif
 #ifdef USE_SELECT_HANDLER
-    #ifdef _WIN32
-        #include <WinSock2.h>
-    #endif
-    #ifndef FD_SETSIZE
-        #define FD_SETSIZE 1024
-    #endif
+  #include <winsock2.h>
+  #ifndef FD_SETSIZE
+    #define FD_SETSIZE 1024
+  #endif
 #endif
 
 /* Generics flags */

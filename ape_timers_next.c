@@ -166,7 +166,7 @@ int process_timers(ape_timers *timers)
         lastsample = mach_absolute_time();
     }
 
-    //printf("Next timer in : %lld or %d\n", inums-lastsample,  ape_max(1, (int)((inums-lastsample+500000)/1000000)));
+    printf("Next timer in : %lld or %d\n", inums-lastsample,  ape_max(1, (int)((inums-lastsample+500000)/1000000)));
 
     return ape_max((timers->run_in_low_resolution ? 100 : 1), (int)((inums-lastsample+500000)/1000000));
 }
