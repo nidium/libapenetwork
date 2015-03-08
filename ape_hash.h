@@ -41,7 +41,7 @@ typedef struct _ape_htable
     ape_hash_type type;
     ape_hash_clean_callback cleaner;
 
-    int size;
+    unsigned size;
     
 } ape_htable_t;
 

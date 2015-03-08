@@ -27,15 +27,12 @@
 
 #define ZBUF_BUFSIZE 1024
 
+
+#if APE_USE_ZLIB
 struct gztrailer {
     uint32_t  crc32;
     uint32_t  zlen;
 };
-
-void buffer_init(buffer *b)
-{
-    memset(b, 0, sizeof(buffer));
-}
 
 static void *zbuffer_allocate(void *opaque, uint items, uint size)
 {
@@ -87,25 +84,6 @@ static void zbuffer_prepapre_buf(buffer *b, size_t input_size)
     b->zbuf->zstream.avail_out = bufsize - b->zbuf->zstream.avail_in;
 }
 
-buffer *buffer_new(size_t size)
-{
-    buffer *b;
-
-    b = malloc(sizeof(*b));
-    buffer_init(b);
-
-    /* TODO: removing a malloc by making b->data[] the last struct elem */
-
-    if ((b->size = size) > 0) {
-        b->data = malloc(sizeof(char) * size);
-    } else {
-        b->size = 0;
-    }
-
-    b->zbuf = NULL;
-    return b;
-}
-
 void buffer_set_gzip(buffer *b)
 {
     if (b->zbuf) {
@@ -131,7 +109,7 @@ void buffer_set_gzip(buffer *b)
         return;
     }
 
-    zbuf->zstream.avail_in  = 0;
+    zbuf->zstream.avail_in = 0;
 
     zbuffer_adjust_outbuf(b);
 
@@ -149,8 +127,37 @@ static void buffer_gzip_reset(buffer *b)
     b->zbuf->crc32 = 0;
 }
 
+#endif
+
+void buffer_init(buffer *b)
+{
+    memset(b, 0, sizeof(buffer));
+}
+
+
+buffer *buffer_new(size_t size)
+{
+    buffer *b;
+
+    b = malloc(sizeof(*b));
+    buffer_init(b);
+
+    /* TODO: removing a malloc by making b->data[] the last struct elem */
+
+    if ((b->size = size) > 0) {
+        b->data = malloc(sizeof(char) * size);
+    } else {
+        b->size = 0;
+    }
+#if APE_USE_ZLIB
+    b->zbuf = NULL;
+#endif
+    return b;
+}
+
 unsigned char *buffer_data(buffer *b, int *len)
 {
+#if APE_USE_ZLIB
     if (!b->zbuf) {
         *len = b->used;
         return b->data;
@@ -180,7 +187,10 @@ unsigned char *buffer_data(buffer *b, int *len)
             return NULL;
         }
     }
-
+#else
+    *len = b->used;
+    return b->data;
+#endif
     return NULL;
 }
 
@@ -189,13 +199,14 @@ void buffer_delete(buffer *b)
     if (b->data != NULL) {
         free(b->data);
     }
-
+#if APE_USE_ZLIB
     if (b->zbuf) {
         if (b->zbuf->buf) {
             free(b->zbuf->buf);
         }
         deflateEnd(&b->zbuf->zstream);
     }
+#endif
 }
 
 void buffer_destroy(buffer *b)
@@ -219,10 +230,11 @@ void buffer_prepare(buffer *b, size_t size)
         b->size += size;
         b->data = realloc(b->data, sizeof(char) * b->size);
     }
-
+#if APE_USE_ZLIB
     if (b->zbuf) {
         zbuffer_adjust_outbuf(b);
     }
+#endif
 }
 
 static void buffer_prepare_for(buffer *b, size_t size, size_t forsize)
@@ -238,10 +250,11 @@ static void buffer_prepare_for(buffer *b, size_t size, size_t forsize)
         b->size += size;
         b->data = realloc(b->data, sizeof(char) * b->size);
     }
-
+#if APE_USE_ZLIB
     if (b->zbuf) {
         zbuffer_adjust_outbuf(b);
     }
+#endif
 }
 
 void buffer_append_data(buffer *b, const unsigned char *data, size_t size)
@@ -249,7 +262,7 @@ void buffer_append_data(buffer *b, const unsigned char *data, size_t size)
     if (!size) {
         return;
     }
-
+#if APE_USE_ZLIB
     if (b->zbuf) {
         buffer_prepare(b, deflateBound(&b->zbuf->zstream, b->zbuf->zstream.avail_in+size));
 
@@ -295,17 +308,20 @@ void buffer_append_data(buffer *b, const unsigned char *data, size_t size)
         }
 
     } else {
+#endif
         buffer_prepare(b, size+1);
         memcpy(b->data + b->used, data, size);
         b->data[b->used+size] = '\0';
         b->used += size;
+#if APE_USE_ZLIB
     }
+#endif
 }
 
 void buffer_append_data_tolower(buffer *b, const unsigned char *data, size_t size)
 {
     buffer_prepare(b, size+1);
-    int i;
+    unsigned i;
 
     for (i = 0; i < size; i++) {
         b->data[b->used+i] = tolower(data[i]);

@@ -23,6 +23,10 @@
 #include "ape_pool.h"
 #include "ape_buffer.h"
 
+#ifdef _WIN32
+#include "port/windows.h"
+#endif
+
 typedef ape_pool_list_t ape_array_t;
 
 #define APE_ARRAY_USED_SLOT (1 << 1)

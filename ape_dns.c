@@ -17,10 +17,10 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifdef _MSC_VER
+#ifdef _WIN32
   #include <ares.h>
-  #include <WinSock2.h>
   #include <io.h>
+  #include <winsock2.h>
 #else
   #include "ares.h"
   #include <netdb.h>
@@ -64,7 +64,7 @@ static void ares_io(int fd, int ev, void *data, ape_global *ape)
 static void ares_socket_cb(void *data, int s, int read, int write)
 {
     ape_global *ape = data;
-    int i, f = 0;
+    unsigned i, f = 0u;
 
     for (i = 0; i < ape->dns.sockets.size; i++) {
         if (!f && ape->dns.sockets.list[i].s.fd == 0) {

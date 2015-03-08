@@ -19,7 +19,7 @@
 
 #include "common.h"
 #include "ape_events.h"
-#ifndef __WIN32
+#ifndef _WIN32
 #include <sys/time.h>
 #include <unistd.h>
 #endif

@@ -23,6 +23,9 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <stdint.h>
+
+#ifndef _WIN32
+#define APE_USE_ZLIB 1
 #include <zlib.h>
 
 typedef struct {
@@ -34,6 +37,7 @@ typedef struct {
     size_t pending_size;
     int flush:1;
 } zbuffer;
+#endif
 
 typedef struct {
     unsigned char *data;
@@ -42,8 +46,9 @@ typedef struct {
     size_t used;
     
     uint32_t pos;
-
+#if APE_USE_ZLIB
     zbuffer *zbuf;
+#endif
 } buffer;
 /*
     static u_char  gzheader[10] =
@@ -57,7 +62,11 @@ extern "C" {
 
 void buffer_init(buffer *b);
 buffer *buffer_new(size_t size);
+
+#if APE_USE_ZLIB
 void buffer_set_gzip(buffer *b);
+#endif
+
 unsigned char *buffer_data(buffer *b, int *len);
 
 void buffer_delete(buffer *b);

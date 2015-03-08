@@ -21,7 +21,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#ifndef _WIN32
 #include <unistd.h>
+#else
+#include "port/windows.h"
+#endif
 
 #include "ape_hash.h"
 
@@ -386,7 +390,7 @@ uint32_t hashtbl_seek_val32(ape_htable_t *htbl, const char *key, int key_len)
     ape_htable_item_t *hTmp;
 
     if (key == NULL) {
-        return NULL;
+        return 0;
     }
 
     key_hash = ape_hash_str(key, key_len, htbl->size);
@@ -400,7 +404,7 @@ uint32_t hashtbl_seek_val32(ape_htable_t *htbl, const char *key, int key_len)
         hTmp = hTmp->next;
     }
 
-    return NULL;
+    return 0;
 }
 
 //-----------------------------------------------------------------------------

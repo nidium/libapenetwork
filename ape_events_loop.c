@@ -43,10 +43,10 @@ void events_loop(ape_global *ape)
         int i;
 
         events_shrink(&ape->events);
-        //printf("Next timeout in %d\n", nexttimeout);
         if ((nfd = events_poll(&ape->events, nexttimeout)) == -1) {
             continue;
         }
+
         for (i = 0; i < nfd; i++) {
 			if ((attach  = events_get_current_fd(&ape->events, i)) == NULL) {
 				continue;
@@ -105,9 +105,10 @@ void events_loop(ape_global *ape)
                             }
 
                         } else if (APE_SOCKET(attach)->states.state == APE_SOCKET_ST_PROGRESS) {
-                            int serror = 0, ret;
+                            int ret;
+                            char serror = '\0';
                             socklen_t serror_len = sizeof(serror);
-							
+
                             if ((ret = getsockopt(fd, SOL_SOCKET, SO_ERROR, &serror, &serror_len)) == 0 &&
                                 serror == 0) {
 								
@@ -133,7 +134,6 @@ void events_loop(ape_global *ape)
                 break;
             }
         }
-
         nexttimeout = process_timers(&ape->timersng);
     }
 }
