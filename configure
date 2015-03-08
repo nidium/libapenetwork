@@ -22,8 +22,7 @@ Platform.setEnviron(
     #"LDFLAGS=-stdlib=libc++",
     "MACOSX_DEPLOYMENT_TARGET=10.7"
 )
-
-Gyp.setArgs("--depth=./")
+Gyp.setArgs("--depth ./ --include=gyp/config.gypi --include=gyp/common.gypi")
 Gyp.setExec("third-party/gyp/gyp")
 
 @Deps.register("gyp")
