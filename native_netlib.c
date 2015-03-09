@@ -26,7 +26,7 @@
 #include <signal.h>
 #include <time.h>
 #include <sys/types.h>
-
+#include <stdio.h>
 
 #if _WIN32
 #include <WinSock2.h>

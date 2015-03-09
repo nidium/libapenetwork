@@ -23,6 +23,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 #else
+#include <stdint.h>
 #include "port\windows.h"
 #endif
 #include <time.h>
@@ -32,6 +33,8 @@
 
 
 #include "ape_socket.h"
+
+#include <synchapi.h>
 
 #ifdef USE_SELECT_HANDLER
 
@@ -59,6 +62,13 @@ typedef struct select_fdinfo_t
     int fd;
     char watchfor:8;
 } select_fdinfo_t;
+
+
+static void usleep(DWORD micro)
+{
+    Sleep(micro / 1000);
+}
+
 
 static int event_select_add(struct _fdevent *ev, int fd, int bitadd,
         void *attach)

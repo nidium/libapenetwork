@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   #define ssize_t int
 #endif
 
+
 #define strncasecmp _strnicmp
 #define strcasecmp _stricmp
 

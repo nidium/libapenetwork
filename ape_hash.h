@@ -69,6 +69,8 @@ struct _ape_htable_item
 extern "C" {
 #endif
 
+extern unsigned long _ape_seed;
+
 ape_htable_t *hashtbl_init_with_size(ape_hash_type type, int table_size);
 ape_htable_t *hashtbl_init(ape_hash_type type);
 

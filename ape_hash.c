@@ -33,7 +33,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-extern unsigned long _ape_seed;
 
 #if 0
 uint64_t uniqid(const char *seed_key, int len)
@@ -68,6 +67,8 @@ ape_htable_t *hashtbl_init_with_size(ape_hash_type type, int table_size)
     htbl->table = htbl_item;
     htbl->type  = type;
     htbl->cleaner = NULL;
+
+    printf("Hashtable init with seed %d\n", _ape_seed);
 
     return htbl;
 }
