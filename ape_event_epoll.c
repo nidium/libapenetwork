@@ -134,7 +134,7 @@ int event_epoll_init(struct _fdevent *ev)
     ev->events = malloc(sizeof(struct epoll_event) * (ev->basemem));
 
     ev->add     = event_epoll_add;
-    ev->del     = event_epoll_del;
+    ev->del     = /*event_epoll_del*/ NULL;
     ev->poll    = event_epoll_poll;
     ev->get_current_fd = event_epoll_get_fd;
     ev->setsize  = event_epoll_setsize;

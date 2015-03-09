@@ -32,8 +32,6 @@
 #include <WinSock2.h>
 #endif
 
-int ape_running = 1;
-
 ape_global *native_netlib_init()
 {
     ape_global *ape;

@@ -144,6 +144,7 @@ int event_kqueue_init(struct _fdevent *ev)
 	ev->setsize 		= event_kqueue_setsize;
 	ev->revent 			= event_kqueue_revent;
 	ev->reload 			= event_kqueue_reload;
+	ev->del 			= NULL;
 
 	printf("kqueue() started with %i slots\n", ev->basemem);
 	

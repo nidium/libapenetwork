@@ -46,8 +46,12 @@ int events_add(int fd, void *attach, int bitadd, ape_global *ape)
 
 int events_del(int fd, ape_global *ape)
 {
-
+    struct _fdevent *ev = &ape->events;
     ape->events.nfd--;
+
+    if (ev->del) {
+        ev->del(ev, fd);
+    }
 
     /*if (ev->del(ev, fd) == -1) {
         return -1;

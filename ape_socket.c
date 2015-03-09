@@ -393,6 +393,7 @@ static int ape_socket_close(ape_socket *socket)
     if (socket->callbacks.on_disconnect != NULL) {
         socket->callbacks.on_disconnect(socket, ape, socket->callbacks.arg);
     }
+
     sclose(APE_SOCKET_FD(socket));
 
     events_del(APE_SOCKET_FD(socket), ape);
@@ -1071,6 +1072,7 @@ socket_reread:
 
         socket->data_in.used = 0;
     }
+
     if (nread == 0 && socket->states.state != APE_SOCKET_ST_SHUTDOWN) {
         ape_socket_destroy(socket);
 

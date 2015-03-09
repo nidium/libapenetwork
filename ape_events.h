@@ -74,15 +74,6 @@ struct _ape_fd_delegate {
     _APE_FD_DELEGATE_TPL
 };
 
-#ifdef USE_SELECT_HANDLER
-typedef struct {
-  int  fd;
-  char read:4;          /* bitmask */
-  char write:4;         /* bitmask */
-  void *ptr;
-} select_fd_t;
-#endif
-
 struct _fdevent {
     /* Interface */
     int (*add)      (struct _fdevent *, int, int, void *);
@@ -101,8 +92,7 @@ struct _fdevent {
     struct epoll_event *events;
     int epoll_fd;
 #elif defined USE_SELECT_HANDLER
-	select_fd_t fds[FD_SETSIZE];
-	select_fd_t **events;       /* Pointers into fds */
+	struct select_fdinfo_t **events;       /* Pointers into fds */
     ape_htable_t *fdhash;
 #endif
     int basemem;                /* Number of elements in events */
