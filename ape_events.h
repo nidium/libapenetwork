@@ -37,6 +37,8 @@
   #endif
 #endif
 
+#include "ape_hash.h"
+
 /* Generics flags */
 #define EVENT_READ 0x01
 #define EVENT_WRITE 0x02
@@ -101,6 +103,7 @@ struct _fdevent {
 #elif defined USE_SELECT_HANDLER
 	select_fd_t fds[FD_SETSIZE];
 	select_fd_t **events;       /* Pointers into fds */
+    ape_htable_t *fdhash;
 #endif
     int basemem;                /* Number of elements in events */
     int nfd;                    /* Number of managed file descriptor */
