@@ -63,7 +63,6 @@ typedef struct select_fdinfo_t
 static int event_select_add(struct _fdevent *ev, int fd, int bitadd,
         void *attach)
 {
-    printf("Adding %d to list %d\n", fd, FD_SETSIZE);
     if (fd < 0 || fd > FD_SETSIZE) {
         printf("cant add event %d\n", fd);
         return -1;
@@ -160,7 +159,6 @@ static int event_select_poll(struct _fdevent *ev, int timeout_ms)
             }
             
             fdinfo->watchfor |= kReadyForRead_Event;
-            printf("%d is ready for read\n", fdinfo->fd);
         }
 
         if (FD_ISSET(fd, &wfds)) {
