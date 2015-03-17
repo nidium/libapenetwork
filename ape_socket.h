@@ -194,13 +194,13 @@ struct _ape_socket {
 
 #define APE_SOCKET_PACKET_FREE (1 << 1)
 
-struct _ape_socket_packet {
+typedef struct _ape_socket_packet {
     /* inherit from ape_pool_t (same first sizeof(ape_pool_t) bytes memory-print) */
     ape_pool_t pool;
     size_t len;
     size_t offset;
     ape_socket_data_autorelease data_type;
-} typedef ape_socket_packet_t;
+} ape_socket_packet_t;
 
 #ifdef __cplusplus
 extern "C" {
