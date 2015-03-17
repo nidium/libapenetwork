@@ -39,12 +39,12 @@ typedef enum {
     APE_ARRAY_LIST
 } ape_array_index_e;
 
-struct _ape_array_item {
+typedef struct _ape_array_item {
     /* inherit from ape_pool_t (same first sizeof(ape_pool_t) bytes memory-print) */
     ape_pool_t pool;
     buffer *key;
     //buffer *val;
-} typedef ape_array_item_t;
+} ape_array_item_t;
 
 #ifdef __cplusplus
 extern "C" {
