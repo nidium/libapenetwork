@@ -146,6 +146,9 @@ int events_init(ape_global *ape)
 		case EVENT_SELECT:
             return event_select_init(&ape->events);
 			break;
+        case EVENT_UNKNOWN:
+        case EVENT_DEVPOLL:
+        case EVENT_POLL:
         default:
             break;
     }

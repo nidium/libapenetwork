@@ -98,6 +98,9 @@ __inline static void ape_socket_release_data(unsigned char *data, ape_socket_dat
         case APE_DATA_COPY:
             free(data);
             break;
+        case APE_DATA_STATIC:
+        case APE_DATA_GLOBAL_STATIC:
+        case APE_DATA_OWN:
         default:
             break;
     }

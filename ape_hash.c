@@ -449,6 +449,9 @@ unsigned int MurmurHash2 ( const void * key, int len, unsigned int seed )
     case 2: h ^= data[1] << 8;
     case 1: h ^= data[0];
             h *= m;
+            break;
+    default:
+            break;
     };
 
     // Do a few final mixes of the hash to ensure the last few

@@ -133,6 +133,8 @@ void events_loop(ape_global *ape)
                 ((struct _ape_fd_delegate *)attach)->on_io(fd, bitev,
                     ((struct _ape_fd_delegate *)attach)->data, ape); /* punning */
                 break;
+            default:
+                break;
             }
         }
         nexttimeout = process_timers(&ape->timersng);
