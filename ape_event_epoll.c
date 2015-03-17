@@ -57,7 +57,7 @@ static int event_epoll_add(struct _fdevent *ev, int fd, int bitadd,
 
     return 1;
 }
-
+/*
 static int event_epoll_del(struct _fdevent *ev, int fd)
 {
     struct epoll_event kev;
@@ -72,6 +72,7 @@ static int event_epoll_del(struct _fdevent *ev, int fd)
 
     return 1;
 }
+*/
 
 static int event_epoll_poll(struct _fdevent *ev, int timeout_ms)
 {
@@ -111,7 +112,7 @@ static int event_epoll_revent(struct _fdevent *ev, int i)
 }
 
 
-int event_epoll_reload(struct _fdevent *ev)
+static int event_epoll_reload(struct _fdevent *ev)
 {
     int nfd;
     if ((nfd = dup(ev->epoll_fd)) != -1) {
@@ -134,7 +135,8 @@ int event_epoll_init(struct _fdevent *ev)
     ev->events = malloc(sizeof(struct epoll_event) * (ev->basemem));
 
     ev->add     = event_epoll_add;
-    ev->del     = /*event_epoll_del*/ NULL;
+    ev->del     = NULL;
+    /*ev->del     = event_epoll_del;*/
     ev->poll    = event_epoll_poll;
     ev->get_current_fd = event_epoll_get_fd;
     ev->setsize  = event_epoll_setsize;

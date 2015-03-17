@@ -214,6 +214,7 @@ int APE_socket_connect(ape_socket *socket, uint16_t port,
         const char *remote_ip_host, uint16_t localport);
 int APE_socket_write(ape_socket *socket, void *data,
     size_t len, ape_socket_data_autorelease data_type);
+int APE_socket_writev(ape_socket *socket, const struct iovec *iov, int iovcnt);
 void APE_socket_shutdown(ape_socket *socket);
 void APE_socket_shutdown_now(ape_socket *socket);
 int APE_sendfile(ape_socket *socket, const char *file);
