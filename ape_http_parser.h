@@ -22,6 +22,13 @@
 
 #include <stdint.h>
 
+/* Todo : check for endieness + aligned */
+#define BYTES_GET(b) \
+    *(uint32_t *) b == ((' ' << 24) | ('T' << 16) | ('E' << 8) | 'G')
+
+#define BYTES_POST(b) \
+    *(uint32_t *) b == (('T' << 24) | ('S' << 16) | ('O' << 8) | 'P')
+
 typedef enum type {
     HTTP_PARSE_ERROR,
     HTTP_METHOD,
