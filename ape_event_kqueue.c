@@ -72,6 +72,14 @@ static int event_kqueue_add(struct _fdevent *ev, int fd, int bitadd, void *attac
 	return 1;
 }
 
+/*
+static int event_kqueue_del(struct _fdevent *ev, int fd)
+{
+	// @TODO: probably something needs to be cleanup ...
+	return 1;
+}
+*/
+
 static int event_kqueue_poll(struct _fdevent *ev, int timeout_ms)
 {
 	int nfds;
@@ -114,7 +122,7 @@ static int event_kqueue_revent(struct _fdevent *ev, int i)
 }
 
 
-int event_kqueue_reload(struct _fdevent *ev)
+static int event_kqueue_reload(struct _fdevent *ev)
 {
 	int nfd;
 	if ((nfd = dup(ev->kq_fd)) != -1) {
@@ -144,7 +152,8 @@ int event_kqueue_init(struct _fdevent *ev)
 	ev->setsize 		= event_kqueue_setsize;
 	ev->revent 			= event_kqueue_revent;
 	ev->reload 			= event_kqueue_reload;
-	ev->del 			= NULL;
+	/*ev->del 			= event_kqueue_del;*/
+	ev->del				= NULL;
 
 	printf("kqueue() started with %i slots\n", ev->basemem);
 	

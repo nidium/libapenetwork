@@ -111,7 +111,7 @@ static int event_epoll_revent(struct _fdevent *ev, int i)
 }
 
 
-int event_epoll_reload(struct _fdevent *ev)
+static int event_epoll_reload(struct _fdevent *ev)
 {
     int nfd;
     if ((nfd = dup(ev->epoll_fd)) != -1) {
