@@ -210,11 +210,13 @@ int APE_socket_listen(ape_socket *socket, uint16_t port,
 #ifdef TCP_DEFER_ACCEPT
         setsockopt(socket->s.fd, IPPROTO_TCP, TCP_DEFER_ACCEPT, &timeout,
                 sizeof(int));
-#elif SO_ACCEPTFILTER
+#else
+#ifdef SO_ACCEPTFILTER
         {
             accept_filter_arg afa = {"dataready", ""};
             setsockopt(socket->s.fd, SOL_SOCKET, SO_ACCEPTFILTER, &afa, sizeof(afa));
         }
+#endif
 #endif
     }
     socket->states.type = APE_SOCKET_TP_SERVER;
@@ -326,8 +328,6 @@ void APE_socket_shutdown(ape_socket *socket)
     if (!socket) {
         return;
     }
-    ape_global *ape = socket->ape;
-    
     if (socket->states.state == APE_SOCKET_ST_SHUTDOWN) {
         return;
     }
@@ -361,8 +361,6 @@ void APE_socket_shutdown_now(ape_socket *socket)
     if (!socket) {
         return;
     }
-
-    ape_global *ape = socket->ape;
     if (socket->states.state == APE_SOCKET_ST_SHUTDOWN) {
         return;
     }
@@ -926,21 +924,21 @@ int ape_socket_read_udp(ape_socket *server)
     struct sockaddr_in address;
     socklen_t address_len = sizeof(struct sockaddr_in);
 
-    char buffer[MAX_PACKET_SIZE_UDP];
+    char buff[MAX_PACKET_SIZE_UDP];
     int rlen = 0;
 
-    while ((rlen = recvfrom(server->s.fd, buffer, MAX_PACKET_SIZE_UDP,
+    while ((rlen = recvfrom(server->s.fd, buff, MAX_PACKET_SIZE_UDP,
         0, (struct sockaddr *)&address, &address_len)) > 0) {
 
         if (rlen < 1) {
             return 0;
         }
 
-        buffer[rlen] = '\0';
+        buff[rlen] = '\0';
 
         if (server->callbacks.on_message != NULL) {
             server->callbacks.on_message(server, server->ape,
-                (unsigned char *)buffer, rlen, &address, server->callbacks.arg);
+                (unsigned char *)buff, rlen, &address, server->callbacks.arg);
         }
     }
 #undef MAX_PACKET_SIZE_UDP

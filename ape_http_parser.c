@@ -29,14 +29,6 @@
 #define MAX_CL 10485760
 #define MAX_RCODE 9999
 
-/* Todo : check for endieness + aligned */
-#define BYTES_GET(b) \
-    *(uint32_t *) b == ((' ' << 24) | ('T' << 16) | ('E' << 8) | 'G')
-
-#define BYTES_POST(b) \
-    *(uint32_t *) b == (('T' << 24) | ('S' << 16) | ('O' << 8) | 'P')
-
-
 typedef enum classes {
     C_NUL,  /* BAD CHAR */
     C_SPACE,/* space */
