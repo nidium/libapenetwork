@@ -130,7 +130,7 @@ static ape_array_item_t *ape_array_add_s(ape_array_t *array, buffer *key)
 
     slot = (ape_array_item_t *)array->current;
 
-    if (slot == NULL || slot->pool.flags & APE_ARRAY_USED_SLOT) {
+    if (slot == NULL || (slot->pool.flags & APE_ARRAY_USED_SLOT)) {
         slot = (ape_array_item_t *)ape_grow_pool(array, 4);
     }
 
@@ -141,14 +141,14 @@ static ape_array_item_t *ape_array_add_s(ape_array_t *array, buffer *key)
     array->current = slot->pool.next;
 
     if (array->current == NULL ||
-        ((ape_array_item_t *)array->current)->pool.flags &
-        APE_ARRAY_USED_SLOT) {
+        (((ape_array_item_t *)array->current)->pool.flags &
+        APE_ARRAY_USED_SLOT)) {
 
         array->current = array->head;
 
         while (array->current != NULL &&
-                ((ape_array_item_t *)array->current)->pool.flags &
-                APE_ARRAY_USED_SLOT) {
+                (((ape_array_item_t *)array->current)->pool.flags &
+                APE_ARRAY_USED_SLOT)) {
             array->current = ((ape_array_item_t *)array->current)->pool.next;
         }
     }

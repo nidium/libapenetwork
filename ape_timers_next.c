@@ -188,7 +188,7 @@ void clear_timer_by_id(ape_timers *timers, int identifier, int force)
     for (cur = timers->head; cur != NULL; cur = cur->next) {
         if (cur->identifier == identifier) {
             if (!(cur->flags & APE_TIMER_IS_PROTECTED) ||
-                (cur->flags & APE_TIMER_IS_PROTECTED && force)) {
+                ((cur->flags & APE_TIMER_IS_PROTECTED) && force)) {
                 
                 cur->flags |= APE_TIMER_IS_CLEARED;
             }

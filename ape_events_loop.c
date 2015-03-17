@@ -77,13 +77,13 @@ void events_loop(ape_global *ape)
                     }
 
                     if (APE_SOCKET(attach)->states.proto != APE_SOCKET_PT_UDP &&
-                        bitev & EVENT_READ &&
+                        (bitev & EVENT_READ) &&
                         ape_socket_read(APE_SOCKET(attach)) == -1) {
                         
                         /* ape_socket is planned to be release after the for block */
                         continue;
                     } else if (APE_SOCKET(attach)->states.proto ==
-                        APE_SOCKET_PT_UDP && bitev & EVENT_READ) {
+                        APE_SOCKET_PT_UDP && (bitev & EVENT_READ)) {
 
                         ape_socket_read_udp(APE_SOCKET(attach));
                     }
