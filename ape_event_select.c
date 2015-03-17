@@ -209,7 +209,7 @@ static int event_select_revent(struct _fdevent *ev, int i)
 }
 
 
-int event_select_reload(struct _fdevent *ev)
+static int event_select_reload(struct _fdevent *ev)
 {   
     /* Do nothing (?) */
 
