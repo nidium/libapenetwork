@@ -349,7 +349,7 @@ void APE_socket_shutdown(ape_socket *socket)
         return;
     }
 
-    ape_shutdown(socket, 2);
+    ape_shutdown(socket, SHUT_RDWR);
 }
 
 
@@ -376,7 +376,7 @@ void APE_socket_shutdown_now(ape_socket *socket)
         return;
     }
 
-    ape_shutdown(socket, 2);
+    ape_shutdown(socket, SHUT_RDWR);
 }
 
 static int ape_socket_close(ape_socket *socket)
@@ -795,7 +795,7 @@ int ape_socket_do_jobs(ape_socket *socket)
 #endif
         case APE_SOCKET_JOB_SHUTDOWN:
 
-            ape_shutdown(socket, 2);
+            ape_shutdown(socket, SHUT_RDWR);
             
             return -1;
         default:
