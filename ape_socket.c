@@ -342,8 +342,8 @@ void APE_socket_shutdown(ape_socket *socket)
     if (socket->states.state != APE_SOCKET_ST_ONLINE) {
         return;
     }
-    if (socket->states.flags & APE_SOCKET_WOULD_BLOCK ||
-            socket->jobs.head->flags & APE_SOCKET_JOB_ACTIVE) {
+    if ((socket->states.flags & APE_SOCKET_WOULD_BLOCK) ||
+            (socket->jobs.head->flags & APE_SOCKET_JOB_ACTIVE)) {
         ape_socket_job_get_slot(socket, APE_SOCKET_JOB_SHUTDOWN);
         //printf("Shutdown pushed to queue\n");
         return;
@@ -474,8 +474,8 @@ int APE_sendfile(ape_socket *socket, const char *file)
         return 0;
     }
 
-    if (socket->states.flags & APE_SOCKET_WOULD_BLOCK ||
-            socket->jobs.head->flags & APE_SOCKET_JOB_ACTIVE) {
+    if ((socket->states.flags & APE_SOCKET_WOULD_BLOCK) ||
+            (socket->jobs.head->flags & APE_SOCKET_JOB_ACTIVE)) {
 
         socket->states.flags  |= APE_SOCKET_WOULD_BLOCK;
         job          = ape_socket_job_get_slot(socket, APE_SOCKET_JOB_SENDFILE);
@@ -548,8 +548,8 @@ int APE_socket_write(ape_socket *socket, void *data,
         return -1;
     }
 
-    if (socket->states.flags & APE_SOCKET_WOULD_BLOCK ||
-            socket->jobs.head->flags & APE_SOCKET_JOB_ACTIVE) {
+    if ((socket->states.flags & APE_SOCKET_WOULD_BLOCK) ||
+            (socket->jobs.head->flags & APE_SOCKET_JOB_ACTIVE)) {
         ape_socket_queue_data(socket, data, len, 0, data_type);
         //printf("Would block %d\n", len);
         return len;
@@ -672,7 +672,7 @@ int ape_socket_do_jobs(ape_socket *socket)
 #endif
     job = (ape_socket_jobs_t *)socket->jobs.head;
 
-    while(job != NULL && job->flags & APE_SOCKET_JOB_ACTIVE) {
+    while(job != NULL && (job->flags & APE_SOCKET_JOB_ACTIVE)) {
         switch(job->flags & ~(APE_POOL_ALL_FLAGS | APE_SOCKET_JOB_ACTIVE)) {
         case APE_SOCKET_JOB_WRITEV:
         {
@@ -1089,7 +1089,7 @@ static ape_socket_jobs_t *ape_socket_job_get_slot(ape_socket *socket, int type)
 
     /* If we request a write job we can push the data to the iov list */
     if ((type == APE_SOCKET_JOB_WRITEV &&
-            jobs->flags & APE_SOCKET_JOB_WRITEV) ||
+            (jobs->flags & APE_SOCKET_JOB_WRITEV)) ||
             !(jobs->flags & APE_SOCKET_JOB_ACTIVE)) {
 
         jobs->flags |= APE_SOCKET_JOB_ACTIVE | type;

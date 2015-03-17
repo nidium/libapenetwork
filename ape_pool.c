@@ -163,7 +163,7 @@ void ape_destroy_pool(ape_pool_t *pool)
     }
     pool = tPool;
 
-    while (pool != NULL && pool->flags & APE_POOL_ALLOC) {
+    while (pool != NULL && (pool->flags & APE_POOL_ALLOC)) {
         tPool = pool->next;
         free(pool);
         pool = tPool;
