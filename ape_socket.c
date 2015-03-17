@@ -103,7 +103,7 @@ __inline static void ape_socket_release_data(unsigned char *data, ape_socket_dat
     }
 }
 
-ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
+ape_socket *APE_socket_new(enum ape_socket_proto pt, int from, ape_global *ape)
 {
     int sock = from, proto = SOCK_STREAM;
 

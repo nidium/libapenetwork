@@ -72,7 +72,7 @@ typedef enum classes {
 } parser_class;
 
 
-static int ascii_class[128] = {
+static parser_class ascii_class[128] = {
 /*
     This array maps the 128 ASCII characters into character classes.
     The remaining Unicode characters should be mapped to C_ETC.
@@ -126,7 +126,7 @@ typedef enum actions {
 } parser_actions;
 
 
-static int state_transition_table[NR_STATES][NR_CLASSES] = {
+static int8_t /*parser_state*/ state_transition_table[NR_STATES][NR_CLASSES] = {
 /*
                        nul   white                                      etc   ABDF
                        | space |  \r\n  :  ,  "  \  /  +  -  .  ?  % 09  |  *  | E  G  T  P  H  O  S  C  N  L  _ */
@@ -211,7 +211,7 @@ int parse_http_char(struct _http_parser *parser, const unsigned char c)
 #define HTTP_BODY_AS_ENDED() (HTTP_ISBODYCONTENT() && --parser->cl == 0 && (parser->rx |= HTTP_FLG_READY, 1))
 
     parser_class c_classe;
-    int8_t state;
+    int8_t /*parser_state*/ state;
     unsigned char ch;
 
     if (c >= 128) {
@@ -376,7 +376,7 @@ int parse_http_char(struct _http_parser *parser, const unsigned char c)
                 parser->state = R9;
                 break;
             case RC: /* HTTP response code */
-                if ((parser->rcode = (parser->rcode*10) + (c - '0')) > MAX_RCODE) {
+                if ((parser->rcode = (uint16_t) ((parser->rcode*10) + (c - '0')) > MAX_RCODE)) {
                     return 0;
                 }
                 parser->state = RN;
@@ -400,7 +400,7 @@ static int parse_callback(void **ctx, callback_type type, int value, uint32_t st
 {
     switch(type) {
         case HTTP_METHOD:
-            switch(value) {
+            switch( (http_method_t) value) {
                 case HTTP_GET:
                     printf("GET method detected\n");
                     break;
@@ -447,7 +447,7 @@ static int parse_callback(void **ctx, callback_type type, int value, uint32_t st
 int main()
 {
     int length = 0, i;
-    struct _http_parser p;
+    http_parser p;
 
     /* Process BYTE_GET/POST opti check before running the parser */
 
