@@ -354,7 +354,9 @@ void buffer_append_string_n(buffer *b, const char *string, size_t length)
 
 void buffer_camelify(buffer *b)
 {
-    for (unsigned char *pSource = b->data, pchar = '-'; *pSource; pSource++) {
+    unsigned char *pSource, pchar;
+
+    for (pSource = b->data, pchar = '-'; *pSource; pSource++) {
         if (pchar == '-') {
             *pSource = toupper(*pSource);
         }
