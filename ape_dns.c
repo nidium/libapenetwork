@@ -119,7 +119,7 @@ static int params_free(void *arg)
     return 0;
 }
 
-void ares_gethostbyname_cb(void *arg, int status,
+static void ares_gethostbyname_cb(void *arg, int status,
         int timeout, struct hostent *host)
 {
     struct _ape_dns_cb_argv *params = arg;
