@@ -863,7 +863,6 @@ int ape_socket_connected(void *arg)
 
 #ifdef _HAVE_SSL_SUPPORT        
         if (APE_SOCKET_ISSECURE(socket)) {
-            printf("Got a ssl client\n");
             socket->SSL.ssl = ape_ssl_init_con(socket->ape->ssl_global_ctx, socket->s.fd, 0);
         }
 #endif
@@ -904,7 +903,6 @@ int ape_socket_accept(ape_socket *socket)
         client->states.type  = APE_SOCKET_TP_CLIENT;
 #ifdef _HAVE_SSL_SUPPORT        
         if (APE_SOCKET_ISSECURE(socket)) {
-            printf("Got a ssl client\n");
             client->SSL.ssl = ape_ssl_init_con(socket->SSL.ssl, client->s.fd, 1);
         }
 #endif
