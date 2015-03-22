@@ -122,8 +122,6 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
 
         printf("[Socket] Cant create socket(%d) : %s\n", SOCKERRNO, strerror(SOCKERRNO));
         return NULL;
-    } else {
-        printf("New Ape socket with FD : %d\n", sock);
     }
 
     ret             = malloc(sizeof(*ret));
