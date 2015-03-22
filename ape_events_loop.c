@@ -30,7 +30,7 @@
 #include <stdio.h>
 #include <stddef.h>
 
-int ape_running = 1;
+extern int ape_running;
 
 void events_loop(ape_global *ape)
 {

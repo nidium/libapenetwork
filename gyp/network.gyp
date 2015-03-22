@@ -10,8 +10,8 @@
             ],
             'defines': [
                 '_HAVE_SSL_SUPPORT',
-                'USE_SPECIFIC_HANDLER',
-                'USE_SELECT_HANDLER'
+#                'USE_SPECIFIC_HANDLER',
+#                'USE_SELECT_HANDLER'
             ]
         },
     }, {
@@ -53,8 +53,8 @@
         ],
         'defines': [
             '_HAVE_SSL_SUPPORT',
-            'USE_SPECIFIC_HANDLER',
-            'USE_SELECT_HANDLER'
+#            'USE_SPECIFIC_HANDLER',
+#            'USE_SELECT_HANDLER'
         ],
         'conditions': [
             ['target_os=="android"', {
