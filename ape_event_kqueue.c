@@ -35,19 +35,16 @@ static int event_kqueue_add(struct _fdevent *ev, int fd, int bitadd, void *attac
 {
 	struct kevent kev;
 	struct timespec ts;
-	int filter = 0;
+	int baseflag = EV_ADD | (bitadd & EVENT_LEVEL ? 0 : EV_CLEAR);
 		
 	memset(&kev, 0, sizeof(kev));
 
-//	printf("FD attached : %d %p\n", fd, attach);
+	ts.tv_sec = 0;
+	ts.tv_nsec = 0;	
 	
 	if (bitadd & EVENT_READ) {
-		filter = EVFILT_READ; 
-
-		ts.tv_sec = 0;
-		ts.tv_nsec = 0;
 	
-		EV_SET(&kev, fd, filter, EV_ADD|EV_CLEAR, 0, 0, attach);
+		EV_SET(&kev, fd, EVFILT_READ, baseflag, 0, 0, attach);
 		if (kevent(ev->kq_fd, &kev, 1, NULL, 0, &ts) == -1) {
 			return -1;
 		}
@@ -55,20 +52,16 @@ static int event_kqueue_add(struct _fdevent *ev, int fd, int bitadd, void *attac
 	}
 
 	if (bitadd & EVENT_WRITE) {
-		filter = EVFILT_WRITE; 
 	
 		memset(&kev, 0, sizeof(kev));
-
-		ts.tv_sec = 0;
-		ts.tv_nsec = 0;
 	
-		EV_SET(&kev, fd, filter, EV_ADD|EV_CLEAR, 0, 0, attach);
+		EV_SET(&kev, fd, EVFILT_WRITE, baseflag, 0, 0, attach);
 		if (kevent(ev->kq_fd, &kev, 1, NULL, 0, &ts) == -1) {
 			return -1;
 		}
 	
 	}
-//	printf("Succeed new socket\n");
+
 	return 1;
 }
 
