@@ -62,7 +62,6 @@ void events_loop(ape_global *ape)
                     if (bitev & EVENT_READ) {
                         if (APE_SOCKET(attach)->states.proto == APE_SOCKET_PT_TCP ||
 							APE_SOCKET(attach)->states.proto == APE_SOCKET_PT_SSL) {
-							printf("Accept socket\n");
                             ape_socket_accept(APE_SOCKET(attach));
                         } else {
                             ape_socket_read_udp(APE_SOCKET(attach));
