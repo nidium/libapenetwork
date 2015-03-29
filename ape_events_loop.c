@@ -49,10 +49,10 @@ void events_loop(ape_global *ape)
         }
 
         for (i = 0; i < nfd; i++) {
-			if ((attach  = events_get_current_fd(&ape->events, i)) == NULL) {
-				continue;
-			}
-			
+            if ((attach  = events_get_current_fd(&ape->events, i)) == NULL) {
+                continue;
+            }
+            
             bitev   = events_revent(&ape->events, i);
             fd  = ((ape_event_descriptor *)attach)->fd; /* assuming that ape_event_descriptor is the first member */
 
@@ -61,7 +61,7 @@ void events_loop(ape_global *ape)
                 if (APE_SOCKET(attach)->states.type == APE_SOCKET_TP_SERVER) {
                     if (bitev & EVENT_READ) {
                         if (APE_SOCKET(attach)->states.proto == APE_SOCKET_PT_TCP ||
-							APE_SOCKET(attach)->states.proto == APE_SOCKET_PT_SSL) {
+                            APE_SOCKET(attach)->states.proto == APE_SOCKET_PT_SSL) {
                             ape_socket_accept(APE_SOCKET(attach));
                         } else {
                             ape_socket_read_udp(APE_SOCKET(attach));
@@ -108,7 +108,7 @@ void events_loop(ape_global *ape)
 
                             if ((ret = getsockopt(fd, SOL_SOCKET, SO_ERROR, &serror, &serror_len)) == 0 &&
                                 serror == 0) {
-								
+                                
                                 APE_SOCKET(attach)->states.state = APE_SOCKET_ST_ONLINE;
 
                                 ape_socket_connected(APE_SOCKET(attach));
