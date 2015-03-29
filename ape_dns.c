@@ -81,7 +81,7 @@ static void ares_socket_cb(void *data, int s, int read, int write)
     }
     setnonblocking(s);
     ape->dns.sockets.list[f].s.fd   = s;
-    ape->dns.sockets.list[f].s.type = APE_DELEGATE;
+    ape->dns.sockets.list[f].s.type = APE_EVENT_DELEGATE;
     ape->dns.sockets.list[f].on_io  = ares_io;
     ape->dns.sockets.list[f].data   = NULL;
 

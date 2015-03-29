@@ -127,7 +127,7 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
     ret             = malloc(sizeof(*ret));
     ret->ape        = ape;
     ret->s.fd       = sock;
-    ret->s.type     = APE_SOCKET;
+    ret->s.type     = APE_EVENT_SOCKET;
     ret->states.flags   = 0;
     ret->states.type    = APE_SOCKET_TP_UNKNOWN;
     ret->states.state   = APE_SOCKET_ST_PENDING;

@@ -54,13 +54,10 @@ void events_loop(ape_global *ape)
 			}
 			
             bitev   = events_revent(&ape->events, i);
-			//if (attach == NULL) printf("Will failed\n");
-            fd  = ((ape_fds *)attach)->fd; /* assuming that ape_fds is the first member */
-			//printf("Getting : %d on %d %d\n", i, fd, bitev);
-			//if ((ape_fds *)attach)->state == ()
-            switch(((ape_fds *)attach)->type) {
+            fd  = ((ape_event_descriptor *)attach)->fd; /* assuming that ape_event_descriptor is the first member */
 
-            case APE_SOCKET:
+            switch(((ape_event_descriptor *)attach)->type) {
+            case APE_EVENT_SOCKET:
                 if (APE_SOCKET(attach)->states.type == APE_SOCKET_TP_SERVER) {
                     if (bitev & EVENT_READ) {
                         if (APE_SOCKET(attach)->states.proto == APE_SOCKET_PT_TCP ||
@@ -127,9 +124,7 @@ void events_loop(ape_global *ape)
                 }
 
                 break;
-            case APE_FILE:
-                break;
-            case APE_DELEGATE:
+            case APE_EVENT_DELEGATE:
                 ((struct _ape_fd_delegate *)attach)->on_io(fd, bitev,
                     ((struct _ape_fd_delegate *)attach)->data, ape); /* punning */
                 break;

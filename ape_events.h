@@ -46,7 +46,7 @@
 #define EVENT_CANCEL 0x08
 
 #define _APE_FD_DELEGATE_TPL  \
-    ape_fds s; \
+    ape_event_descriptor s; \
     void (*on_io)(int fd, int ev, void *data, ape_global *ape); \
     void *data;
 
@@ -60,15 +60,14 @@ typedef enum {
 } fdevent_handler_t;
 
 typedef enum {
-    APE_SOCKET,
-    APE_FILE,
-    APE_DELEGATE
-} ape_fds_t;
+    APE_EVENT_SOCKET,
+    APE_EVENT_DELEGATE
+} ape_event_t;
 
-typedef struct { /* Do not store this. Address may changes */
+typedef struct {
     int fd;
-    ape_fds_t type;
-} ape_fds;
+    ape_event_t type;
+} ape_event_descriptor;
 
 struct _ape_fd_delegate {
     _APE_FD_DELEGATE_TPL
@@ -76,13 +75,14 @@ struct _ape_fd_delegate {
 
 struct _fdevent {
     /* Interface */
-    int (*add)      (struct _fdevent *, int, int, void *);
-    int (*del)      (struct _fdevent *, int);
-    int (*poll)     (struct _fdevent *, int);
-    int (*revent)   (struct _fdevent *, int);
-    int (*reload)   (struct _fdevent *);
+    int (*add)      (struct _fdevent *ev, int fd, int bitadd, void *attach);
+    int (*mod)      (struct _fdevent *ev, int fd, int bitadd);
+    int (*del)      (struct _fdevent *ev, int fd);
+    int (*poll)     (struct _fdevent *, int timeoutms);
+    int (*revent)   (struct _fdevent *, int idx);
+    int (*reload)   (struct _fdevent *ev);
     void (*setsize)  (struct _fdevent *, int size);
-    void *(*get_current_fd) (struct _fdevent *, int);
+    void *(*get_current_fd) (struct _fdevent *, int idx);
 
     /* Specifics values */
 #ifdef USE_KQUEUE_HANDLER
@@ -106,6 +106,7 @@ extern "C" {
 
 int events_init(ape_global *ape);
 int events_add(int fd, void *attach, int bitadd, ape_global *ape);
+int events_mod(int fd, int bitadd, ape_global *ape);
 int events_del(int fd, ape_global *ape);
 void *events_get_current_fd(struct _fdevent *ev, int i);
 int events_poll(struct _fdevent *ev, int timeout_ms);

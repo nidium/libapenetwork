@@ -158,7 +158,7 @@ typedef struct _ape_socket_jobs_t {
 
 
 struct _ape_socket {
-    ape_fds s;
+    ape_event_descriptor s;
     buffer data_in;
     
     ape_pool_list_t jobs;
