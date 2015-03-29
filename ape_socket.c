@@ -224,7 +224,8 @@ int APE_socket_listen(ape_socket *socket, uint16_t port,
     socket->states.state = APE_SOCKET_ST_ONLINE;
     socket->local_port = port;
 
-    events_add(socket->s.fd, socket, EVENT_READ|EVENT_WRITE, socket->ape);
+    events_add((ape_event_descriptor *)socket,
+        EVENT_READ|EVENT_WRITE, socket->ape);
 
     return 0;
 }
@@ -287,7 +288,8 @@ retry_connect:
     socket->states.state = (socket->states.proto == APE_SOCKET_PT_UDP ?
         APE_SOCKET_ST_ONLINE : APE_SOCKET_ST_PROGRESS);
 
-    events_add(socket->s.fd, socket, EVENT_READ|EVENT_WRITE, socket->ape);
+    events_add((ape_event_descriptor *)socket,
+        EVENT_READ|EVENT_WRITE, socket->ape);
 
     if (socket->states.proto == APE_SOCKET_PT_UDP) {
         ape_global *ape = socket->ape;
@@ -906,7 +908,8 @@ int ape_socket_accept(ape_socket *socket)
             client->SSL.ssl = ape_ssl_init_con(socket->SSL.ssl, client->s.fd, 1);
         }
 #endif
-        events_add(client->s.fd, client, EVENT_READ|EVENT_WRITE, socket->ape);
+        events_add((ape_event_descriptor *)client,
+            EVENT_READ|EVENT_WRITE, socket->ape);
 
         if (socket->callbacks.on_connect != NULL) {
             socket->callbacks.on_connect(socket, client, socket->ape, socket->callbacks.arg);

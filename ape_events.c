@@ -27,7 +27,7 @@
 #define APE_DEFAULT_EVENTS_SIZE 32
 
 
-int events_add(int fd, void *attach, int bitadd, ape_global *ape)
+int events_add(ape_event_descriptor *evd, int bitadd, ape_global *ape)
 {
     struct _fdevent *ev = &ape->events;
 
@@ -37,8 +37,19 @@ int events_add(int fd, void *attach, int bitadd, ape_global *ape)
         events_setsize(ev, ev->basemem << 1);
     }
 
-    if (ev->add(ev, fd, bitadd, attach) == -1) {
+    if (ev->add(ev, evd, bitadd) == -1) {
         return -1;
+    }
+
+    return 1;
+}
+
+int events_mod(ape_event_descriptor *evd, int bitadd, ape_global *ape)
+{
+    struct _fdevent *ev = &ape->events;
+
+    if (ev->mod) {
+        //ev->mod(fd, bitadd);
     }
 
     return 1;
@@ -107,9 +118,9 @@ int events_poll(struct _fdevent *ev, int timeout_ms)
 }
 
 
-void *events_get_current_fd(struct _fdevent *ev, int i)
+ape_event_descriptor *events_get_current_evd(struct _fdevent *ev, int i)
 {
-    return ev->get_current_fd(ev, i);
+    return ev->get_current_evd(ev, i);
 }
 
 

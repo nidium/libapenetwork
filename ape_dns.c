@@ -85,7 +85,8 @@ static void ares_socket_cb(void *data, int s, int read, int write)
     ape->dns.sockets.list[f].on_io  = ares_io;
     ape->dns.sockets.list[f].data   = NULL;
 
-    events_add(s, &ape->dns.sockets.list[f], EVENT_READ|EVENT_WRITE|EVENT_LEVEL, ape);
+    events_add((ape_event_descriptor *)&ape->dns.sockets.list[f],
+        EVENT_READ|EVENT_WRITE|EVENT_LEVEL, ape);
 }
 
 int ape_dns_init(ape_global *ape)

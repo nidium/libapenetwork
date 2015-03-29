@@ -32,8 +32,9 @@
 #include "ape_socket.h"
 
 #ifdef USE_EPOLL_HANDLER
-static int event_epoll_add(struct _fdevent *ev, int fd, int bitadd,
-        void *attach)
+
+static int event_epoll_add(struct _fdevent *ev,
+    ape_event_descriptor *evd, int bitadd)
 {
     struct epoll_event kev;
 
@@ -49,14 +50,41 @@ static int event_epoll_add(struct _fdevent *ev, int fd, int bitadd,
 
     memset(&kev.data, 0, sizeof(kev.data));
 
-    kev.data.ptr = attach;
+    kev.data.ptr = evd;
 
-    if (epoll_ctl(ev->epoll_fd, EPOLL_CTL_ADD, fd, &kev) == -1) {
+    if (epoll_ctl(ev->epoll_fd, EPOLL_CTL_ADD, evd->fd, &kev) == -1) {
         return -1;
     }
 
     return 1;
 }
+
+static int event_epoll_mod(struct _fdevent *ev, int fd, int bitadd)
+{
+    struct epoll_event kev;
+
+    kev.events = ((bitadd & EVENT_LEVEL ? 0 : EPOLLET)) | EPOLLPRI;
+
+    if (bitadd & EVENT_READ) {
+        kev.events |= EPOLLIN;
+    }
+
+    if (bitadd & EVENT_WRITE) {
+        kev.events |= EPOLLOUT;
+    }
+
+#if 0
+    memset(&kev.data, 0, sizeof(kev.data));
+
+    kev.data.ptr = attach;
+#endif
+
+    if (epoll_ctl(ev->epoll_fd, EPOLL_CTL_MOD, fd, &kev) == -1) {
+        return -1;
+    }
+    return 1;
+}
+
 /*
 static int event_epoll_del(struct _fdevent *ev, int fd)
 {
@@ -85,10 +113,10 @@ static int event_epoll_poll(struct _fdevent *ev, int timeout_ms)
     return nfds;
 }
 
-static void *event_epoll_get_fd(struct _fdevent *ev, int i)
+static ape_event_descriptor *event_epoll_get_evd(struct _fdevent *ev, int i)
 {
     /* the value must start by ape_fds */
-    return ev->events[i].data.ptr;
+    return (ape_event_descriptor *)ev->events[i].data.ptr;
 }
 
 static void event_epoll_setsize(struct _fdevent *ev, int size)
@@ -134,14 +162,15 @@ int event_epoll_init(struct _fdevent *ev)
 
     ev->events = malloc(sizeof(struct epoll_event) * (ev->basemem));
 
-    ev->add     = event_epoll_add;
-    ev->del     = NULL;
-    /*ev->del     = event_epoll_del;*/
-    ev->poll    = event_epoll_poll;
-    ev->get_current_fd = event_epoll_get_fd;
-    ev->setsize  = event_epoll_setsize;
-    ev->revent  = event_epoll_revent;
-    ev->reload  = event_epoll_reload;
+    ev->add             = event_epoll_add;
+    ev->del             = NULL;
+    /*ev->del           = event_epoll_del;*/
+    ev->poll            = event_epoll_poll;
+    ev->get_current_evd  = event_epoll_get_evd;
+    ev->setsize         = event_epoll_setsize;
+    ev->revent          = event_epoll_revent;
+    ev->reload          = event_epoll_reload;
+    ev->mod             = event_epoll_mod;
 
     printf("epoll() started with %i slots\n", ev->basemem);
 

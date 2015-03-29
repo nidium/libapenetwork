@@ -75,14 +75,14 @@ struct _ape_fd_delegate {
 
 struct _fdevent {
     /* Interface */
-    int (*add)      (struct _fdevent *ev, int fd, int bitadd, void *attach);
-    int (*mod)      (struct _fdevent *ev, int fd, int bitadd);
+    int (*add)      (struct _fdevent *ev, ape_event_descriptor *evd, int bitadd);
+    int (*mod)      (struct _fdevent *ev, ape_event_descriptor *evd, int bitadd);
     int (*del)      (struct _fdevent *ev, int fd);
-    int (*poll)     (struct _fdevent *, int timeoutms);
-    int (*revent)   (struct _fdevent *, int idx);
+    int (*poll)     (struct _fdevent *ev, int timeoutms);
+    int (*revent)   (struct _fdevent *ev, int idx);
     int (*reload)   (struct _fdevent *ev);
-    void (*setsize)  (struct _fdevent *, int size);
-    void *(*get_current_fd) (struct _fdevent *, int idx);
+    void (*setsize)  (struct _fdevent *ev, int size);
+    ape_event_descriptor *(*get_current_evd) (struct _fdevent *, int idx);
 
     /* Specifics values */
 #ifdef USE_KQUEUE_HANDLER
@@ -104,11 +104,13 @@ struct _fdevent {
 extern "C" {
 #endif
 
+#define APE_EVENT_DECRIPTOR_SET_FD(evd, fd) ((ape_event_descriptor *)evd)->fd = fd
+
 int events_init(ape_global *ape);
-int events_add(int fd, void *attach, int bitadd, ape_global *ape);
-int events_mod(int fd, int bitadd, ape_global *ape);
+int events_add(ape_event_descriptor *evd, int bitadd, ape_global *ape);
+int events_mod(ape_event_descriptor *evd, int bitadd, ape_global *ape);
 int events_del(int fd, ape_global *ape);
-void *events_get_current_fd(struct _fdevent *ev, int i);
+ape_event_descriptor *events_get_current_evd(struct _fdevent *ev, int i);
 int events_poll(struct _fdevent *ev, int timeout_ms);
 void events_shrink(struct _fdevent *ev);
 void events_setsize(struct _fdevent *ev, int size);

@@ -51,7 +51,8 @@
 #define APE_SOCKET_BACKLOG 511
 
 /* get a ape_socket pointer from event returns */
-#define APE_SOCKET(attach) ((ape_socket *)attach)
+#define APE_EVENT_SOCKET_PTR(attach) ((ape_socket *)attach)
+
 
 #ifdef _HAVE_SSL_SUPPORT  
   #define APE_SOCKET_ISSECURE(socket) socket->SSL.issecure

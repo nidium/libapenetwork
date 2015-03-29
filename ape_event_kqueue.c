@@ -31,7 +31,8 @@
 #include <stdio.h>
 
 #ifdef USE_KQUEUE_HANDLER
-static int event_kqueue_add(struct _fdevent *ev, int fd, int bitadd, void *attach)
+static int event_kqueue_add(struct _fdevent *ev,
+	ape_event_descriptor *evd, int bitadd)
 {
 	struct kevent kev;
 	struct timespec ts;
@@ -44,7 +45,7 @@ static int event_kqueue_add(struct _fdevent *ev, int fd, int bitadd, void *attac
 	
 	if (bitadd & EVENT_READ) {
 	
-		EV_SET(&kev, fd, EVFILT_READ, baseflag, 0, 0, attach);
+		EV_SET(&kev, evd->fd, EVFILT_READ, baseflag, 0, 0, evd);
 		if (kevent(ev->kq_fd, &kev, 1, NULL, 0, &ts) == -1) {
 			return -1;
 		}
@@ -55,7 +56,7 @@ static int event_kqueue_add(struct _fdevent *ev, int fd, int bitadd, void *attac
 	
 		memset(&kev, 0, sizeof(kev));
 	
-		EV_SET(&kev, fd, EVFILT_WRITE, baseflag, 0, 0, attach);
+		EV_SET(&kev, evd->fd, EVFILT_WRITE, baseflag, 0, 0, evd);
 		if (kevent(ev->kq_fd, &kev, 1, NULL, 0, &ts) == -1) {
 			return -1;
 		}
@@ -88,12 +89,12 @@ static int event_kqueue_poll(struct _fdevent *ev, int timeout_ms)
 	return nfds;
 }
 
-static void *event_kqueue_get_fd(struct _fdevent *ev, int i)
+static ape_event_descriptor *event_kqueue_get_evd(struct _fdevent *ev, int i)
 {
 	if (((ape_socket *)ev->events[i].udata)->states.state == APE_SOCKET_ST_OFFLINE) {
 		return NULL;
 	}
-	return ev->events[i].udata;
+	return (ape_event_descriptor *)ev->events[i].udata;
 }
 
 static void event_kqueue_setsize(struct _fdevent *ev, int size)
@@ -141,12 +142,13 @@ int event_kqueue_init(struct _fdevent *ev)
 	
 	ev->add 			= event_kqueue_add;
 	ev->poll 			= event_kqueue_poll;
-	ev->get_current_fd 	= event_kqueue_get_fd;
+	ev->get_current_evd = event_kqueue_get_evd;
 	ev->setsize 		= event_kqueue_setsize;
 	ev->revent 			= event_kqueue_revent;
 	ev->reload 			= event_kqueue_reload;
 	/*ev->del 			= event_kqueue_del;*/
 	ev->del				= NULL;
+	ev->mod				= NULL;
 
 	printf("kqueue() started with %i slots\n", ev->basemem);
 	
