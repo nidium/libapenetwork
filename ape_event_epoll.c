@@ -74,7 +74,7 @@ static int event_epoll_mod(struct _fdevent *ev,
 
     kev.data.ptr = evd;
 
-    if (epoll_ctl(ev->epoll_fd, EPOLL_CTL_MOD, fd, &kev) == -1) {
+    if (epoll_ctl(ev->epoll_fd, EPOLL_CTL_MOD, evd->fd, &kev) == -1) {
         return -1;
     }
     return 1;
