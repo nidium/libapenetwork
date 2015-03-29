@@ -54,7 +54,9 @@ void events_loop(ape_global *ape)
             }
             
             bitev   = events_revent(&ape->events, i);
-            fd  = ((ape_event_descriptor *)attach)->fd; /* assuming that ape_event_descriptor is the first member */
+
+             /* assuming that ape_event_descriptor is the first member */
+            fd  = ((ape_event_descriptor *)attach)->fd;
 
             switch(((ape_event_descriptor *)attach)->type) {
             case APE_EVENT_SOCKET:
@@ -77,7 +79,7 @@ void events_loop(ape_global *ape)
                         (bitev & EVENT_READ) &&
                         ape_socket_read(APE_SOCKET(attach)) == -1) {
                         
-                        /* ape_socket is planned to be release after the for block */
+                        /* ape_socket is planned to be released after the for block */
                         continue;
                     } else if (APE_SOCKET(attach)->states.proto ==
                         APE_SOCKET_PT_UDP && (bitev & EVENT_READ)) {
