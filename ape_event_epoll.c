@@ -48,8 +48,6 @@ static int event_epoll_add(struct _fdevent *ev,
         kev.events |= EPOLLOUT;
     }
 
-    memset(&kev.data, 0, sizeof(kev.data));
-
     kev.data.ptr = evd;
 
     if (epoll_ctl(ev->epoll_fd, EPOLL_CTL_ADD, evd->fd, &kev) == -1) {
@@ -59,7 +57,8 @@ static int event_epoll_add(struct _fdevent *ev,
     return 1;
 }
 
-static int event_epoll_mod(struct _fdevent *ev, int fd, int bitadd)
+static int event_epoll_mod(struct _fdevent *ev,
+    ape_event_descriptor *evd, int bitadd)
 {
     struct epoll_event kev;
 
@@ -73,34 +72,13 @@ static int event_epoll_mod(struct _fdevent *ev, int fd, int bitadd)
         kev.events |= EPOLLOUT;
     }
 
-#if 0
-    memset(&kev.data, 0, sizeof(kev.data));
-
-    kev.data.ptr = attach;
-#endif
+    kev.data.ptr = evd;
 
     if (epoll_ctl(ev->epoll_fd, EPOLL_CTL_MOD, fd, &kev) == -1) {
         return -1;
     }
     return 1;
 }
-
-/*
-static int event_epoll_del(struct _fdevent *ev, int fd)
-{
-    struct epoll_event kev;
-
-    kev.events = 0;
-
-    memset(&kev.data, 0, sizeof(kev.data));
-
-    if (epoll_ctl(ev->epoll_fd, EPOLL_CTL_DEL, fd, &kev) == -1) {
-        return -1;
-    }
-
-    return 1;
-}
-*/
 
 static int event_epoll_poll(struct _fdevent *ev, int timeout_ms)
 {
@@ -164,15 +142,14 @@ int event_epoll_init(struct _fdevent *ev)
 
     ev->add             = event_epoll_add;
     ev->del             = NULL;
-    /*ev->del           = event_epoll_del;*/
     ev->poll            = event_epoll_poll;
-    ev->get_current_evd  = event_epoll_get_evd;
+    ev->get_current_evd = event_epoll_get_evd;
     ev->setsize         = event_epoll_setsize;
     ev->revent          = event_epoll_revent;
     ev->reload          = event_epoll_reload;
     ev->mod             = event_epoll_mod;
 
-    printf("epoll() started with %i slots\n", ev->basemem);
+    printf("Event loop started using epoll()\n");
 
     return 1;
 }

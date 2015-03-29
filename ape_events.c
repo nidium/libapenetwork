@@ -48,11 +48,7 @@ int events_mod(ape_event_descriptor *evd, int bitadd, ape_global *ape)
 {
     struct _fdevent *ev = &ape->events;
 
-    if (ev->mod) {
-        //ev->mod(fd, bitadd);
-    }
-
-    return 1;
+    return ev->mod ? ev->mod(ev, evd, bitadd) : -1;
 }
 
 int events_del(int fd, ape_global *ape)

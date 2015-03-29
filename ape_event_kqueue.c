@@ -31,6 +31,7 @@
 #include <stdio.h>
 
 #ifdef USE_KQUEUE_HANDLER
+
 static int event_kqueue_add(struct _fdevent *ev,
 	ape_event_descriptor *evd, int bitadd)
 {
@@ -53,7 +54,9 @@ static int event_kqueue_add(struct _fdevent *ev,
 	}
 
 	if (bitadd & EVENT_WRITE) {
-	
+		ts.tv_sec = 0;
+		ts.tv_nsec = 0;
+
 		memset(&kev, 0, sizeof(kev));
 	
 		EV_SET(&kev, evd->fd, EVFILT_WRITE, baseflag, 0, 0, evd);
@@ -66,13 +69,15 @@ static int event_kqueue_add(struct _fdevent *ev,
 	return 1;
 }
 
-/*
-static int event_kqueue_del(struct _fdevent *ev, int fd)
+static int event_kqueue_mod(struct _fdevent *ev,
+    ape_event_descriptor *evd, int bitadd)
 {
-	// @TODO: probably something needs to be cleanup ...
-	return 1;
+	/*
+		Re-adding an existing event will modify the parameters of the original
+		event, and not result in a duplicate entry.
+	*/
+	return event_kqueue_add(ev, evd, bitadd);
 }
-*/
 
 static int event_kqueue_poll(struct _fdevent *ev, int timeout_ms)
 {
@@ -146,11 +151,10 @@ int event_kqueue_init(struct _fdevent *ev)
 	ev->setsize 		= event_kqueue_setsize;
 	ev->revent 			= event_kqueue_revent;
 	ev->reload 			= event_kqueue_reload;
-	/*ev->del 			= event_kqueue_del;*/
 	ev->del				= NULL;
-	ev->mod				= NULL;
+	ev->mod				= event_kqueue_mod;
 
-	printf("kqueue() started with %i slots\n", ev->basemem);
+	printf("Event loop started using kqueue()\n");
 	
 	return 1;
 }
