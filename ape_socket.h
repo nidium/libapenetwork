@@ -91,19 +91,31 @@ struct iovec
 enum ape_socket_flags {
     APE_SOCKET_WOULD_BLOCK  = (1 << 0),
     APE_SOCKET_CORK         = (1 << 1)
+#ifdef _MSC_VER
+};
+#else
 } __attribute__ ((__packed__));
+#endif
 
 enum ape_socket_proto {
     APE_SOCKET_PT_TCP,
     APE_SOCKET_PT_UDP,
     APE_SOCKET_PT_SSL
+#ifdef _MSC_VER
+};
+#else
 } __attribute__ ((__packed__));
+#endif
 
 enum ape_socket_type {
     APE_SOCKET_TP_UNKNOWN,
     APE_SOCKET_TP_SERVER,
     APE_SOCKET_TP_CLIENT
+#ifdef _MSC_VER
+};
+#else
 } __attribute__ ((__packed__));
+#endif
 
 enum ape_socket_state {
     APE_SOCKET_ST_ONLINE,
@@ -111,7 +123,11 @@ enum ape_socket_state {
     APE_SOCKET_ST_PENDING,
     APE_SOCKET_ST_OFFLINE,
     APE_SOCKET_ST_SHUTDOWN
+#ifdef _MSC_VER
+};
+#else
 } __attribute__ ((__packed__));
+#endif
 
 typedef enum _ape_socket_data_autorelease {
     APE_DATA_STATIC,
@@ -172,12 +188,20 @@ struct _ape_socket {
 
     struct _ape_dns_cb_argv *dns_state;
 
+#ifdef _MSC_VER
+#pragma pack(push, 1)
     struct {
+#else
+    struct __attribute__ ((__packed__)) {
+#endif
     	enum ape_socket_flags flags;
     	enum ape_socket_proto proto;
     	enum ape_socket_type type;
     	enum ape_socket_state state;
     } states;
+#ifdef _MSC_VER
+#pragma pack(pop)
+#endif
 
 #ifdef _HAVE_SSL_SUPPORT
     struct {
