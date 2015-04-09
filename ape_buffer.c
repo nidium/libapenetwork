@@ -69,16 +69,16 @@ static void zbuffer_prepapre_buf(buffer *b, size_t input_size)
         bufsize <<= 1;
     }
 
-    printf("zbuf prepared for size %ld\n", bufsize);
+    printf("zbuf prepared for size %ld\n", (unsigned long ) bufsize);
 
     b->zbuf->buf_size = bufsize;
 
     if (b->zbuf->buf) {
         b->zbuf->buf = realloc(b->zbuf->buf, bufsize);
-        printf("Realloc input buffer for size %ld\n", bufsize);
+        printf("Realloc input buffer for size %ld\n", (unsigned long) bufsize);
     } else {
         b->zbuf->buf = malloc(bufsize);
-        printf("Alloc input buffer for size %ld\n", bufsize);
+        printf("Alloc input buffer for size %ld\n", (unsigned long) bufsize);
     }
 
     b->zbuf->zstream.avail_out = bufsize - b->zbuf->zstream.avail_in;
