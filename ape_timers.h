@@ -35,7 +35,7 @@ struct _ticks_callback
 	int delta;
 	int times;
 	unsigned int identifier;
-	int flag;
+	ape_timer_flags flag;
 
 	void *func;
 	void *params;

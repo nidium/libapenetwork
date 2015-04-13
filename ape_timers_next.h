@@ -24,15 +24,15 @@
 
 typedef int (*timer_callback)(void *arg);
 
-enum {
+typedef enum {
 	APE_TIMER_IS_PROTECTED = 1 << 0,
 	APE_TIMER_IS_CLEARED   = 1 << 1
-};
+} ape_timerng_flags;
 
 typedef struct _ape_timer
 {
 	int identifier;
-	int flags;
+	ape_timerng_flags flags;
 	uint64_t ticks_needs;
 	uint64_t schedule;
 	int nexec;
