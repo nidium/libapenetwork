@@ -515,18 +515,31 @@ int APE_sendfile(ape_socket *socket, const char *file)
 
 int APE_socket_writev(ape_socket *socket, const struct iovec *iov, int iovcnt)
 {
+    ssize_t wroteBytes;
+
     if (!socket || socket->states.state != APE_SOCKET_ST_ONLINE ||
             iovcnt == 0) {
-        return -1;        
-    }
-#ifdef _HAVE_SSL_SUPPORT
-    if (APE_SOCKET_ISSECURE(socket)) {
-        /* NOT IMPLEMENTED */
         return -1;
     }
-#endif    
-    writev(socket->s.fd, iov, iovcnt);
-    
+
+#ifdef _HAVE_SSL_SUPPORT
+    if (APE_SOCKET_ISSECURE(socket)) {
+        /*TODO: SSL, NOT IMPLEMENTED */
+        return -1;
+    }
+#endif
+    if ((socket->states.flags & APE_SOCKET_WOULD_BLOCK) ||
+            (socket->jobs.head->flags & APE_SOCKET_JOB_ACTIVE)) {
+        return 1;
+    }
+    wroteBytes = writev(socket->s.fd, iov, iovcnt);
+    /* TODO: Verify if the write was finished */
+    if (wroteBytes == -1) {
+        printf("IO error (%d) : %s\n", APE_SOCKET_FD(socket), strerror(errno));
+        APE_socket_shutdown_now(socket);
+        return -1;
+    }
+
     return 0;
 }
 #endif
