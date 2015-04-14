@@ -52,10 +52,10 @@ extern "C" {
 
 ape_array_t *ape_array_new(size_t n);
 ape_array_item_t *ape_array_lookup_item(ape_array_t *array,
-        const char *key, int klen);
-buffer *ape_array_lookup(ape_array_t *array, const char *key, int klen);
-buffer *ape_array_lookup_cstr(ape_array_t *array, const char *key, int klen);
-void *ape_array_lookup_data(ape_array_t *array, const char *key, int klen);
+        const char *key, size_t klen);
+buffer *ape_array_lookup(ape_array_t *array, const char *key, size_t klen);
+buffer *ape_array_lookup_cstr(ape_array_t *array, const char *key, size_t klen);
+void *ape_array_lookup_data(ape_array_t *array, const char *key, size_t klen);
 
 ape_array_item_t *ape_array_add_b(ape_array_t *array, buffer *key, buffer *value);
 ape_array_item_t *ape_array_add_n(ape_array_t *array, const char *key, int klen, const char *value, int vlen);
