@@ -10,8 +10,9 @@
 #define GRO "bWFpbih0KXtmb3IodD0wOzt0KyspcHV0Y2hhcih0KigoKHQ+PjEyKXwodD4+OCkpJig2MyYodD4+NCkpKSk7fQ=="
 #define GRO_SAFE "bWFpbih0KXtmb3IodD0wOzt0KyspcHV0Y2hhcih0KigoKHQ-PjEyKXwodD4-OCkpJig2MyYodD4-NCkpKSk7fQ" 
 
-TEST(Base64_Encode,EncodeDecode) {
-	char * org, * gro, * encoded, * decoded;
+TEST(Base64, EncodeDecode)
+{
+	char * org, * gro, * encoded;
 	char dummy[BASE64_BUFFER_SIZE];
 	char * pdummy;
 	int size;
@@ -33,8 +34,9 @@ TEST(Base64_Encode,EncodeDecode) {
 	free(gro);
 }
 
-TEST(Base64_Encode,EncodeDecodeSafe) {
-	char * org, * gro, * encoded, * decoded;
+TEST(Base64, EncodeDecodeSafe)
+{
+	char * org, * gro, * encoded;
 	char dummy[BASE64_BUFFER_SIZE];
 	char * pdummy;
 	int size;
@@ -56,8 +58,9 @@ TEST(Base64_Encode,EncodeDecodeSafe) {
 }
 
 
-TEST(Base64_Encode,EncodeDecodeBin) {
-	char * org, * gro, * encoded, * decoded;
+TEST(Base64, EncodeDecodeBin)
+{
+	char * org, * gro, * encoded;
 	char dummy[BASE64_BUFFER_SIZE];
 	char * pdummy;
 	int size;
@@ -80,8 +83,9 @@ TEST(Base64_Encode,EncodeDecodeBin) {
 	free(gro);
 }
 
-TEST(Base64_Encode,EncodeDecodeBinSafe) {
-	char * org, * gro, * encoded, * decoded;
+TEST(Base64, EncodeDecodeBinSafe)
+{
+	char * org, * gro, * encoded;
 	char dummy[BASE64_BUFFER_SIZE];
 	char * pdummy;
 	int size;
@@ -105,8 +109,8 @@ TEST(Base64_Encode,EncodeDecodeBinSafe) {
 	free(gro);
 }
 
-
-#undef GRO
 #undef ORG
-#undef BASE64_BUFFER_SIZE	
+#undef GRO
+#undef GRO_SAFE
+#undef BASE64_BUFFER_SIZE
 

@@ -1,5 +1,5 @@
 CC=clang
-CC_FLAGS=
+CC_FLAGS=-Wall -Wextra
 LD_FLAGS=-lstdc++ -lpthread
 GTEST_DIR=../../../third-party/.default/angle/third_party/googletest
 INCLUDES=-I.. -isystem../../../third-party/.default/c-ares -isystem $(GTEST_DIR)/include/
@@ -7,7 +7,7 @@ GTEST_LIB=$(GTEST_DIR)/libgtest.a $(GTEST_DIR)/libgtest_main.a
 LIBAPENETWORK=-L.. -lnativenetwork
 VALGRIND=valgrind
 
-TEST_OBJECTS= unittest_base64.o
+TEST_OBJECTS= unittest_base64.o unittest_common.o unittest_sha1.o
 TEST_EXEC=run_unittests
 
 all: $(TEST_EXEC)
