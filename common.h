@@ -92,5 +92,5 @@ struct _ape_global {
   int is_running;
 };
 
-
 #endif
+

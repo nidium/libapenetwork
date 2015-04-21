@@ -49,5 +49,3 @@ ape_dns_state *ape_gethostbyname(const char *host, ape_gethostbyname_callback ca
 
 #endif
 
-// vim: ts=4 sts=4 sw=4 et
-

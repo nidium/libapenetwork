@@ -240,5 +240,3 @@ int ape_socket_write_udp(ape_socket *from, const char *data,
 */
 #endif
 
-// vim: ts=4 sts=4 sw=4 et
-

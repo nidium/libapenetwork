@@ -292,3 +292,4 @@ void set_timer_to_low_resolution(ape_timers *timers, int low)
 {
     timers->run_in_low_resolution = low;
 }
+

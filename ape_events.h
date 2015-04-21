@@ -127,7 +127,3 @@ int events_revent(struct _fdevent *ev, int i);
 
 #endif
 
-
-
-// vim: ts=4 sts=4 sw=4 et
-

@@ -79,5 +79,3 @@ void ape_array_delete(ape_array_t *array, const char *key, int klen);
 
 #endif
 
-// vim: ts=4 sts=4 sw=4 et
-

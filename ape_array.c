@@ -251,4 +251,3 @@ static void ape_array_clean_cb(ape_pool_t *item, void *ctx)
     }
 }
 
-// vim: ts=4 sts=4 sw=4 et
