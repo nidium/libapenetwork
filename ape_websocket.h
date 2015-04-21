@@ -88,3 +88,4 @@ void ape_ws_close(websocket_state *state);
 #define WEBSOCKET_HARDCODED_HEADERS "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\n"
 
 #endif
+

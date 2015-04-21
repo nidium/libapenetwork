@@ -96,5 +96,3 @@ uint32_t hashtbl_seek_val32(ape_htable_t *htbl, const char *key, int key_len);
 
 #endif
 
-// vim: ts=4 sts=4 sw=4 et
-

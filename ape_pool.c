@@ -202,5 +202,3 @@ void ape_pool_rewind(ape_pool_list_t *list)
     list->current = list->head;
 }
 
-// vim: ts=4 sts=4 sw=4 et
-

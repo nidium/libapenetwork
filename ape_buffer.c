@@ -458,5 +458,3 @@ buffer *buffer_utf8_to_buffer(buffer *b)
     return newb;
 }
 
-// vim: ts=4 sts=4 sw=4 et
-

@@ -183,5 +183,3 @@ void ape_dns_invalidate(ape_dns_state *state)
     }
 }
 
-// vim: ts=4 sts=4 sw=4 et
-

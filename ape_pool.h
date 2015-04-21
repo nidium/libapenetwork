@@ -81,5 +81,3 @@ void ape_destroy_pool_list_ordered(ape_pool_list_t *list,
 
 #endif
 
-// vim: ts=4 sts=4 sw=4 et
-

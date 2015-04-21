@@ -263,5 +263,3 @@ int event_select_init(struct _fdevent *ev)
 }
 #endif
 
-// vim: ts=4 sts=4 sw=4 et
-
