@@ -87,40 +87,34 @@ TEST(Common, ABS)
 	}
 
 }
-
-#if 0
-static void strLenTest( const char * orgString, const int shouldLen, const char * macroString, const int macroLen )
-{
-	EXPECT_EQ(shouldLen, macroLen);
-	EXPECT_TRUE(strcmp(orgString,macroString) == 0);
-
-}
+struct constStrMacro{
+	const char * str;
+	const int len;
+};
 
 TEST(Common, ConstStrLenMacro)
 {
-	char * str;
-	size_t len;
-	const char fixed[16] = "HELLO";
+	{
+#define MYSTR NULL
+	struct constStrMacro test = { CONST_STR_LEN(MYSTR)};
+	EXPECT_EQ(test.len, 0);
+	EXPECT_TRUE(test.str == NULL);
+#undef MYSTR
+	}
+	{
+#define MYSTR "HELLO"
+	struct constStrMacro test = { CONST_STR_LEN(MYSTR)};
+	EXPECT_EQ(test.len, 5);
+	EXPECT_TRUE(strcmp(test.str, MYSTR) == 0 );
+#undef MYSTR
+	}
+	{
+#define MYSTR "H\0ELLO"
+	struct constStrMacro test = { CONST_STR_LEN(MYSTR)};
+	EXPECT_EQ(test.len, 6);
+	EXPECT_TRUE(strcmp(test.str, "H") == 0 );
+#undef MYSTR
+	}
 
-	str = strdup("HELLO"); len = 5;
-	strLenTest( str, len, CONST_STR_LEN(str));
-	free(str);
-
-	str = strdup("NULL"); len = 0;
-	strLenTest( str, len, CONST_STR_LEN(str));
-	free(str);
-
-	str = strdup("\0HELLO"); len = 0;
-	strLenTest( str, len, CONST_STR_LEN(str));
-	free(str);
-
-	str = strdup("H\0ELLO"); len = 1;
-	strLenTest( str, len, CONST_STR_LEN(str));
-	free(str);
-
-	str = strdup(fixed); len = 5;
-	strLenTest( str, len, CONST_STR_LEN(str));
-	free(str);
 }
 
-#endif

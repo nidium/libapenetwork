@@ -64,6 +64,7 @@ TEST(SHA1, Hmac)
 	base64_encode_b( digest, pd, 20);
 	EXPECT_TRUE(strcmp(pd, GRO_MAC) == 0);
 
+	free(key);
 	free(org);
 }
 
