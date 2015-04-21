@@ -84,8 +84,8 @@ struct iovec
         setsockopt(fd, IPPROTO_TCP, TCP_CORK, &__state, sizeof(__state)); \
     } while(0)
 #else
-    #define PACK_TCP(fd)
-    #define FLUSH_TCP(fd)
+    #define PACK_TCP(fd) ((void)fd);
+    #define FLUSH_TCP(fd) ((void)fd);
 #endif
 
 
