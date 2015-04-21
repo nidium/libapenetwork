@@ -198,6 +198,9 @@ void buffer_delete(buffer *b)
 {
     if (b->data != NULL) {
         free(b->data);
+        b->data = NULL;
+        b->used = 0;
+        b->size = 0;
     }
 #if APE_USE_ZLIB
     if (b->zbuf) {
@@ -458,5 +461,5 @@ buffer *buffer_utf8_to_buffer(buffer *b)
     return newb;
 }
 
-// vim: ts=4 sts=4 sw=4 et
+// vim: ts=4 sts=4 swdd=4 et
 
