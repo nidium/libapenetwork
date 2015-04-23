@@ -9,18 +9,19 @@ INCLUDES=-I.. -isystem../../../third-party/.default/c-ares -isystem $(GTEST_DIR)
 GTEST_LIB=$(GTEST_DIR)/libgtest.a $(GTEST_DIR)/libgtest_main.a
 LIBS=-L.. -lnativenetwork
 
-TEST_OBJECTS=unittest_base64.o \
-			unittest_sha1.o \
-			unittest_hash.o \
-			unittest_httpparser.o \
-			unittest_common.o \
-			unittest_buffer.o \
-	
+TEST_OBJECTS= \
+	unittest_pool.o \
+	unittest_sha1.o \
+	unittest_hash.o \
+	unittest_httpparser.o \
+	unittest_common.o \
+	unittest_buffer.o \
+
 TEST_EXEC=run_unittests
 
 all: $(TEST_EXEC)
 
-$(TEST_EXEC): $(TEST_OBJECTS)
+$(TEST_EXEC): $(TEST_OBJECTS) ../libnativenetwork.a
 	@echo "LD\t" $@
 	@$(CC) $(LD_FLAGS) -o $@ $^ $(GTEST_LIB) $(LIBS)
 	@echo "Run\t" $@
