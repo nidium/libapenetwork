@@ -153,6 +153,7 @@ typedef struct _ape_socket_jobs_t {
         buffer *buf;
     } ptr; /* public */
     struct _ape_pool *next;
+    struct _ape_pool *prev;
     uint32_t flags;
     off_t offset;
 } ape_socket_jobs_t;
