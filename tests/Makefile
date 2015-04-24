@@ -1,12 +1,13 @@
 CC=clang
 VALGRIND=valgrind
 
-CC_FLAGS=-Wall -Wextra
-LD_FLAGS=-lstdc++ -lpthread -lz
+CC_FLAGS=-Wall -Wextra -g -O2
+LD_FLAGS=-g -lstdc++ -lpthread -lz -O2
 
 GTEST_DIR=../../../third-party/.default/angle/third_party/googletest
 INCLUDES=-I.. -isystem../../../third-party/.default/c-ares -isystem $(GTEST_DIR)/include/
 GTEST_LIB=$(GTEST_DIR)/libgtest.a $(GTEST_DIR)/libgtest_main.a
+LIBNATIVENETWORK=../libnativenetwork.a
 LIBS=-L.. -lnativenetwork
 
 TEST_OBJECTS= \
@@ -18,10 +19,13 @@ TEST_OBJECTS= \
 	unittest_buffer.o \
 
 TEST_EXEC=run_unittests
+BENCHMARKS = run_benchmark_new_pool
 
 all: $(TEST_EXEC)
 
-$(TEST_EXEC): $(TEST_OBJECTS) ../libnativenetwork.a
+benchmarks: $(BENCHMARKS)
+
+$(TEST_EXEC): $(TEST_OBJECTS) $(LIBNATIVENETWORK)
 	@echo "LD\t" $@
 	@$(CC) $(LD_FLAGS) -o $@ $^ $(GTEST_LIB) $(LIBS)
 	@echo "Run\t" $@
@@ -31,9 +35,13 @@ unittest_%.o: unittest_%.cpp
 	@echo "CC\t" $@
 	@$(CC) $(CC_FLAGS) -o $@ -c $< $(INCLUDES)
 
+run_benchmark_new_pool: benchmark_new_pool.c $(LIBNATIVENETWORK)
+	@echo "CCLD\t" $@
+	@$(CC) $(CC_FLAGS) $(LD_FLAGS) -o $@ $^ $(GTEST_LIB) $(LIBS) $(INCLUDES)
+	
 .PHONY: clean
 
 clean:
 	@echo "rm\t" $@
-	@rm -rf $(TEST_EXEC) $(TEST_OBJECTS)
+	@rm -rf $(TEST_EXEC) $(TEST_OBJECTS)$(BENCHMARKS)
 
