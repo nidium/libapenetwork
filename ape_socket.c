@@ -480,7 +480,7 @@ int APE_sendfile(ape_socket *socket, const char *file)
 
         socket->states.flags  |= APE_SOCKET_WOULD_BLOCK;
         job          = ape_socket_job_get_slot(socket, APE_SOCKET_JOB_SENDFILE);
-        job->ptr.fd  = fd;
+        job->pool.ptr.fd  = fd;
 
         return 1;
     }
@@ -502,7 +502,7 @@ int APE_sendfile(ape_socket *socket, const char *file)
     if (nwrite == -1 && errno == EAGAIN) {
         socket->states.flags  |= APE_SOCKET_WOULD_BLOCK;
         job          = ape_socket_job_get_slot(socket, APE_SOCKET_JOB_SENDFILE);
-        job->ptr.fd  = fd;
+        job->pool.ptr.fd  = fd;
         /* BSD/OSX require offset */
         job->offset  = offset_file;
     } else {
@@ -686,13 +686,13 @@ int ape_socket_do_jobs(ape_socket *socket)
 #endif
     job = (ape_socket_jobs_t *)socket->jobs.head;
 
-    while(job != NULL && (job->flags & APE_SOCKET_JOB_ACTIVE)) {
-        switch(job->flags & ~(APE_POOL_ALL_FLAGS | APE_SOCKET_JOB_ACTIVE)) {
+    while(job != NULL && (job->pool.flags & APE_SOCKET_JOB_ACTIVE)) {
+        switch(job->pool.flags & ~(APE_POOL_ALL_FLAGS | APE_SOCKET_JOB_ACTIVE)) {
         case APE_SOCKET_JOB_WRITEV:
         {
             unsigned i;
             ssize_t n;
-            ape_pool_list_t *plist = (ape_pool_list_t *)job->ptr.data;
+            ape_pool_list_t *plist = (ape_pool_list_t *)job->pool.ptr.data;
             ape_socket_packet_t *packet = (ape_socket_packet_t *)plist->head;
 #ifdef _HAVE_SSL_SUPPORT            
             if (APE_SOCKET_ISSECURE(socket)) {
@@ -778,7 +778,7 @@ int ape_socket_do_jobs(ape_socket *socket)
         {
             off_t nwrite = 4096;
 #if (defined(__APPLE__) || defined(__FREEBSD__))
-            while (sendfile(job->ptr.fd, socket->s.fd, job->offset, &nwrite, NULL, 0) == 0 && nwrite != 0) {
+            while (sendfile(job->pool.ptr.fd, socket->s.fd, job->offset, &nwrite, NULL, 0) == 0 && nwrite != 0) {
                 job->offset += nwrite;
                 nwrite = 4096;
             }
@@ -787,7 +787,7 @@ int ape_socket_do_jobs(ape_socket *socket)
             }
 #else
             do {
-                nwrite = sendfile(socket->s.fd, job->ptr.fd, NULL, 4096);
+                nwrite = sendfile(socket->s.fd, job->pool.ptr.fd, NULL, 4096);
             } while (nwrite > 0);
 #endif
             /* Job not finished */
@@ -797,12 +797,12 @@ int ape_socket_do_jobs(ape_socket *socket)
             }
             /* Job finished */
 #ifndef __WIN32
-            close(job->ptr.fd);
+            close(job->pool.ptr.fd);
 #else
-            _close(job->ptr.fd);
+            _close(job->pool.ptr.fd);
 #endif
             job->offset = 0;
-            job->ptr.data = NULL;
+            job->pool.ptr.data = NULL;
             
             break;
         }
@@ -816,7 +816,7 @@ int ape_socket_do_jobs(ape_socket *socket)
             break;
         }
 
-        job->flags &= ~APE_SOCKET_JOB_ACTIVE;
+        job->pool.flags &= ~APE_SOCKET_JOB_ACTIVE;
         job = (ape_socket_jobs_t *)ape_pool_head_to_current(&socket->jobs);
 
         njobsdone++;
@@ -842,11 +842,11 @@ static int ape_socket_queue_data(ape_socket *socket,
     }
 
     job = ape_socket_job_get_slot(socket, APE_SOCKET_JOB_WRITEV);
-    list = job->ptr.data;
+    list = job->pool.ptr.data;
 
     if (list == NULL) {
         list = ape_socket_new_packet_queue(8);
-        job->ptr.data = list;
+        job->pool.ptr.data = list;
     }
     packets = (ape_socket_packet_t *)list->current;
 
@@ -1102,20 +1102,20 @@ static ape_socket_jobs_t *ape_socket_job_get_slot(ape_socket *socket, int type)
 
     /* If we request a write job we can push the data to the iov list */
     if ((type == APE_SOCKET_JOB_WRITEV &&
-            (jobs->flags & APE_SOCKET_JOB_WRITEV)) ||
-            !(jobs->flags & APE_SOCKET_JOB_ACTIVE)) {
+            (jobs->pool.flags & APE_SOCKET_JOB_WRITEV)) ||
+            !(jobs->pool.flags & APE_SOCKET_JOB_ACTIVE)) {
 
-        jobs->flags |= APE_SOCKET_JOB_ACTIVE | type;
+        jobs->pool.flags |= APE_SOCKET_JOB_ACTIVE | type;
         
         return jobs;
     }
 
     jobs = (ape_socket_jobs_t *)(jobs == (ape_socket_jobs_t *)socket->jobs.queue ?
         ape_grow_pool(&socket->jobs, 2) :
-        jobs->next);
+        jobs->pool.next);
 
     socket->jobs.current = (ape_pool_t *)jobs;
-    jobs->flags |= APE_SOCKET_JOB_ACTIVE | type;
+    jobs->pool.flags |= APE_SOCKET_JOB_ACTIVE | type;
 
     return jobs;
 }

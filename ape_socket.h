@@ -147,14 +147,7 @@ typedef struct {
 #define APE_SOCKET_JOB_IOV      (1 << 5)
 
 typedef struct _ape_socket_jobs_t {
-    union {
-        void *data;
-        int fd;
-        buffer *buf;
-    } ptr; /* public */
-    struct _ape_pool *next;
-    struct _ape_pool *prev;
-    uint32_t flags;
+    ape_pool_t pool;
     off_t offset;
 } ape_socket_jobs_t;
 
