@@ -145,7 +145,7 @@ buffer *buffer_new(size_t size)
     /* TODO: removing a malloc by making b->data[] the last struct elem */
 
     if ((b->size = size) > 0) {
-        b->data = calloc(size, sizeof(char));
+        b->data = malloc(size * sizeof(char));
     } else {
         b->size = 0;
     }
