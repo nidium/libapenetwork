@@ -128,7 +128,7 @@ typedef enum methods {
 extern "C" {
 #endif
 
-int parse_http_char(struct _http_parser *parser, const unsigned char c);
+int parse_http_char(http_parser *parser, const unsigned char c);
 
 #ifdef __cplusplus
 }

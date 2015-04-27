@@ -125,7 +125,7 @@ struct HttpClient * ParseToClient( const unsigned char * httpMsg, HTTP_parser_ca
 {
 	struct HttpClient * client;
 	size_t length = 0, i;
-	struct _http_parser *p;
+	http_parser *p;
 
 	client = httpclient_new( );
 	p = &client->http.parser;
