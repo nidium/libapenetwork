@@ -41,11 +41,11 @@ struct HttpClient * httpclient_new( )
 	client = (struct HttpClient*) malloc( sizeof( *client ) );
 	client->http.method = HTTP_GET;
 	client->http.version = 0;
-	client->http.path         = buffer_new(256);
-	client->http.body         = buffer_new(256);
-	client->http.qs           = buffer_new(256);
-	client->http.headers.tkey = buffer_new(16);
-	client->http.headers.tval = buffer_new(64);
+	client->http.path         = buffer_new(256); memset(client->http.path->data, '\0', 256);
+	client->http.body         = buffer_new(256); memset(client->http.body->data, '\0', 256);
+	client->http.qs           = buffer_new(256); memset(client->http.qs->data, '\0', 256);
+	client->http.headers.tkey = buffer_new(16); memset(client->http.headers.tkey->data, '\0', 16);
+	client->http.headers.tval = buffer_new(64); memset(client->http.headers.tval->data, '\0', 64);
 	client->http.headers.list = ape_array_new(16);
 
 	return client;
