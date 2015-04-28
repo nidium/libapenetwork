@@ -74,7 +74,12 @@ static void zbuffer_prepapre_buf(buffer *b, size_t input_size)
     b->zbuf->buf_size = bufsize;
 
     if (b->zbuf->buf) {
-        b->zbuf->buf = realloc(b->zbuf->buf, bufsize);
+        unsigned char * tmp;
+
+        tmp = realloc(b->zbuf->buf, bufsize);
+        if (tmp != NULL) {
+            b->zbuf->buf = tmp;
+        }
         printf("Realloc input buffer for size %ld\n", bufsize);
     } else {
         b->zbuf->buf = malloc(bufsize);
@@ -224,11 +229,16 @@ void buffer_prepare(buffer *b, size_t size)
         b->used = 0;
         b->data = malloc(sizeof(char) * b->size);
     } else if (b->used + size > b->size) {
+        unsigned char * tmp;
+
         if (size == 0) {
             size = 1;
         }
         b->size += size;
-        b->data = realloc(b->data, sizeof(char) * b->size);
+        tmp = realloc(b->data, sizeof(char) * b->size);
+        if (tmp != NULL) {
+            b->data = tmp;
+        }
     }
 #if APE_USE_ZLIB
     if (b->zbuf) {
@@ -244,11 +254,16 @@ static void buffer_prepare_for(buffer *b, size_t size, size_t forsize)
         b->used = 0;
         b->data = malloc(sizeof(char) * b->size);
     } else if (b->used + forsize > b->size) {
+        unsigned char * tmp;
+
         if (size == 0) {
             size = 1;
         }
         b->size += size;
-        b->data = realloc(b->data, sizeof(char) * b->size);
+        tmp = realloc(b->data, sizeof(char) * b->size);
+        if (tmp != NULL) {
+            b->data = tmp;
+        }
     }
 #if APE_USE_ZLIB
     if (b->zbuf) {
@@ -397,8 +412,13 @@ buffer *buffer_to_buffer_utf8(buffer *b)
     newb->data[newb->used] = '\0';
 
     if (newb->size > newb->used+1) {
+        unsigned char * tmp;
+
         newb->size = newb->used+1;
-        newb->data = realloc(newb->data, newb->size);
+        tmp = realloc(newb->data, newb->size);
+        if (tmp != NULL) {
+            newb->data = tmp;
+        }
     }
 
     return newb;
@@ -451,8 +471,13 @@ buffer *buffer_utf8_to_buffer(buffer *b)
     newb->data[newb->used] = '\0';
 
     if (newb->size > newb->used+1) {
+        unsigned char * tmp;
+
         newb->size = newb->used+1;
-        newb->data = realloc(newb->data, newb->size);
+        tmp = realloc(newb->data, newb->size);
+        if (tmp != NULL) {
+            newb->data = tmp;
+        }
     }
 
     return newb;
