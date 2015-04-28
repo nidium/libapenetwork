@@ -2,13 +2,13 @@ CC=clang
 VALGRIND=valgrind
 
 CC_FLAGS=-Wall -Wextra -g -O2
-LD_FLAGS=-g -lstdc++ -lpthread -lz -O2
+LD_FLAGS=-g -lstdc++ -lpthread -lz -lrt -O2
 
 GTEST_DIR=../../../third-party/.default/angle/third_party/googletest
 INCLUDES=-I.. -isystem../../../third-party/.default/c-ares -isystem $(GTEST_DIR)/include/
 GTEST_LIB=$(GTEST_DIR)/libgtest.a $(GTEST_DIR)/libgtest_main.a
 LIBNATIVENETWORK=../libnativenetwork.a
-LIBS=-L.. -lnativenetwork
+LIBS=-L.. -lnativenetwork -L../../../third-party/c-ares/.libs -lcares
 
 TEST_OBJECTS= \
 	unittest_array.o \
@@ -18,6 +18,7 @@ TEST_OBJECTS= \
 	unittest_httpparser.o \
 	unittest_common.o \
 	unittest_buffer.o \
+	unittest_netlib.o \
 
 TEST_EXEC=run_unittests
 BENCHMARKS = run_benchmark_new_pool
