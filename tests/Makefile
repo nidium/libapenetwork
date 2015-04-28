@@ -11,6 +11,7 @@ LIBNATIVENETWORK=../libnativenetwork.a
 LIBS=-L.. -lnativenetwork
 
 TEST_OBJECTS= \
+	unittest_array.o \
 	unittest_pool.o \
 	unittest_sha1.o \
 	unittest_hash.o \

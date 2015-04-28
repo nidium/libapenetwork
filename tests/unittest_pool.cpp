@@ -16,6 +16,7 @@ TEST(Pool, Simple)
 	EXPECT_TRUE(pool->next->next == NULL);
 	EXPECT_TRUE(pool->prev == NULL);
 	EXPECT_TRUE(pool == pool->next->prev);
+
 	ape_destroy_pool( pool );
 }
 
@@ -39,11 +40,12 @@ TEST(Pool, Looped)
 	pool = ape_new_pool(SIZE_START, 0);
 	EXPECT_TRUE(pool == NULL);
 
-	for( n = 0; n < N_START; n += N_STEP ) {
+	for( n = 1; n < N_START; n += N_STEP ) {
 		for(size = 1; size < SIZE_START; size += SIZE_STEP) {
 			pool = NULL;
 			pool = ape_new_pool(size, n);
-			EXPECT_TRUE(pool == NULL);
+			EXPECT_TRUE(pool != NULL);
+			ape_destroy_pool(pool);
 		}
 	}
 
@@ -116,6 +118,16 @@ static void Dummy_Clear( struct dummy_t * dummy)
 	}
 }
 
+static void Dummy_Cleaner( ape_pool_t * pool, void * ctx)
+{
+	struct dummy_t *dummy;
+
+	ctx = NULL;
+
+	dummy = (struct dummy_t*) pool;
+	Dummy_Clear(dummy);
+}
+
 TEST(Pool, allocate)
 {
 	ape_pool_t * pool;
@@ -131,4 +143,47 @@ TEST(Pool, allocate)
 	ape_destroy_pool(pool);
 }
 
+TEST(Pool, allocateAndClean)
+{
+	ape_pool_t * pool;
 
+	pool = ape_new_pool(sizeof(struct dummy_t), 2);
+	Dummy_Init((struct dummy_t*) &pool->ptr.data);
+	Dummy_Init((struct dummy_t*) &pool->next->ptr.data);
+	Dummy_Set((struct dummy_t*) &pool->ptr.data, 1, "Nidium");
+	Dummy_Set((struct dummy_t*) &pool->next->ptr.data, 2, "A new breed of browser");
+
+	ape_destroy_pool_ordered( pool, Dummy_Cleaner, NULL);
+}
+
+/*
+//  head to queue
+//  head to current
+//  grow pool
+//  push
+//  rewind
+//  destroy poollist ordered
+//  foreach
+//  foreach_reverse
+
+TEST(Pool, SimplePoolList)
+{
+	ape_pool_list_t *list;
+	int n;
+
+	for (n = 1; n < 2; n++) {
+		list = NULL;
+		list = ape_new_pool_list(0, n);
+		EXPECT_TRUE( list != NULL);
+
+		ape_init_pool_list(list, 0, n);
+		EXPECT_TRUE(list != NULL);
+		EXPECT_TRUE(list->head != NULL);
+		EXPECT_TRUE(list->head == list->current);
+		EXPECT_TRUE(list->head->prev == NULL);
+		EXPECT_TRUE(list->queue->next == NULL);
+
+		ape_destroy_pool_list(list);
+	}
+}
+*/
