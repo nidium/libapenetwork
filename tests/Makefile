@@ -1,14 +1,14 @@
 CC=clang
-VALGRIND=valgrind
+VALGRIND=valgrind --leak-check=full # --show-reachable=yes
 
-CC_FLAGS=-Wall -Wextra -g -O2
+CC_FLAGS=-Wall -Wextra -g -O2 -D_HAVE_SSL_SUPPORT=1
 LD_FLAGS=-g -lstdc++ -lpthread -lz -lrt -O2
 
 GTEST_DIR=../../../third-party/.default/angle/third_party/googletest
 INCLUDES=-I.. -isystem../../../third-party/.default/c-ares -isystem $(GTEST_DIR)/include/
 GTEST_LIB=$(GTEST_DIR)/libgtest.a $(GTEST_DIR)/libgtest_main.a
 LIBNATIVENETWORK=../libnativenetwork.a
-LIBS=-L.. -lnativenetwork -L../../../third-party/c-ares/.libs -lcares
+LIBS=-L.. -lnativenetwork -L../../../third-party/c-ares/.libs -lcares -lssl -lcrypto
 
 TEST_OBJECTS= \
 	unittest_array.o \
@@ -18,6 +18,8 @@ TEST_OBJECTS= \
 	unittest_httpparser.o \
 	unittest_common.o \
 	unittest_buffer.o \
+	unittest_ssl.o \
+	unittest_dns.o \
 	unittest_websocket.o \
 	unittest_netlib.o \
 
