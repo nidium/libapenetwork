@@ -18,6 +18,7 @@ TEST_OBJECTS= \
 	unittest_httpparser.o \
 	unittest_common.o \
 	unittest_buffer.o \
+	unittest_websocket.o \
 	unittest_netlib.o \
 
 TEST_EXEC=run_unittests
