@@ -1,7 +1,7 @@
 CC=clang
 VALGRIND=valgrind --leak-check=full # --show-reachable=yes
 
-CC_FLAGS=-Wall -Wextra -g -O2 -D_HAVE_SSL_SUPPORT=1
+CC_FLAGS=-Wall -Wextra -g -O3 -D_HAVE_SSL_SUPPORT=1
 LD_FLAGS=-g -lstdc++ -lpthread -lz -lrt -O2
 
 GTEST_DIR=../../../third-party/.default/angle/third_party/googletest
@@ -24,7 +24,7 @@ TEST_OBJECTS= \
 	unittest_netlib.o \
 
 TEST_EXEC=run_unittests
-BENCHMARKS = run_benchmark_new_pool
+BENCHMARKS = run_benchmark_new_pool run_benchmark_http_server
 
 all: $(TEST_EXEC)
 
@@ -40,7 +40,7 @@ unittest_%.o: unittest_%.cpp
 	@echo "CC\t" $@
 	@$(CC) $(CC_FLAGS) -o $@ -c $< $(INCLUDES)
 
-run_benchmark_new_pool: benchmark_new_pool.c $(LIBNATIVENETWORK)
+run_benchmark_%: benchmark_%.c $(LIBNATIVENETWORK)
 	@echo "CCLD\t" $@
 	@$(CC) $(CC_FLAGS) $(LD_FLAGS) -o $@ $^ $(GTEST_LIB) $(LIBS) $(INCLUDES)
 	
