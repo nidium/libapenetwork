@@ -119,6 +119,7 @@ int event_kqueue_init(struct _fdevent *ev);
 int event_epoll_init(struct _fdevent *ev);
 int event_select_init(struct _fdevent *ev);
 int events_revent(struct _fdevent *ev, int i);
+void events_destroy(struct _fdevent *ev);
 
 #ifdef __cplusplus
 }
