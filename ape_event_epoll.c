@@ -38,7 +38,7 @@ static int event_epoll_add(struct _fdevent *ev,
 {
     struct epoll_event kev;
 
-    memset(&kev, 0, sizeof(kev));
+    kev.data.u64 = 0;
     kev.events = ((bitadd & EVENT_LEVEL ? 0 : EPOLLET)) | EPOLLPRI;
 
     if (bitadd & EVENT_READ) {
@@ -63,7 +63,7 @@ static int event_epoll_mod(struct _fdevent *ev,
 {
     struct epoll_event kev;
 
-    memset(&kev, 0, sizeof(kev));
+    kev.data.u64 = 0;
     kev.events = ((bitadd & EVENT_LEVEL ? 0 : EPOLLET)) | EPOLLPRI;
 
     if (bitadd & EVENT_READ) {
