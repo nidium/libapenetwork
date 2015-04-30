@@ -27,14 +27,16 @@ ape_pool_t *ape_new_pool(size_t size, const size_t n)
     const size_t stop = n - 1;
     ape_pool_t * pool, *current;
 
-     if (size == 0) {
+    if (size == 0) {
         size = sizeof(ape_pool_t);
     } else if ( n == 0 ) {
         return NULL;
     } else if (size < sizeof(ape_pool_t) ) {
         return NULL;
     }
-    
+    if (n == 0) {
+        return NULL;
+    }
     current = pool = malloc(size * n);
     pool->prev = NULL;
     i = 0;
