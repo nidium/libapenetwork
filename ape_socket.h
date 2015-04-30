@@ -183,6 +183,8 @@ struct _ape_socket {
 #endif
     uint16_t    remote_port;
     uint16_t    local_port;
+    size_t      max_buffer_memory_mb;
+    size_t      current_buffer_memory_bytes;
 };
 
 #define APE_SOCKET_FD(socket) socket->s.fd
@@ -202,6 +204,9 @@ extern "C" {
 #endif
 
 ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape);
+
+int APE_socket_setTimeout(ape_socket *socket, int secs);
+void APE_socket_setBufferMaxSize(ape_socket *socket, size_t MB);
 
 int APE_socket_listen(ape_socket *socket, uint16_t port,
         const char *local_ip, int defer_accept, int reuse_port);

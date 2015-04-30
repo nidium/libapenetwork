@@ -150,6 +150,8 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
 
     ret->remote_port = 0;
     ret->local_port  = 0;
+    ret->max_buffer_memory_mb = 0;
+    ret->current_buffer_memory_bytes = 0;
 
     memset(&ret->sockaddr, 0, sizeof(struct sockaddr_in));
 
@@ -160,6 +162,67 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
     //printf("New socket : %d\n", sock);
 
     return ret;
+}
+
+void APE_socket_setBufferMaxSize(ape_socket *socket, size_t MB)
+{
+    socket->max_buffer_memory_mb = MB;
+}
+
+int APE_socket_setTimeout(ape_socket *socket, int secs)
+{
+    if (socket->states.proto == APE_SOCKET_PT_UDP) {
+        return 0;
+    }
+
+#ifdef TCP_KEEPALIVE /* BSD, Darwin */
+    #define KEEPALIVE_OPT TCP_KEEPALIVE
+#elif define(TCP_KEEPIDLE) /* Linux */
+    #define KEEPALIVE_OPT TCP_KEEPIDLE
+#else
+    #error "TCP KeepAlive not supported"
+#endif
+
+#ifndef SO_KEEPALIVE
+    #error "TCP KeepAlive not supported"
+#endif
+    int enable = 1;
+
+    if (setsockopt(socket->s.fd, SOL_SOCKET, SO_KEEPALIVE, &enable, sizeof(enable)) == -1) {
+        fprintf(stderr, "Failed to set socket timeout (SO_KEEPALIVE) : error %d %s\n", errno, strerror(errno));
+        return 0;
+    }
+
+    if (setsockopt(socket->s.fd, IPPROTO_TCP, KEEPALIVE_OPT, &secs, sizeof(secs)) == -1) {
+        fprintf(stderr, "Failed to set socket timeout (TCP_KEEPALIVE) : error %d %s\n", errno, strerror(errno));
+        return 0;
+    }
+#ifdef TCP_KEEPINTVL
+    int keepintvl = 5;
+    if (setsockopt(socket->s.fd, IPPROTO_TCP, TCP_KEEPINTVL, &keepintvl, sizeof(keepintvl)) == -1) {
+        fprintf(stderr, "Failed to set socket timeout (TCP_KEEPINTVL) : error %d %s\n", errno, strerror(errno));
+        return 0;
+    }
+#endif
+#ifdef TCP_KEEPCNT
+    int kepcnt = 3;
+    if (setsockopt(socket->s.fd, IPPROTO_TCP, TCP_KEEPINTVL, &kepcnt, sizeof(kepcnt)) == -1) {
+        fprintf(stderr, "Failed to set socket timeout (TCP_KEEPCNT) : error %d %s\n", errno, strerror(errno));
+        return 0;
+    }
+#endif
+
+#ifdef TCP_USER_TIMEOUT
+    size_t mstimeout = secs * 1000ULL;
+
+    if (setsockopt(socket->s.fd, IPPROTO_TCP, TCP_USER_TIMEOUT, &mstimeout, sizeof(mstimeout)) == -1) {
+        fprintf(stderr, "Failed to set socket timeout (TCP_USER_TIMEOUT) : error %d %s\n", errno, strerror(errno));
+        return 0;
+    }
+#endif
+
+    return 1;
+
 }
 
 int APE_socket_listen(ape_socket *socket, uint16_t port,
@@ -862,6 +925,17 @@ static int ape_socket_queue_data(ape_socket *socket,
 
     list->current = packets->pool.next;
 
+    socket->current_buffer_memory_bytes += len;
+
+    /* Check whether we're exceeding the buffer max memory */
+    if (socket->max_buffer_memory_mb != 0 &&
+        socket->current_buffer_memory_bytes >
+        (socket->max_buffer_memory_mb * 1024ULL*1024ULL)) {
+
+        fprintf(stderr, "Maximum buffer size reached for socket %d\n", socket->s.fd);
+        APE_socket_shutdown_now(socket);
+    }
+
     return 0;
 }
 
@@ -1018,6 +1092,7 @@ static int ape_shutdown(ape_socket *socket, int rw)
 int ape_socket_read(ape_socket *socket)
 {
     ssize_t nread;
+    int io_error = 0;
 
     if (socket->states.state != APE_SOCKET_ST_ONLINE) {
 
@@ -1064,7 +1139,13 @@ socket_reread:
                 switch(errno) {
                     case EINTR:
                         goto socket_reread;
+                    case EAGAIN:
+                        break;
+                    case ETIMEDOUT:
+                        fprintf(stderr, "Socket timedout\n");
+                        /* fall through */
                     default:
+                        io_error = 1;
                         break;
                 }
             }
@@ -1086,7 +1167,10 @@ socket_reread:
         socket->data_in.used = 0;
     }
 
-    if (nread == 0 && socket->states.state != APE_SOCKET_ST_SHUTDOWN) {
+    if ((nread == 0 || io_error) && socket->states.state != APE_SOCKET_ST_SHUTDOWN) {
+        if (io_error) {
+            fprintf(stderr, "Socket %d disconnected because of IO error\n", socket->s.fd);
+        }
         ape_socket_destroy(socket);
 
         return -1;
