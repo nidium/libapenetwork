@@ -2,7 +2,12 @@
 #define __APE_SSL_H
 
 #ifdef _HAVE_SSL_SUPPORT
+
 #include <openssl/ssl.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct _ape_ssl {
     SSL_CTX *ctx;
@@ -18,7 +23,10 @@ int ape_ssl_write(ape_ssl_t *ssl, void *buf, int num);
 void ape_ssl_shutdown(ape_ssl_t *ssl);
 void ape_ssl_destroy(ape_ssl_t *ssl);
 
+#ifdef __cplusplus
+}
 #endif
 
 #endif
 
+#endif
