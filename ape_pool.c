@@ -27,6 +27,11 @@ ape_pool_t *ape_new_pool(size_t size, size_t n)
     
     if (size == 0) {
         size = sizeof(ape_pool_t);
+    } else if (size < sizeof(ape_pool_t)) {
+         return NULL;
+    }
+    if (n == 0) {
+        return NULL;
     }
 
     ape_pool_t *pool = malloc(size * n), *current = NULL;
@@ -48,8 +53,18 @@ ape_pool_t *ape_new_pool(size_t size, size_t n)
 
 ape_pool_list_t *ape_new_pool_list(size_t size, size_t n)
 {
-    ape_pool_list_t *list = malloc(sizeof(ape_pool_list_t));
+    ape_pool_list_t *list;
 
+    if (size == 0) {
+        size = sizeof(ape_pool_t);
+    } else if ( size < sizeof(ape_pool_t)) {
+        return NULL;
+    }
+    if (n == 0) {
+        return NULL;
+    }
+
+    list = malloc(sizeof(ape_pool_list_t));
     ape_init_pool_list(list, size, n);
 
     return list;
@@ -57,6 +72,7 @@ ape_pool_list_t *ape_new_pool_list(size_t size, size_t n)
 
 void ape_init_pool_list(ape_pool_list_t *list, size_t size, size_t n)
 {
+    //  @TODO: more checks
     if (size == 0) {
         size = sizeof(ape_pool_t);
     }
