@@ -177,7 +177,7 @@ int APE_socket_setTimeout(ape_socket *socket, int secs)
 
 #ifdef TCP_KEEPALIVE /* BSD, Darwin */
     #define KEEPALIVE_OPT TCP_KEEPALIVE
-#elif define(TCP_KEEPIDLE) /* Linux */
+#elif defined(TCP_KEEPIDLE) /* Linux */
     #define KEEPALIVE_OPT TCP_KEEPIDLE
 #else
     #error "TCP KeepAlive not supported"
