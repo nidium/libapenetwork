@@ -280,7 +280,8 @@ int main(const int argc, const char **argv)
 		
 		HttpServer_Delete(server); server = NULL;
 	}
-	native_netlib_destroy(g_ape);
+
+	//native_netlib_destroy(g_ape);
 
 	return 0;
 }

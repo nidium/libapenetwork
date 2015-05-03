@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <gtest/gtest.h>
+#include "unittest.h"
 
 #if _HAVE_SSL_SUPPORT
 

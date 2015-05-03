@@ -1,6 +1,6 @@
 #include <string.h>
 
-#include <gtest/gtest.h>
+#include "unittest.h"
 
 #include <ape_pool.h>
 

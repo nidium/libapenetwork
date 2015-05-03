@@ -1,9 +1,8 @@
 #include <string.h>
 
-#include <gtest/gtest.h>
+#include "unittest.h"
 
 #include <ape_buffer.h>
-
 
 TEST(Buffer, Simple)
 {

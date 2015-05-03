@@ -1,14 +1,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <gtest/gtest.h>
+#include "unittest.h"
 
 #include <ape_websocket.h>
 
 TEST(Websocket, Simple)
 {
 	websocket_state wss;
-
 
 	ape_ws_init(&wss);
 	EXPECT_EQ(wss.step, WS_STEP_START);
