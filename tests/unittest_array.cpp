@@ -74,6 +74,7 @@ TEST(Array, AddPtr)
 	
 	ape_array_destroy(array);
 }
+
 /*TODO
 ape_array_lookup_cstr
 ape_array_add_b
@@ -82,6 +83,7 @@ ape_array_add_n
 ape_array_add_camelkey_n
 APE_A_FOREACH
 */
+
 #undef ARRAY_TEST_TEXT_1
 #undef ARRAY_TEST_TEXT_2
 #undef ARRAY_TEST_KEY_1

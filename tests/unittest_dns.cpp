@@ -18,6 +18,17 @@ static int shutdown_loop_on_resolve( const char *ip, void * arg, int status)
 	return 1;
 }
 
+TEST(DNS, Init)
+{
+	ape_global * g_ape;
+
+	g_ape = NULL;
+	g_ape = native_netlib_init();
+	EXPECT_EQ(g_ape->dns.sockets.size, 32);
+	EXPECT_EQ(g_ape->dns.sockets.used, 0);
+
+	//native_netlib_destroy(g_ape);
+}
 TEST(DNS, Invalidate)
 {
 	ape_dns_state state;
@@ -32,10 +43,7 @@ TEST(DNS, Resolve)
 	ape_global * g_ape;
 	ape_dns_state *dns_state;
 
-	g_ape = NULL;
-
 	g_ape = native_netlib_init();
-	EXPECT_TRUE(g_ape != NULL);
 
 	ape_running = g_ape->is_running = 1;
 	dns_state = ape_gethostbyname("nidium.com", shutdown_loop_on_resolve, (void*)"212.83.162.183", g_ape);

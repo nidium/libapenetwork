@@ -19,6 +19,7 @@ TEST(Hash, MurmurHash)
 	hash = MurmurHash2(KEY2, strlen(KEY2), _ape_seed);
 	EXPECT_EQ(hash, 282487095);
 }
+
 TEST(Hash, Hashstr)
 {
 	uint32_t hash;
@@ -28,7 +29,6 @@ TEST(Hash, Hashstr)
 	hash = ape_hash_str(KEY2, strlen(KEY2), 12);
 	EXPECT_EQ(hash, 3);
 }
-
 
 TEST(Hash, HashTableSimple)
 {

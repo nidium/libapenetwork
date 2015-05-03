@@ -16,7 +16,6 @@ TEST(Buffer, Simple)
 	buffer_delete(buf);
 	EXPECT_EQ(buf->used, 0);
 	buffer_destroy(buf);
-
 }
 
 TEST(Buffer, Append)

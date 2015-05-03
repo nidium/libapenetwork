@@ -18,11 +18,13 @@ TEST_OBJECTS= \
 	unittest_buffer.o \
 	unittest_pool.o \
 	unittest_array.o \
+	unittest_socket.o \
+	unittest_dns.o \
 	unittest_ssl.o \
+	unittest_events.o \
+	unittest_netlib.o \
 	unittest_httpparser.o \
 	unittest_websocket.o \
-	unittest_netlib.o \
-	unittest_dns.o \
 	unittest_timersng.o \
 	unittest_timers.o \
 
