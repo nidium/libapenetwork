@@ -67,6 +67,20 @@ TEST(Buffer, Case)
 	buffer_destroy(buf);
 }
 
+TEST(Buffer, SimpleCase)
+{
+	buffer * buf;
+
+	buf = buffer_new(3);
+
+	buffer_append_string(buf, "K1");
+	EXPECT_EQ(buf->used, 2);
+	buffer_camelify(buf);
+	EXPECT_TRUE(strncmp((char*)buf->data, "K1", buf->used) == 0);
+	
+	buffer_destroy(buf);
+}
+
 TEST(Buffer, UTF8)
 {
 	buffer * buf, * utf8;
