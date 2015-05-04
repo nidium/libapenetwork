@@ -31,7 +31,7 @@ enum {
 
 typedef struct _ape_timer
 {
-	int identifier;
+	uint64_t identifier;
 	int flags;
 	uint64_t ticks_needs;
 	uint64_t schedule;
@@ -55,7 +55,7 @@ typedef struct _ape_timer
 typedef struct _ape_timers
 {
 	ape_timer *head;
-	int last_identifier;
+	uint64_t last_identifier;
     int run_in_low_resolution;
 } ape_timers;
 
@@ -66,8 +66,8 @@ extern "C" {
 int process_timers(ape_timers *timers);
 ape_timer *del_timer(ape_timers *timers, ape_timer *timer);
 ape_timer *add_timer(ape_timers *timers, int ms, timer_callback cb, void *arg);
-ape_timer *get_timer_by_id(ape_timers *timers, int identifier);
-void clear_timer_by_id(ape_timers *timers, int identifier, int force);
+ape_timer *get_timer_by_id(ape_timers *timers, uint64_t identifier);
+void clear_timer_by_id(ape_timers *timers, uint64_t identifier, int force);
 void timer_stats_print(ape_timer *timer);
 void timers_stats_print(ape_timers *timers);
 void del_timers_unprotected(ape_timers *timers);
