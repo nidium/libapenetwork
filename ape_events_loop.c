@@ -20,7 +20,6 @@
 #include "common.h"
 #include "ape_events.h"
 #include "ape_socket.h"
-#include "ape_timers.h"
 #include "ape_timers_next.h"
 #include "ape_events_loop.h"
 

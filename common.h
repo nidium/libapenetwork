@@ -71,7 +71,6 @@ struct _ape_global {
 #endif
     unsigned int seed;
     struct _fdevent events;
-
     struct {
         struct ares_channeldata *channel;
         struct {
@@ -81,15 +80,8 @@ struct _ape_global {
         } sockets;
 
     } dns;
-
-	struct {
-		struct _ticks_callback *timers;
-		unsigned int ntimers;
-	} timers;
-
-	ape_timers timersng;
-	
-  int is_running;
+    ape_timers timersng;
+    int is_running;
 };
 
 #endif

@@ -89,7 +89,6 @@
     <ClCompile Include="..\ape_event_kqueue.c" />
     <ClCompile Include="..\ape_event_select.c" />
     <ClCompile Include="..\ape_hash.c" />
-    <ClCompile Include="..\ape_http_parser.c" />
     <ClCompile Include="..\ape_pool.c" />
     <ClCompile Include="..\ape_sha1.c" />
     <ClCompile Include="..\ape_socket.c" />
@@ -106,12 +105,10 @@
     <ClInclude Include="..\ape_events.h" />
     <ClInclude Include="..\ape_events_loop.h" />
     <ClInclude Include="..\ape_hash.h" />
-    <ClInclude Include="..\ape_http_parser.h" />
     <ClInclude Include="..\ape_pool.h" />
     <ClInclude Include="..\ape_sha1.h" />
     <ClInclude Include="..\ape_socket.h" />
     <ClInclude Include="..\ape_ssl.h" />
-    <ClInclude Include="..\ape_timers.h" />
     <ClInclude Include="..\ape_timers_next.h" />
     <ClInclude Include="..\ape_websocket.h" />
     <ClInclude Include="..\common.h" />
