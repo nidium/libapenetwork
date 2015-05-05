@@ -179,7 +179,7 @@ static int state_transition_table[NR_STATES][NR_CLASSES] = {
 };
 
 /* compiled as jump table by gcc */
-int parse_http_char(struct _http_parser *parser, const unsigned char c)
+int parse_http_char(http_parser *parser, const unsigned char c)
 {
 #define HTTP_FLG_POST (1 << 31)
 #define HTTP_FLG_QS (1 << 30)
@@ -439,7 +439,7 @@ static int parse_callback(void **ctx, callback_type type, int value, uint32_t st
 int main()
 {
     int length = 0, i;
-    struct _http_parser p;
+    http_parser p;
 
     /* Process BYTE_GET/POST opti check before running the parser */
 
