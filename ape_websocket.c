@@ -34,6 +34,7 @@
 
 void ape_ws_init(websocket_state *state)
 {
+    state->socket = NULL;
     state->step    = WS_STEP_START;
     state->offset  = 0;
     state->data    = NULL;
