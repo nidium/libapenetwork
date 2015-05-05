@@ -104,11 +104,10 @@ static ape_event_descriptor *event_kqueue_get_evd(struct _fdevent *ev, int i)
 
 static void event_kqueue_setsize(struct _fdevent *ev, int size)
 {
-	struct kevent *tmp;
-
-	tmp = realloc(ev->events, sizeof(struct kevent) * (size * 2));
-	if( tmp != NULL) {
-		ev->events = tmp;
+	ev->events = realloc(ev->events, sizeof(struct kevent) * (size * 2));
+	if (ev->events == NULL) {
+		printf("Could not reallocate memory for kqueue\n");
+		exit(1);
 	}
 }
 

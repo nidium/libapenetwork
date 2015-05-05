@@ -99,12 +99,11 @@ static ape_event_descriptor *event_epoll_get_evd(struct _fdevent *ev, int i)
 
 static void event_epoll_setsize(struct _fdevent *ev, int size)
 {
-    struct epoll_event *tmp;
-
-    tmp = realloc(ev->events,
+    ev->events = realloc(ev->events,
             sizeof(struct epoll_event) * (size));
-    if (tmp != NULL) {
-        ev->events = tmp;
+    if (ev->events == NULL) {
+        printf("Could not reallocate memory for epoll\n");
+        exit(1);
     }
 }
 

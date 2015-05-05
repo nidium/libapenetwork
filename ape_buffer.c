@@ -69,21 +69,16 @@ static void zbuffer_prepapre_buf(buffer *b, size_t input_size)
         bufsize <<= 1;
     }
 
-    printf("zbuf prepared for size %ld\n", bufsize);
-
     b->zbuf->buf_size = bufsize;
 
     if (b->zbuf->buf) {
-        unsigned char * tmp;
-
-        tmp = realloc(b->zbuf->buf, bufsize);
-        if (tmp != NULL) {
-            b->zbuf->buf = tmp;
+        b->zbuf->buf = realloc(b->zbuf->buf, bufsize);
+        if (b->zbuf->buf == NULL) {
+            printf("Could not reallocate memory for zbuffer\n");
+            exit(1);
         }
-        printf("Realloc input buffer for size %ld\n", bufsize);
     } else {
         b->zbuf->buf = malloc(bufsize);
-        printf("Alloc input buffer for size %ld\n", bufsize);
     }
 
     b->zbuf->zstream.avail_out = bufsize - b->zbuf->zstream.avail_in;
@@ -229,15 +224,14 @@ void buffer_prepare(buffer *b, size_t size)
         b->used = 0;
         b->data = malloc(sizeof(char) * b->size);
     } else if (b->used + size > b->size) {
-        unsigned char * tmp;
-
         if (size == 0) {
             size = 1;
         }
         b->size += size;
-        tmp = realloc(b->data, sizeof(char) * b->size);
-        if (tmp != NULL) {
-            b->data = tmp;
+        b->data = realloc(b->data, sizeof(char) * b->size);
+        if (b->data == NULL) {
+            printf("Could not reallocate memory for buffer\n");
+            exit(1);
         }
     }
 #if APE_USE_ZLIB
@@ -254,15 +248,14 @@ static void buffer_prepare_for(buffer *b, size_t size, size_t forsize)
         b->used = 0;
         b->data = malloc(sizeof(char) * b->size);
     } else if (b->used + forsize > b->size) {
-        unsigned char * tmp;
-
         if (size == 0) {
             size = 1;
         }
         b->size += size;
-        tmp = realloc(b->data, sizeof(char) * b->size);
-        if (tmp != NULL) {
-            b->data = tmp;
+        b->data = realloc(b->data, sizeof(char) * b->size);
+        if (b->data == NULL) {
+            printf("Could not reallocate memory for buffer\n");
+            exit(1);
         }
     }
 #if APE_USE_ZLIB
@@ -412,12 +405,11 @@ buffer *buffer_to_buffer_utf8(buffer *b)
     newb->data[newb->used] = '\0';
 
     if (newb->size > newb->used+1) {
-        unsigned char * tmp;
-
         newb->size = newb->used+1;
-        tmp = realloc(newb->data, newb->size);
-        if (tmp != NULL) {
-            newb->data = tmp;
+        newb->data = realloc(newb->data, newb->size);
+        if (newb->data == NULL) {
+            printf("Could not reallocate memory for utf8 buffer\n");
+            exit(1);
         }
     }
 
@@ -471,12 +463,11 @@ buffer *buffer_utf8_to_buffer(buffer *b)
     newb->data[newb->used] = '\0';
 
     if (newb->size > newb->used+1) {
-        unsigned char * tmp;
-
         newb->size = newb->used+1;
-        tmp = realloc(newb->data, newb->size);
-        if (tmp != NULL) {
-            newb->data = tmp;
+        newb->data = realloc(newb->data, newb->size);
+        if (newb->data == NULL) {
+            printf("Could not reallocate memory for utf8 buffer\n");
+            exit(1);
         }
     }
 
