@@ -63,16 +63,15 @@ ape_global *native_netlib_init()
     fdev->handler = EVENT_KQUEUE;
     #endif
     #ifdef USE_SELECT_HANDLER
-	fdev->handler = EVENT_SELECT;
+    fdev->handler = EVENT_SELECT;
     #endif
 
     ape->is_running = 1;
-    ape->timers.ntimers = 0;
-    ape->timers.timers  = NULL;
-    ape->timersng.run_in_low_resolution = 0;
 
+    ape->timersng.run_in_low_resolution = 0;
     ape->timersng.head = NULL;
     ape->timersng.last_identifier = 0;
+
     ape->ctx = NULL;
 
     ape_dns_init(ape);
