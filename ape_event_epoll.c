@@ -104,6 +104,10 @@ static void event_epoll_setsize(struct _fdevent *ev, int size)
 {
     ev->events = realloc(ev->events,
             sizeof(struct epoll_event) * (size));
+    if (ev->events == NULL) {
+        printf("Could not reallocate memory for epoll\n");
+        exit(1);
+    }
 }
 
 static int event_epoll_revent(struct _fdevent *ev, int i)

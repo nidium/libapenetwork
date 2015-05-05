@@ -69,16 +69,16 @@ static void zbuffer_prepapre_buf(buffer *b, size_t input_size)
         bufsize <<= 1;
     }
 
-    printf("zbuf prepared for size %ld\n", bufsize);
-
     b->zbuf->buf_size = bufsize;
 
     if (b->zbuf->buf) {
         b->zbuf->buf = realloc(b->zbuf->buf, bufsize);
-        printf("Realloc input buffer for size %ld\n", bufsize);
+        if (b->zbuf->buf == NULL) {
+            printf("Could not reallocate memory for zbuffer\n");
+            exit(1);
+        }
     } else {
         b->zbuf->buf = malloc(bufsize);
-        printf("Alloc input buffer for size %ld\n", bufsize);
     }
 
     b->zbuf->zstream.avail_out = bufsize - b->zbuf->zstream.avail_in;
@@ -232,6 +232,10 @@ void buffer_prepare(buffer *b, size_t size)
         }
         b->size += size;
         b->data = realloc(b->data, sizeof(char) * b->size);
+        if (b->data == NULL) {
+            printf("Could not reallocate memory for buffer\n");
+            exit(1);
+        }
     }
 #if APE_USE_ZLIB
     if (b->zbuf) {
@@ -252,6 +256,10 @@ static void buffer_prepare_for(buffer *b, size_t size, size_t forsize)
         }
         b->size += size;
         b->data = realloc(b->data, sizeof(char) * b->size);
+        if (b->data == NULL) {
+            printf("Could not reallocate memory for buffer\n");
+            exit(1);
+        }
     }
 #if APE_USE_ZLIB
     if (b->zbuf) {
@@ -402,6 +410,10 @@ buffer *buffer_to_buffer_utf8(buffer *b)
     if (newb->size > newb->used+1) {
         newb->size = newb->used+1;
         newb->data = realloc(newb->data, newb->size);
+        if (newb->data == NULL) {
+            printf("Could not reallocate memory for utf8 buffer\n");
+            exit(1);
+        }
     }
 
     return newb;
@@ -456,6 +468,10 @@ buffer *buffer_utf8_to_buffer(buffer *b)
     if (newb->size > newb->used+1) {
         newb->size = newb->used+1;
         newb->data = realloc(newb->data, newb->size);
+        if (newb->data == NULL) {
+            printf("Could not reallocate memory for utf8 buffer\n");
+            exit(1);
+        }
     }
 
     return newb;
