@@ -120,6 +120,7 @@ ape_ssl_t *ape_ssl_init_con(ape_ssl_t *parent, int fd, int accept)
 
     if (SSL_set_fd(con, fd) != 1) {
         printf("Failed to set fd on ssl\n");
+        SSL_free(con);
         return NULL;
     }
     
