@@ -163,3 +163,15 @@ int events_init(ape_global *ape)
     return -1;
 }
 
+void events_destroy( struct _fdevent *ev ) {
+    free( ev->events ); // @TODO:  del events and close fd's?
+    ev->add = NULL;
+    ev->mod = NULL;
+    ev->del= NULL;
+    ev->poll =NULL;
+    ev->revent = NULL;
+    ev->reload = NULL;;
+    ev->setsize = NULL;
+    ev->get_current_evd = NULL;
+}
+
