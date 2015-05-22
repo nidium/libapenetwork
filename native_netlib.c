@@ -27,6 +27,7 @@
 #include <time.h>
 #include <sys/types.h>
 
+#include <ares.h>
 
 #ifdef _WIN32
 #include <WinSock2.h>
@@ -82,7 +83,35 @@ ape_global *native_netlib_init()
     }
 #endif
     events_init(ape);
-	
+    
     return ape;
 }
 
+void native_netlib_destroy(ape_global * ape)
+{
+    //  destroying dns
+    struct _ares_sockets *as;
+    size_t i;
+
+    ares_cancel(ape->dns.channel);
+    as = ape->dns.sockets.list;
+
+    for(i = 0 ; i < ape->dns.sockets.size; i++) {
+        events_del(as->s.fd, ape);
+        as++;
+    }
+
+    free(ape->dns.sockets.list);
+    ape->dns.sockets.size = 0;
+    ape->dns.sockets.used = 0;
+    ares_destroy(ape->dns.channel);
+    ares_library_cleanup();
+
+    //  destroying events
+    events_destroy(&ape->events);
+    // destroying timers
+    del_timers_all(&ape->timersng);
+
+    //  destroying rest
+    free(ape);
+}

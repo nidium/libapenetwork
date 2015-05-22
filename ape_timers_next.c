@@ -211,6 +211,15 @@ void del_timers_unprotected(ape_timers *timers)
     }
 }
 
+void del_timers_all(ape_timers *timers)
+{
+    ape_timer *cur = timers->head;
+
+    while (cur != NULL) {
+        cur = del_timer(timers, cur);
+    }
+}
+
 /* delete *timer* and returns *timer->next* */
 ape_timer *del_timer(ape_timers *timers, ape_timer *timer)
 {
