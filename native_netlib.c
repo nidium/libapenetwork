@@ -113,7 +113,6 @@ void native_netlib_destroy(ape_global * ape)
 	while (tmpTimer != NULL){
 		tmpTimer = del_timer(&ape->timersng, tmpTimer);
 	}
-	timers_free(ape);
 	//  destroying rest
 	free(ape);
 }
