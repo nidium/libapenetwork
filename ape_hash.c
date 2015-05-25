@@ -92,7 +92,7 @@ void hashtbl_free(ape_htable_t *htbl)
         hTmp = htbl->table[i];
         while (hTmp != 0) {
             hNext = hTmp->next;
-            
+
             if (htbl->cleaner) {
                 htbl->cleaner(hTmp);
             }
@@ -170,7 +170,7 @@ void hashtbl_erase64(ape_htable_t *htbl, uint64_t key)
 
             if (htbl->cleaner) {
                 htbl->cleaner(hTmp);
-            }            
+            }
 
             if (hPrev != NULL) {
                 hPrev->next = hTmp->next;
@@ -188,7 +188,7 @@ void hashtbl_erase64(ape_htable_t *htbl, uint64_t key)
             }
 
             hTmp->key.integer = 0;
-            
+
             free(hTmp);
             return;
         }
@@ -262,7 +262,7 @@ void hashtbl_append_val32(ape_htable_t *htbl, const char *key,
 
     htbl->first = hTmp;
 
-    htbl->table[key_hash] = hTmp;    
+    htbl->table[key_hash] = hTmp;
 }
 
 void hashtbl_append(ape_htable_t *htbl, const char *key,
@@ -307,7 +307,7 @@ void hashtbl_append(ape_htable_t *htbl, const char *key,
         }
         hTmp->next = htbl->table[key_hash];
     }
-    
+
     if (htbl->first != NULL) {
         htbl->first->lprev = hTmp;
     }
@@ -410,7 +410,7 @@ uint32_t hashtbl_seek_val32(ape_htable_t *htbl, const char *key, int key_len)
 //-----------------------------------------------------------------------------
 // MurmurHash2, by Austin Appleby
 
-unsigned int MurmurHash2 ( const void * key, int len, unsigned int seed )
+unsigned int MurmurHash2(const void * key, int len, unsigned int seed)
 {
     // 'm' and 'r' are mixing constants generated offline.
     // They're not really 'magic', they just happen to work well.
@@ -426,7 +426,7 @@ unsigned int MurmurHash2 ( const void * key, int len, unsigned int seed )
 
     const unsigned char * data = (const unsigned char *)key;
 
-    while(len >= 4)
+    while (len >= 4)
     {
         unsigned int k = *(unsigned int *)data;
 
@@ -443,8 +443,7 @@ unsigned int MurmurHash2 ( const void * key, int len, unsigned int seed )
 
     // Handle the last few bytes of the input array
 
-    switch(len)
-    {
+    switch (len) {
     case 3: h ^= data[2] << 16;
     case 2: h ^= data[1] << 8;
     case 1: h ^= data[0];

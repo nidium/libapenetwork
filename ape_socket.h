@@ -54,7 +54,7 @@
 #define APE_EVENT_SOCKET_PTR(attach) ((ape_socket *)attach)
 
 
-#ifdef _HAVE_SSL_SUPPORT  
+#ifdef _HAVE_SSL_SUPPORT
   #define APE_SOCKET_ISSECURE(socket) socket->SSL.issecure
 #else
   #define APE_SOCKET_ISSECURE(socket) 0
@@ -76,13 +76,13 @@ struct iovec
     do { \
         int __state = 1; \
         setsockopt(fd, IPPROTO_TCP, TCP_CORK, &__state, sizeof(__state)); \
-    } while(0)
+    } while (0)
 
     #define FLUSH_TCP(fd) \
     do { \
         int __state = 0; \
         setsockopt(fd, IPPROTO_TCP, TCP_CORK, &__state, sizeof(__state)); \
-    } while(0)
+    } while (0)
 #else
     #define PACK_TCP(fd) ((void)fd);
     #define FLUSH_TCP(fd) ((void)fd);
@@ -155,7 +155,7 @@ typedef struct _ape_socket_jobs_t {
 struct _ape_socket {
     ape_event_descriptor s;
     buffer data_in;
-    
+
     ape_pool_list_t jobs;
 
     struct sockaddr_in sockaddr;

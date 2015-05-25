@@ -26,7 +26,6 @@
   #include <mach/mach_time.h>
 #else
   #include <time.h>
-  
 #ifdef __WIN32
 LARGE_INTEGER
 getFILETIMEoffset()
@@ -122,7 +121,7 @@ int process_timers(ape_timers *timers)
         if ((start = mach_absolute_time()) >= cur->schedule-150000) {
             uint64_t ret;
             unsigned int duration;
-            
+
             ret = cur->callback(cur->arg);
 
             //printf("Timer returned %lld\n", ret);
@@ -189,12 +188,12 @@ void clear_timer_by_id(ape_timers *timers, uint64_t identifier, int force)
         if (cur->identifier == identifier) {
             if (!(cur->flags & APE_TIMER_IS_PROTECTED) ||
                 ((cur->flags & APE_TIMER_IS_PROTECTED) && force)) {
-                
+
                 cur->flags |= APE_TIMER_IS_CLEARED;
             }
             return;
         }
-    }   
+    }
 }
 
 void del_timers_unprotected(ape_timers *timers)
@@ -238,7 +237,7 @@ ape_timer *del_timer(ape_timers *timers, ape_timer *timer)
     if (timer->clearfunc) {
         timer->clearfunc(timer->arg);
     }
-    
+
     free(timer);
 
     return ret;

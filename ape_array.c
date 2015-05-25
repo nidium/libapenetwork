@@ -28,7 +28,7 @@ ape_array_t *ape_array_new(size_t n)
 {
     ape_array_t *array;
     array = (ape_array_t *)ape_new_pool_list(sizeof(ape_array_item_t), n);
-    
+
     return array;
 }
 
@@ -107,7 +107,7 @@ void ape_array_delete(ape_array_t *array, const char *key, int klen)
         item->pool.flags &= ~APE_ARRAY_USED_SLOT;
         buffer_destroy(item->key);
 
-        switch(item->pool.flags & ~APE_POOL_ALL_FLAGS) {
+        switch (item->pool.flags & ~APE_POOL_ALL_FLAGS) {
             case APE_ARRAY_VAL_BUF:
                 buffer_destroy(item->pool.ptr.buf);
                 item->pool.flags &= ~APE_ARRAY_VAL_BUF;
@@ -171,7 +171,7 @@ ape_array_item_t *ape_array_add_ptr(ape_array_t *array, buffer *key, void *ptr)
     ape_array_item_t *slot = ape_array_add_s(array, key);
 
     slot->pool.ptr.data = ptr;
-    
+
     return slot;
 }
 
@@ -240,8 +240,8 @@ static void ape_array_clean_cb(ape_pool_t *item, void *ctx)
     array->pool.flags &= ~APE_ARRAY_USED_SLOT;
 
     buffer_destroy(array->key);
-    
-    switch(array->pool.flags & ~APE_POOL_ALL_FLAGS) {
+
+    switch (array->pool.flags & ~APE_POOL_ALL_FLAGS) {
         case APE_ARRAY_VAL_BUF:
             buffer_destroy(array->pool.ptr.buf);
             break;

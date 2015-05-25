@@ -83,7 +83,7 @@ ape_global *native_netlib_init()
     }
 #endif
     events_init(ape);
-    
+
     return ape;
 }
 
@@ -96,7 +96,7 @@ void native_netlib_destroy(ape_global * ape)
     ares_cancel(ape->dns.channel);
     as = ape->dns.sockets.list;
 
-    for(i = 0 ; i < ape->dns.sockets.size; i++) {
+    for (i = 0 ; i < ape->dns.sockets.size; i++) {
         events_del(as->s.fd, ape);
         as++;
     }
@@ -115,3 +115,4 @@ void native_netlib_destroy(ape_global * ape)
     //  destroying rest
     free(ape);
 }
+

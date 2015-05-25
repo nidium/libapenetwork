@@ -35,12 +35,12 @@ static uint8_t map2[] =
      0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b,
      0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31, 0x32, 0x33
  };
- 
+
 int base64_decode(unsigned char* out, const char *in, int out_length)
 {
      int i, v;
      unsigned char *dst = out;
- 
+
      v = 0;
      for (i = 0; in[i] && in[i] != '='; i++) {
          unsigned int index= in[i]-43;
@@ -79,7 +79,7 @@ void base64_encode_b_safe(unsigned char * src, char *dst, int len, int safe)
             i_bits = (i_bits << 8) + *src++;
             bytes_remaining--;
             i_shift += 8;
-            
+
             do {
                 *dst++ = b[(i_bits << 6 >> i_shift) & 0x3f];
                 i_shift -= 6;
@@ -99,9 +99,9 @@ char *base64_encode(unsigned char * src, int len)
     char *dst;
 
     dst = malloc(len * 4 / 3 + 12);
-    
+
     base64_encode_b(src, dst, len);
-    
+
     return dst;
 }
 
@@ -110,9 +110,9 @@ char *base64_encode_safe(unsigned char * src, int len)
     char *dst;
 
     dst = malloc(len * 4 / 3 + 12);
-    
+
     base64_encode_b_safe(src, dst, len, 1);
-    
+
     return dst;
 }
 

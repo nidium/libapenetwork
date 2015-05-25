@@ -44,7 +44,7 @@ typedef struct {
 
     size_t size;
     size_t used;
-    
+
     uint32_t pos;
 #if APE_USE_ZLIB
     zbuffer *zbuf;

@@ -329,9 +329,9 @@ void buffer_append_data_tolower(buffer *b, const unsigned char *data, size_t siz
     for (i = 0; i < size; i++) {
         b->data[b->used+i] = tolower(data[i]);
     }
-    
+
     b->data[b->used+size] = '\0';
-    b->used += size;   
+    b->used += size;
 }
 
 void buffer_append_char(buffer *b, const unsigned char data)

@@ -39,7 +39,7 @@ void events_loop(ape_global *ape)
     int nexttimeout = 1;
     //uint64_t start_monotonic = mach_absolute_time(), end_monotonic;
 
-    while(ape->is_running && ape_running) {
+    while (ape->is_running && ape_running) {
         int i;
 
         events_shrink(&ape->events);
@@ -51,13 +51,13 @@ void events_loop(ape_global *ape)
             if ((evd  = events_get_current_evd(&ape->events, i)) == NULL) {
                 continue;
             }
-            
+
             bitev   = events_revent(&ape->events, i);
 
              /* assuming that ape_event_descriptor is the first member */
             fd  = evd->fd;
 
-            switch(evd->type) {
+            switch (evd->type) {
             case APE_EVENT_SOCKET:
                 if (APE_EVENT_SOCKET_PTR(evd)->states.type == APE_SOCKET_TP_SERVER) {
                     if (bitev & EVENT_READ) {
@@ -77,7 +77,7 @@ void events_loop(ape_global *ape)
                     if (APE_EVENT_SOCKET_PTR(evd)->states.proto != APE_SOCKET_PT_UDP &&
                         (bitev & EVENT_READ) &&
                         ape_socket_read(APE_EVENT_SOCKET_PTR(evd)) == -1) {
-                        
+
                         /* ape_socket is planned to be released after the for block */
                         continue;
                     } else if (APE_EVENT_SOCKET_PTR(evd)->states.proto ==
@@ -98,8 +98,7 @@ void events_loop(ape_global *ape)
                                 APE_EVENT_SOCKET_PTR(evd)->callbacks.on_drain != NULL) {
                                 APE_EVENT_SOCKET_PTR(evd)->callbacks.on_drain(
                                     APE_EVENT_SOCKET_PTR(evd), ape,
-                                    APE_EVENT_SOCKET_PTR(evd)->callbacks.arg
-                                );
+                                    APE_EVENT_SOCKET_PTR(evd)->callbacks.arg);
                             }
 
                         } else if (APE_EVENT_SOCKET_PTR(evd)->states.state == APE_SOCKET_ST_PROGRESS) {
@@ -109,11 +108,11 @@ void events_loop(ape_global *ape)
 
                             if ((ret = getsockopt(fd, SOL_SOCKET, SO_ERROR, &serror, &serror_len)) == 0 &&
                                 serror == 0) {
-                                
+
                                 APE_EVENT_SOCKET_PTR(evd)->states.state = APE_SOCKET_ST_ONLINE;
 
                                 ape_socket_connected(APE_EVENT_SOCKET_PTR(evd));
-                                
+
                             } else {
                                 ape_socket_destroy(APE_EVENT_SOCKET_PTR(evd));
                             }
