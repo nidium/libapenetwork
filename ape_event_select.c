@@ -72,7 +72,7 @@ static int event_select_add(struct _fdevent *ev, int fd, int bitadd,
     fdinfo->fd = fd;
     fdinfo->ptr = attach;
     fdinfo->watchfor = 0;
-  
+
     if (bitadd & EVENT_READ) {
         fdinfo->watchfor |= kWatchForRead_Event;
     }
@@ -138,8 +138,7 @@ static int event_select_poll(struct _fdevent *ev, int timeout_ms)
     } else {
         numfds = select(maxfd + 1, &rfds, &wfds, NULL, &tv);
     }
-    switch(numfds)
-    {
+    switch (numfds) {
         case -1:
             fprintf(stderr, "Error calling select: %s, %d, %d, %d\n", strerror(SOCKERRNO), maxfd, numfds, SOCKERRNO);
             exit(1);
@@ -157,7 +156,7 @@ static int event_select_poll(struct _fdevent *ev, int timeout_ms)
                 printf("assert failed, select() returned an unknow fd (read)\n");
                 continue;
             }
-            
+
             fdinfo->watchfor |= kReadyForRead_Event;
         }
 
@@ -167,7 +166,7 @@ static int event_select_poll(struct _fdevent *ev, int timeout_ms)
                 if (!fdinfo) {
                     printf("assert failed, select() returned an unknow fd (write)\n");
                     continue;
-                }               
+                }
             }
             fdinfo->watchfor |= kReadyForWrite_Event;
         }
@@ -210,7 +209,7 @@ static int event_select_revent(struct _fdevent *ev, int i)
 
 
 static int event_select_reload(struct _fdevent *ev)
-{   
+{
     /* Do nothing (?) */
 
     return 1;

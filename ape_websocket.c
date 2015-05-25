@@ -54,18 +54,18 @@ char *ape_ws_compute_key(const char *key, unsigned int key_len)
     unsigned char digest[20];
     char out[128];
     char *b64;
-    
+
     if (key_len > 32) {
         return NULL;
     }
-    
+
     memcpy(out, key, key_len);
     memcpy(out+key_len, WS_GUID, sizeof(WS_GUID)-1);
-    
+
     sha1_csum((unsigned char *)out, (sizeof(WS_GUID)-1)+key_len, digest);
-    
+
     b64 = base64_encode(digest, 20);
-    
+
     return b64; /* must be released */
 }
 
@@ -77,15 +77,15 @@ void ape_ws_write(ape_socket *socket_client, unsigned char *data,
 
     if (len <= 125) {
         payload_head[1] = (unsigned char)len & 0x7F;
-        
+
         payload_length = 2;
     } else if (len <= 65535) {
         unsigned short int s = htons(len);
         payload_head[1] = 126;
         memcpy(&payload_head[2], &s, 2);
-        
+
         payload_length = 4;
-        
+
     } else if (len <= 0xFFFFFFFF) {
         unsigned int s = htonl(len);
         payload_head[1] = 127;
@@ -93,9 +93,9 @@ void ape_ws_write(ape_socket *socket_client, unsigned char *data,
         payload_head[3] = 0;
         payload_head[4] = 0;
         payload_head[5] = 0;
-        
+
         memcpy(&payload_head[6], &s, 4);
-        
+
         payload_length = 10;
     }
 
@@ -110,7 +110,7 @@ void ape_ws_close(websocket_state *state)
 {
     if (state->close_sent)
         return;
-    
+
     state->close_sent = 1;
     APE_socket_write(state->socket, (void *)"\x88\x00", 2, APE_DATA_STATIC);
 }
@@ -125,7 +125,7 @@ void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t le
     for (pData = (unsigned char *)&buffer->data[websocket->offset];
         websocket->offset < buffer->used; websocket->offset++, pData++) {
 
-        switch(websocket->step) {
+        switch (websocket->step) {
             case WS_STEP_KEY:
                 /* Copy the xor key (32 bits) */
                 websocket->key.val[websocket->key.pos] = *pData;
@@ -143,7 +143,7 @@ void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t le
             case WS_STEP_LENGTH:
                 /* Check for MASK bit */
                 if (!(*pData & 0x80)) {
-                    //websocket->step = 
+                    //websocket->step =
                     return;
                 }
                 switch (*pData & 0x7F) { /* 7bit length */
@@ -163,7 +163,7 @@ void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t le
                 }
                 break;
             case WS_STEP_SHORT_LENGTH:
-                memcpy(((char *)&websocket->frame_payload)+(websocket->frame_pos), 
+                memcpy(((char *)&websocket->frame_payload)+(websocket->frame_pos),
                         pData, 1);
 
                 if (websocket->frame_pos == 3) {
@@ -193,13 +193,13 @@ void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t le
                     websocket->data = (unsigned char *)malloc(sizeof(char) *
                         websocket->frame_payload.extended_length + 1);
                 }
-                
+
                 //*pData ^= websocket->key.val[websocket->data_inkey++ % 4];
                 websocket->data[websocket->data_inkey] =
                     *pData ^ websocket->key.val[websocket->data_inkey % 4];
 
                 websocket->data_inkey++;
-                
+
                 if (--websocket->frame_payload.extended_length == 0) {
                     unsigned char saved;
                     websocket->data[websocket->data_inkey] = '\0';
@@ -210,7 +210,7 @@ void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t le
                     websocket->data_pos = 0;
                     websocket->key.pos  = 0;
 
-                    switch(websocket->frame_payload.start & 0x0F) {
+                    switch (websocket->frame_payload.start & 0x0F) {
                         case 0x8:
                         {
                             /*
@@ -230,11 +230,11 @@ void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t le
                         {
                             int body_length = /*&buffer->data[websocket->offset+1] - websocket->data;*/ 0;
                             char payload_head[2] = { 0x8a, body_length & 0x7F };
-                            
+
                             /* All control frames MUST be 125 bytes or less */
                             if (body_length > 125) {
                                 payload_head[0] = 0x88;
-                                payload_head[1] = 0x00;      
+                                payload_head[1] = 0x00;
                             //    sendbin(co->fd, payload_head, 2, 1, g_ape);
                                 return;
                             }
@@ -256,17 +256,17 @@ void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t le
                             saved = buffer->data[websocket->offset+1];
                             buffer->data[websocket->offset+1] = '\0';
                             //parser->onready(parser, g_ape);
-                            buffer->data[websocket->offset+1] = saved;   
+                            buffer->data[websocket->offset+1] = saved;
                             #endif
                             break;
                         case 0x2:
                             websocket->on_frame(websocket, websocket->data,
-                                websocket->data_inkey, 1);                            
+                                websocket->data_inkey, 1);
                             break;
                         default:
                             break;
                     }
-                    
+
                     if (websocket->offset+1 == buffer->used) {
                         websocket->offset = 0;
                         //buffer->length = 0;

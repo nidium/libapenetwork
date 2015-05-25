@@ -40,17 +40,17 @@ typedef struct _websocket_state
     unsigned char *data;
     void (*on_frame)(struct _websocket_state *,
         const unsigned char *, ssize_t, int binary);
-    
+
     unsigned int offset;
     unsigned short int error;
     //ws_version version;
-    
+
     struct {
         /* cypher key */
         unsigned char val[4];
         int pos;
     } key;
-    
+
     #pragma pack(2)
     struct {
         unsigned char start;
@@ -61,7 +61,7 @@ typedef struct _websocket_state
         };
     } frame_payload;
     #pragma pack()
-    
+
     ws_payload_step step;
     int data_pos;
     int data_inkey;
@@ -78,7 +78,7 @@ void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t le
 char *ape_ws_compute_key(const char *key, unsigned int key_len);
 void ape_ws_write(ape_socket *socket_client, unsigned char *data,
     size_t len, int binary, ape_socket_data_autorelease data_type);
-    
+
 void ape_ws_close(websocket_state *state);
 
 #ifdef __cplusplus

@@ -24,7 +24,7 @@
 ape_pool_t *ape_new_pool(size_t size, size_t n)
 {
     unsigned int i;
-    
+
     if (size == 0) {
         size = sizeof(ape_pool_t);
     }

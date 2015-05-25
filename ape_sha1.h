@@ -25,25 +25,25 @@ sha1_context;
 /*
  * Core SHA-1 functions
  */
-void sha1_starts( sha1_context *ctx );
-void sha1_update( sha1_context *ctx, uchar *input, uint length );
-void sha1_finish( sha1_context *ctx, uchar digest[20] );
+void sha1_starts(sha1_context *ctx);
+void sha1_update(sha1_context *ctx, uchar *input, uint length);
+void sha1_finish(sha1_context *ctx, uchar digest[20]);
 
 /*
  * Output SHA-1(file contents), returns 0 if successful.
  */
-int sha1_file( char *filename, uchar digest[20] );
+int sha1_file(char *filename, uchar digest[20]);
 
 /*
  * Output SHA-1(buf)
  */
-void sha1_csum( uchar *buf, uint buflen, uchar digest[20] );
+void sha1_csum(uchar *buf, uint buflen, uchar digest[20]);
 
 /*
- * Output HMAC-SHA-1(key,buf)
+ * Output HMAC-SHA-1(key, buf)
  */
-void sha1_hmac( uchar *key, uint keylen, uchar *buf, uint buflen,
-                uchar digest[20] );
+void sha1_hmac(uchar *key, uint keylen, uchar *buf, uint buflen,
+               uchar digest[20]);
 
 
 #ifdef __cplusplus

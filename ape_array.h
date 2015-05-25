@@ -74,8 +74,12 @@ void ape_array_delete(ape_array_t *array, const char *key, int klen);
 
 #define APE_A_FOREACH(_array, _key, _val) \
         ape_array_item_t *__array_item; \
-        for (__array_item = (ape_array_item_t *)_array->head; __array_item != NULL; __array_item = (ape_array_item_t *)__array_item->pool.next) \
-            if ((__array_item->pool.flags & APE_ARRAY_USED_SLOT) && (_key = __array_item->key) && (_val = __array_item->pool.ptr.buf)) \
+        for (__array_item = (ape_array_item_t *)_array->head; \
+             __array_item != NULL; \
+             __array_item = (ape_array_item_t *)__array_item->pool.next) \
+                if ((__array_item->pool.flags & APE_ARRAY_USED_SLOT) && \
+                    (_key = __array_item->key) && \
+                    (_val = __array_item->pool.ptr.buf)) \
 
 #endif
 

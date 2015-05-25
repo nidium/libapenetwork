@@ -146,7 +146,7 @@ static void ares_gethostbyname_cb(void *arg, int status,
     } else {
         params->callback(NULL, params->arg, status);
     }
-    
+
     ape_global *ape = params->ape;
     timer_dispatch_async(params_free, params);
 }

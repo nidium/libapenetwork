@@ -25,37 +25,37 @@
 typedef int (*timer_callback)(void *arg);
 
 enum {
-	APE_TIMER_IS_PROTECTED = 1 << 0,
-	APE_TIMER_IS_CLEARED   = 1 << 1
+    APE_TIMER_IS_PROTECTED = 1 << 0,
+    APE_TIMER_IS_CLEARED   = 1 << 1
 };
 
 typedef struct _ape_timer
 {
-	uint64_t identifier;
-	int flags;
-	uint64_t ticks_needs;
-	uint64_t schedule;
-	int nexec;
-	timer_callback callback;
-	timer_callback clearfunc;
-	void *arg;
+    uint64_t identifier;
+    int flags;
+    uint64_t ticks_needs;
+    uint64_t schedule;
+    int nexec;
+    timer_callback callback;
+    timer_callback clearfunc;
+    void *arg;
 
-	struct {
-		unsigned int nexec;
-		unsigned int max;
-		unsigned int min;
-		unsigned int totaltime;
-	} stats;
+    struct {
+        unsigned int nexec;
+        unsigned int max;
+        unsigned int min;
+        unsigned int totaltime;
+    } stats;
 
-	struct _ape_timer *next;
-	struct _ape_timer *prev;
+    struct _ape_timer *next;
+    struct _ape_timer *prev;
 } ape_timer;
 
 
 typedef struct _ape_timers
 {
-	ape_timer *head;
-	uint64_t last_identifier;
+    ape_timer *head;
+    uint64_t last_identifier;
     int run_in_low_resolution;
 } ape_timers;
 
@@ -78,9 +78,10 @@ void set_timer_to_low_resolution(ape_timers *timers, int low);
 }
 #endif
 
-#define timer_dispatch_async(callback, params) add_timer(&ape->timersng, 1, callback, params)
-#define timer_dispatch_async_unprotected(callback, params) add_timer(&ape->timersng, 1, callback, params)->flags &= ~APE_TIMER_IS_PROTECTED
-
+#define timer_dispatch_async(callback, params) \
+    add_timer(&ape->timersng, 1, callback, params)
+#define timer_dispatch_async_unprotected(callback, params) \
+    add_timer(&ape->timersng, 1, callback, params)->flags &= ~APE_TIMER_IS_PROTECTED
 
 #endif
 
