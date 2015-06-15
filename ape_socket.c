@@ -933,8 +933,8 @@ static int ape_socket_queue_data(ape_socket *socket,
 
     list->current = packets->pool.next;
 
-    socket->current_buffer_memory_bytes += len;
-    socket->ape->total_memory_buffered += len;
+    socket->current_buffer_memory_bytes += len - offset;
+    socket->ape->total_memory_buffered += len - offset;
 
     /* Check whether we're exceeding the buffer max memory */
     if (socket->max_buffer_memory_mb != 0 &&
