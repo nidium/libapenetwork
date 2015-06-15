@@ -82,6 +82,9 @@ struct _ape_global {
     } dns;
     ape_timers timersng;
     int is_running;
+
+    uint32_t failed_write_count;
+    uint64_t total_memory_buffered;
 };
 
 #endif

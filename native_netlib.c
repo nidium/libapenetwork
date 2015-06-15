@@ -83,6 +83,9 @@ ape_global *native_netlib_init()
     }
 #endif
     events_init(ape);
+
+    ape->failed_write_count    = 0;
+    ape->total_memory_buffered = 0;
     
     return ape;
 }

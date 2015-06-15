@@ -797,15 +797,23 @@ int ape_socket_do_jobs(ape_socket *socket)
 
                 }
 
-                /* TODO: loop until EAGAIN? */
-                n = writev(socket->s.fd, chunks, i);
-                /* ERR */
-                /* TODO : Handle this */
-                if (n == -1) {
-                    socket->states.flags |= APE_SOCKET_WOULD_BLOCK;
-                    //job = (ape_socket_jobs_t *)job->next; /* useless? */
-                    return 0;
+                rewrite:
+                if ((n = writev(socket->s.fd, chunks, i)) == -1) {
+                    if (errno == EAGAIN) {
+                        socket->states.flags |= APE_SOCKET_WOULD_BLOCK;
+                        return 0;
+                    } else if (errno == EINTR) {
+                        goto rewrite;
+                    } else {
+                        fprintf(stderr, "writev() IO error: disconnect\n");
+                        APE_socket_shutdown_now(socket);
+                        return -1;
+                    }
                 }
+
+                socket->ape->total_memory_buffered -= n;
+                socket->current_buffer_memory_bytes -= n;
+
                 packet = (ape_socket_packet_t *)plist->head;
 
                 while (packet != NULL && packet->pool.ptr.data != NULL) {
@@ -926,6 +934,7 @@ static int ape_socket_queue_data(ape_socket *socket,
     list->current = packets->pool.next;
 
     socket->current_buffer_memory_bytes += len;
+    socket->ape->total_memory_buffered += len;
 
     /* Check whether we're exceeding the buffer max memory */
     if (socket->max_buffer_memory_mb != 0 &&
