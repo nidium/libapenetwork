@@ -465,6 +465,35 @@ static int ape_socket_close(ape_socket *socket)
     return 1;
 }
 
+void ape_socket_packet_pool_cleaner(ape_pool_t *pool, void *ctx)
+{
+    ape_socket_packet_t *packet = (ape_socket_packet_t *)pool;
+
+    if (packet->pool.ptr.data != NULL) {
+        ape_socket_release_data(packet->pool.ptr.data, packet->data_type);
+    }
+}
+
+void ape_socket_job_pool_cleaner(ape_pool_t *pool, void *ctx)
+{
+    if (pool->flags & APE_SOCKET_JOB_ACTIVE) {
+        switch(pool->flags & ~(APE_POOL_ALL_FLAGS | APE_SOCKET_JOB_ACTIVE)) {
+            case APE_SOCKET_JOB_WRITEV:
+            {
+                ape_pool_list_t *plist = (ape_pool_list_t *)pool->ptr.data;
+                ape_destroy_pool_list_with_cleaner(plist,
+                    ape_socket_packet_pool_cleaner, ctx);
+            }
+            break;
+            case APE_SOCKET_JOB_SENDFILE:
+                close(pool->ptr.fd);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 static int ape_socket_free(void *arg)
 {
     ape_socket *socket = arg;
@@ -475,7 +504,8 @@ static int ape_socket_free(void *arg)
     }
 #endif
     buffer_delete(&socket->data_in);
-    ape_destroy_pool(socket->jobs.head);
+    ape_destroy_pool_ordered(socket->jobs.head,
+        ape_socket_job_pool_cleaner, NULL);
 
     free(socket);
 
@@ -517,7 +547,6 @@ int ape_socket_destroy(ape_socket *socket)
 
     ape = socket->ape;
     timer_dispatch_async(ape_socket_free, socket);
-    /* TODO: Free any pending job !!! */
 
     return 0;
 }
