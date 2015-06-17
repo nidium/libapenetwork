@@ -124,6 +124,11 @@ void ape_destroy_pool_ordered(ape_pool_t *pool, ape_pool_clean_callback cleaner,
             cleaner(pool, ctx);
         }
         if (pool->flags & APE_POOL_ALLOC) {
+            /*
+                Free the previous block.
+                We don't directly free the current block,
+                because ->next could be part of the same allocation.
+            */
             if (tPool != NULL) {
                 free(tPool);
             }
@@ -131,6 +136,7 @@ void ape_destroy_pool_ordered(ape_pool_t *pool, ape_pool_clean_callback cleaner,
         }
         pool = pool->next;
     }
+
     if (tPool != NULL) {
         free(tPool);
     }
@@ -138,10 +144,18 @@ void ape_destroy_pool_ordered(ape_pool_t *pool, ape_pool_clean_callback cleaner,
 
 void ape_destroy_pool(ape_pool_t *pool)
 {
+    ape_destroy_pool_with_cleaner(pool, NULL, NULL);
+}
+
+void ape_destroy_pool_with_cleaner(ape_pool_t *pool,
+    ape_pool_clean_callback cleaner, void *ctx)
+{
     ape_pool_t *tPool = NULL, *fPool = NULL;
 
     while (pool != NULL) {
-        /* TODO : callback ? (cleaner) */
+        if (cleaner != NULL) {
+            cleaner(pool, ctx);
+        }
         if (pool->flags & APE_POOL_ALLOC) {
             if (fPool == NULL) {
                 fPool = pool;
@@ -173,6 +187,13 @@ void ape_destroy_pool(ape_pool_t *pool)
 void ape_destroy_pool_list(ape_pool_list_t *list)
 {
     ape_destroy_pool(list->head);
+    free(list);
+}
+
+void ape_destroy_pool_list_with_cleaner(ape_pool_list_t *list,
+    ape_pool_clean_callback cleaner, void *ctx)
+{
+    ape_destroy_pool_with_cleaner(list->head, cleaner, ctx);
     free(list);
 }
 
