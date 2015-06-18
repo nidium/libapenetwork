@@ -465,7 +465,7 @@ static int ape_socket_close(ape_socket *socket)
     return 1;
 }
 
-void ape_socket_packet_pool_cleaner(ape_pool_t *pool, void *ctx)
+static void ape_socket_packet_pool_cleaner(ape_pool_t *pool, void *ctx)
 {
     ape_socket_packet_t *packet = (ape_socket_packet_t *)pool;
 
@@ -474,7 +474,7 @@ void ape_socket_packet_pool_cleaner(ape_pool_t *pool, void *ctx)
     }
 }
 
-void ape_socket_job_pool_cleaner(ape_pool_t *pool, void *ctx)
+static void ape_socket_job_pool_cleaner(ape_pool_t *pool, void *ctx)
 {
     if (pool->flags & APE_SOCKET_JOB_ACTIVE) {
         switch(pool->flags & ~(APE_POOL_ALL_FLAGS | APE_SOCKET_JOB_ACTIVE)) {
