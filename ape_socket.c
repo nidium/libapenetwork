@@ -468,8 +468,10 @@ static int ape_socket_close(ape_socket *socket)
 static void ape_socket_packet_pool_cleaner(ape_pool_t *pool, void *ctx)
 {
     ape_socket_packet_t *packet = (ape_socket_packet_t *)pool;
+    ape_socket *socket = (ape_socket *)ctx;
 
     if (packet->pool.ptr.data != NULL) {
+        socket->ape->total_memory_buffered -= packet->len - packet->offset;
         ape_socket_release_data(packet->pool.ptr.data, packet->data_type);
     }
 }
@@ -505,7 +507,7 @@ static int ape_socket_free(void *arg)
 #endif
     buffer_delete(&socket->data_in);
     ape_destroy_pool_ordered(socket->jobs.head,
-        ape_socket_job_pool_cleaner, NULL);
+        ape_socket_job_pool_cleaner, socket);
 
     free(socket);
 
