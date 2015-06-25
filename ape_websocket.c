@@ -127,7 +127,12 @@ static void ape_ws_reset_frame_state(websocket_state *websocket)
     websocket->step                          = WS_STEP_START;
     websocket->frame_pos                     = 0;
     websocket->frame_payload.extended_length = 0;
-    websocket->key.pos                       = 0; 
+    websocket->key.pos                       = 0;
+
+    if (websocket->data) {
+        free(websocket->data);
+        websocket->data = NULL;
+    }
 }
 
 static int ape_ws_process_end_message(websocket_state *websocket)
