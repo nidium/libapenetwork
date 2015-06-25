@@ -117,28 +117,34 @@ void ape_ws_close(websocket_state *state)
 
 void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t len)
 {
+    printf("Ws process frame %ld\n", len);
     const buffer *buffer = &websocket->socket->data_in;
     unsigned char *pData;
 
-    #if 1
-
     for (pData = (unsigned char *)&buffer->data[websocket->offset];
         websocket->offset < buffer->used; websocket->offset++, pData++) {
+
+        printf("process... %d\n", websocket->step);
 
         switch(websocket->step) {
             case WS_STEP_KEY:
                 /* Copy the xor key (32 bits) */
                 websocket->key.val[websocket->key.pos] = *pData;
+                printf("Reading cipher key...\n");
 
                 if (++websocket->key.pos == 4) {
                     websocket->step = WS_STEP_DATA;
-                              websocket->data_inkey = 0;
+                    websocket->data_inkey = 0;
+
+                    printf("Read data now %zd\n", websocket->frame_payload.extended_length);
                 }
                 break;
             case WS_STEP_START:
                 /* Contain fragmentation infos & opcode (+ reserved bits) */
                 websocket->frame_payload.start = *pData;
                 websocket->step = WS_STEP_LENGTH;
+
+                printf("Got the payload\n");
                 break;
             case WS_STEP_LENGTH:
                 /* Check for MASK bit */
@@ -159,6 +165,7 @@ void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t le
                         /* We have the actual length */
                         websocket->frame_payload.extended_length = *pData & 0x7F;
                         websocket->step = WS_STEP_KEY;
+                        printf("Got payload of length : %zd\n", websocket->frame_payload.extended_length);
                         break;
                 }
                 break;
@@ -210,6 +217,8 @@ void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t le
                     websocket->data_pos = 0;
                     websocket->key.pos  = 0;
 
+                    printf("Got a message\n");
+
                     switch(websocket->frame_payload.start & 0x0F) {
                         case 0x8:
                         {
@@ -218,7 +227,7 @@ void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t le
                               Reply by a close response
                               TODO : include close reason
                             */
-                            char payload_head[2] = { 0x88, 0x00 };
+                            unsigned char payload_head[2] = { 0x88, 0x00 };
                             if (!websocket->close_sent) {
                                 APE_socket_write(websocket->socket,
                                     payload_head, 2, APE_DATA_STATIC);
@@ -229,7 +238,7 @@ void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t le
                         case 0x9:
                         {
                             int body_length = /*&buffer->data[websocket->offset+1] - websocket->data;*/ 0;
-                            char payload_head[2] = { 0x8a, body_length & 0x7F };
+                            unsigned char payload_head[2] = { 0x8a, body_length & 0x7F };
                             
                             /* All control frames MUST be 125 bytes or less */
                             if (body_length > 125) {
@@ -247,6 +256,7 @@ void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t le
                             break;
                         }
                         case 0xA: /* Never called as long as we never ask for pong */
+                            printf("Got  ws ping request\n");
                             break;
                         case 0x1:
                             websocket->on_frame(websocket, websocket->data,
@@ -264,6 +274,7 @@ void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t le
                                 websocket->data_inkey, 1);                            
                             break;
                         default:
+                            printf("Got an unknow frame\n");
                             break;
                     }
                     
@@ -281,6 +292,5 @@ void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t le
         }
         websocket->frame_pos++;
     }
-#endif
 }
 
