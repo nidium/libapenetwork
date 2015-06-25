@@ -41,7 +41,6 @@ typedef struct _websocket_state
     void (*on_frame)(struct _websocket_state *,
         const unsigned char *, ssize_t, int binary);
     
-    unsigned int offset;
     unsigned short int error;
     //ws_version version;
     
@@ -63,7 +62,7 @@ typedef struct _websocket_state
     #pragma pack()
     
     ws_payload_step step;
-    int data_pos;
+
     int data_inkey;
     int frame_pos;
     int close_sent;
@@ -80,6 +79,7 @@ void ape_ws_write(ape_socket *socket_client, unsigned char *data,
     size_t len, int binary, ape_socket_data_autorelease data_type);
     
 void ape_ws_close(websocket_state *state);
+void ape_ws_ping(websocket_state *state);
 
 #ifdef __cplusplus
 }
