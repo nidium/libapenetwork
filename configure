@@ -1,5 +1,7 @@
 #!/usr/bin/python
-import os 
+import os, sys
+
+sys.path.append("./tools/src")
 
 from konstructor import Deps
 from konstructor import CommandLine
@@ -8,7 +10,6 @@ from konstructor import Builder
 from konstructor import Platform
 from konstructor import Variables
 from konstructor import Konstruct
-from konstructor import Utils
 from konstructor import ROOT
 
 Gyp = Builder.Gyp
@@ -63,31 +64,31 @@ def gperftools():
 #####
 
 @CommandLine.option("--cpu-profiling", default=False)
-def profiler(profiler):
-    if profiler:
+def profiler(profiler_on):
+    if profiler_on:
         Gyp.set("profiler", 1)
         Deps.set("gperftools")
         Platform.exportEnviron("CPUPROFILE=/tmp/profile.nidium")
         Platform.exportEnviron("LD_LIBRARY_PATH=" + ROOT + "/build/third-party/${LD_LIBRARY_PATH:+:}${LD_LIBRARY_PATH:-}")
 
 @CommandLine.option("--debug", default=False)
-def debug(debug):
-    if debug:
+def debug(debug_on):
+    if debug_on:
         Variables.set("debug", True)
-        Gyp.setConfiguration("Debug");
+        Gyp.setConfiguration("Debug")
         Konstruct.setConfigs(["debug"])
 
 @CommandLine.option("--third-party-path", default="")
-def gypConfig(thirdPartyPath):
-    if thirdPartyPath:
-        Deps.setDir(thirdPartyPath)
-        Variables.set("thirdPartyPath", thirdPartyPath)
-        Gyp.set("third_party", thirdPartyPath)
-        Gyp.setExec(os.path.join(thirdPartyPath, "gyp", "gyp"))
+def gypConfig(third_party_path):
+    if third_party_path:
+        Deps.setDir(third_party_path)
+        Variables.set("third_party_path", third_party_path)
+        Gyp.set("third_party", third_party_path)
+        Gyp.setExec(os.path.join(third_party_path, "gyp", "gyp"))
 
 @CommandLine.option("--asan", default=False)
-def asan(asan):
-    if asan:
+def asan(asan_on):
+    if asan_on:
         Gyp.set("asan", 1)
 
 #####
@@ -100,5 +101,5 @@ Gyp.set("native_output", "../build/")
 Gyp.set("native_output_third_party", "../build/third-party/")
 
 if __name__ == '__main__':
-    Build.add(Gyp("gyp/network.gyp"));
+    Build.add(Gyp("gyp/network.gyp"))
     Konstruct.start() 
