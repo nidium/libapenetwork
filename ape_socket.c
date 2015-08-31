@@ -506,7 +506,7 @@ static int ape_socket_free(void *arg)
     }
 #endif
     buffer_delete(&socket->data_in);
-    ape_destroy_pool_ordered(socket->jobs.head,
+    ape_destroy_pool_with_cleaner(socket->jobs.head,
         ape_socket_job_pool_cleaner, socket);
 
     free(socket);
