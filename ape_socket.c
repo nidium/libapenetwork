@@ -117,7 +117,7 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
 
     /* TODO: set IPPROTO_UDP/TCP ? */
     if ((sock == 0 &&
-        (sock = socket(AF_INET /* TODO AF_INET6 */, proto, 0)) == -1) ||
+        (sock = socket((pt == APE_SOCKET_PT_UNIX ? AF_UNIX : AF_INET) /* TODO AF_INET6 */, proto, 0)) == -1) ||
         setnonblocking(sock) == -1) {
 
         printf("[Socket] Cant create socket(%d) : %s\n", SOCKERRNO, strerror(SOCKERRNO));
@@ -298,6 +298,9 @@ static int ape_socket_connect_ready_to_connect(const char *remote_ip,
 {
     ape_socket *socket = arg;
     struct sockaddr_in addr;
+    struct sockaddr_un unixaddr;
+
+    struct sockaddr *punaddr;
     
     socket->dns_state = NULL;
 
@@ -307,11 +310,23 @@ static int ape_socket_connect_ready_to_connect(const char *remote_ip,
         return -1;
     }
 #endif
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(socket->remote_port);
-    addr.sin_addr.s_addr = inet_addr(remote_ip);
-    memset(&(addr.sin_zero), '\0', 8);
 
+    if (socket->states.proto == APE_SOCKET_PT_UNIX) {
+        unixaddr.sun_family = AF_UNIX;
+        memset(unixaddr.sun_path, 0, sizeof(unixaddr.sun_path));
+        memcpy(unixaddr.sun_path, remote_ip,
+            ape_min(strlen(remote_ip), sizeof(unixaddr.sun_path)-1));
+
+        punaddr = (struct sockaddr*)&unixaddr;
+    } else {
+
+        addr.sin_family = AF_INET;
+        addr.sin_port = htons(socket->remote_port);
+        addr.sin_addr.s_addr = inet_addr(remote_ip);
+        memset(&(addr.sin_zero), '\0', 8);
+
+        punaddr = (struct sockaddr*)&addr;
+    }
     int ntry = 0;
 retry_connect:
     if (socket->local_port != 0) {
@@ -327,7 +342,7 @@ retry_connect:
         }
     }
 
-    if (connect(socket->s.fd, (struct sockaddr *)&addr,
+    if (connect(socket->s.fd, punaddr,
                 sizeof(struct sockaddr)) == -1 &&
                 (SOCKERRNO != EWOULDBLOCK && SOCKERRNO != EINPROGRESS)) {
         printf("[Socket] connect() error(%d) on %d : %s (retry : %d)\n", SOCKERRNO, socket->s.fd, strerror(SOCKERRNO), ntry);
@@ -375,6 +390,12 @@ int APE_socket_connect(ape_socket *socket, uint16_t port,
 
     socket->remote_port = port;
     socket->local_port  = localport;
+
+    if (socket->states.proto == APE_SOCKET_PT_UNIX) {
+        socket->dns_state = NULL;
+        return ape_socket_connect_ready_to_connect(remote_ip_host, socket, 0);
+    }
+
 #ifdef _HAS_ARES_SUPPORT
     socket->dns_state = ape_gethostbyname(remote_ip_host,
             ape_socket_connect_ready_to_connect,

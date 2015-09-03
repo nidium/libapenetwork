@@ -97,7 +97,8 @@ enum ape_socket_flags {
 enum ape_socket_proto {
     APE_SOCKET_PT_TCP,
     APE_SOCKET_PT_UDP,
-    APE_SOCKET_PT_SSL
+    APE_SOCKET_PT_SSL,
+    APE_SOCKET_PT_UNIX
 };
 
 enum ape_socket_type {
