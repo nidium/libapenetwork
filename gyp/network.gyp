@@ -90,7 +90,8 @@
             '../ape_base64.c',
             '../ape_websocket.c',
             '../ape_sha1.c',
-            '../ape_ssl.c'
+            '../ape_ssl.c',
+            '../lz4.c'
         ],
     }],
 }

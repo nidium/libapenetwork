@@ -23,6 +23,7 @@
 #include "common.h"
 #include "ape_buffer.h"
 #include "ape_pool.h"
+#include "lz4.h"
 
 #ifdef _WIN32
 
@@ -138,6 +139,8 @@ typedef struct {
     void *arg;
 } ape_socket_callbacks;
 
+#define APE_LZ4_COMPRESS_TX (1 << 1)
+#define APE_LZ4_COMPRESS_RX (1 << 2)
 
 /* Jobs pool */
 /* (1 << 0) is reserved */
@@ -170,6 +173,14 @@ struct _ape_socket {
     struct _ape_dns_cb_argv *dns_state;
 
     struct {
+        struct {
+            APE_LZ4_stream_t *ctx;
+            char *cmp_buffer;
+            char *dict_buffer;
+        } tx;
+    } lz4;
+
+    struct {
         uint8_t flags;
         uint8_t proto;
         uint8_t type;
@@ -189,6 +200,7 @@ struct _ape_socket {
 };
 
 #define APE_SOCKET_FD(socket) socket->s.fd
+#define APE_SOCKET_IS_LZ4(socket, onwhat) (socket->lz4.onwhat.ctx)
 
 #define APE_SOCKET_PACKET_FREE (1 << 1)
 
@@ -206,6 +218,7 @@ extern "C" {
 
 ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape);
 
+void APE_socket_enable_lz4(ape_socket *socket, int rxtx);
 int APE_socket_setTimeout(ape_socket *socket, int secs);
 void APE_socket_setBufferMaxSize(ape_socket *socket, size_t MB);
 

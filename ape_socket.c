@@ -50,6 +50,9 @@
 #include <limits.h>
 #include <string.h>
 
+#define APE_LZ4_BUFFER_SIZE (1024*8)
+#define APE_LZ4_DICT_BUFFER_SIZE (1024*64)
+
 static int ape_socket_free(void *arg);
 static int ape_shutdown(ape_socket *socket, int rw);
 static int ape_socket_destroy_async(ape_socket *socket);
@@ -106,6 +109,25 @@ __inline static void ape_socket_release_data(unsigned char *data, ape_socket_dat
     }
 }
 
+void APE_socket_enable_lz4(ape_socket *socket, int rxtx)
+{
+
+    if (socket->lz4.tx.ctx) {
+        return;
+    }
+
+    socket->lz4.tx.ctx = APE_LZ4_createStream();
+    socket->lz4.tx.cmp_buffer = (char *)malloc(APE_LZ4_BUFFER_SIZE);
+    socket->lz4.tx.dict_buffer = (char *)malloc(APE_LZ4_DICT_BUFFER_SIZE);
+}
+
+static void APE_socket_free_lz4(ape_socket *socket)
+{
+    APE_LZ4_freeStream(socket->lz4.tx.ctx);
+    free(socket->lz4.tx.cmp_buffer);
+    free(socket->lz4.tx.dict_buffer);
+}
+
 ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
 {
     int sock = from, proto = SOCK_STREAM;
@@ -135,6 +157,8 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
     ret->ctx            = NULL;
     ret->parent         = NULL;
     ret->dns_state      = NULL;
+    ret->lz4.tx.ctx        = NULL;
+    ret->lz4.tx.cmp_buffer     = NULL;
 
 #ifdef _HAVE_SSL_SUPPORT
     ret->SSL.issecure   = (pt == APE_SOCKET_PT_SSL);
@@ -665,6 +689,7 @@ int APE_socket_write(ape_socket *socket, void *data,
 #ifdef __WIN32
   #define ssize_t int
 #endif
+    printf("Writing...\n");
     size_t t_bytes = 0, r_bytes = len;
     ssize_t n = 0;
     int io_error = 0, rerrno = 0;
@@ -719,6 +744,48 @@ int APE_socket_write(ape_socket *socket, void *data,
         }
         
     } else {
+        if (APE_SOCKET_IS_LZ4(socket, tx)) {
+            /*
+                Add 4 bytes to save the original size
+            */
+            int dst_len = APE_LZ4_COMPRESSBOUND(len) + sizeof(int);
+            /*
+                Check if we can use our pre-allocated buffer
+            */
+            char *dst_cmp = (dst_len > APE_LZ4_BUFFER_SIZE) ?
+                            (char *)malloc(dst_len) : socket->lz4.tx.cmp_buffer;
+
+            memcpy(dst_cmp, &len, sizeof(int));
+
+            int cmp_len = APE_LZ4_compress_fast_continue(socket->lz4.tx.ctx, data,
+                dst_cmp + sizeof(int), len, dst_len - sizeof(int), 1);
+
+            if (cmp_len <= 0) {
+                printf("LZ4 compression error %d\n", cmp_len);
+                return -1;
+            }
+
+            /*
+                We can't keep track of our buffer.
+                Save it. (max 64KB)
+            */
+            APE_LZ4_saveDict(socket->lz4.tx.ctx, socket->lz4.tx.dict_buffer,
+                APE_LZ4_DICT_BUFFER_SIZE);
+
+            printf("Original Len : %d | Compressed len : %d\n", len, cmp_len);
+
+            /*
+                Release the original data since we're using the compressed one,
+                and that the dict was saved to LZ4.
+            */
+            ape_socket_release_data(data,
+                (data_type == APE_DATA_COPY ? APE_DATA_OWN : data_type));
+
+            data = dst_cmp;
+            len = r_bytes = cmp_len + sizeof(int);
+
+            data_type = (dst_cmp == socket->lz4.tx.cmp_buffer) ? APE_DATA_OWN : APE_DATA_COPY;            
+        }
 #endif
         while (t_bytes < len) {
 #ifdef __WIN32
@@ -745,7 +812,8 @@ int APE_socket_write(ape_socket *socket, void *data,
 #endif
     
     ape_socket_release_data(data,
-        (data_type == APE_DATA_COPY ? APE_DATA_OWN : data_type));
+        (data_type == APE_DATA_COPY && !APE_SOCKET_IS_LZ4(socket, tx)
+        ? APE_DATA_OWN : data_type));
     
     if (io_error) {
         printf("IO error (%d) : %s\n", APE_SOCKET_FD(socket), strerror(rerrno));
