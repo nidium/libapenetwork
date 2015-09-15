@@ -246,19 +246,19 @@ int APE_LZ4_saveDict (APE_LZ4_stream_t* streamPtr, char* safeBuffer, int dictSiz
 
 #define LZ4_STREAMDECODESIZE_U64  4
 #define LZ4_STREAMDECODESIZE     (LZ4_STREAMDECODESIZE_U64 * sizeof(unsigned long long))
-typedef struct { unsigned long long table[LZ4_STREAMDECODESIZE_U64]; } LZ4_streamDecode_t;
+typedef struct { unsigned long long table[LZ4_STREAMDECODESIZE_U64]; } APE_LZ4_streamDecode_t;
 /*
- * LZ4_streamDecode_t
+ * APE_LZ4_streamDecode_t
  * information structure to track an LZ4 stream.
  * init this structure content using APE_LZ4_setStreamDecode or memset() before first use !
  *
  * In the context of a DLL (liblz4) please prefer usage of construction methods below.
- * They are more future proof, in case of a change of LZ4_streamDecode_t size in the future.
- * APE_LZ4_createStreamDecode will allocate and initialize an LZ4_streamDecode_t structure
+ * They are more future proof, in case of a change of APE_LZ4_streamDecode_t size in the future.
+ * APE_LZ4_createStreamDecode will allocate and initialize an APE_LZ4_streamDecode_t structure
  * APE_LZ4_freeStreamDecode releases its memory.
  */
-LZ4_streamDecode_t* APE_LZ4_createStreamDecode(void);
-int                 APE_LZ4_freeStreamDecode (LZ4_streamDecode_t* LZ4_stream);
+APE_LZ4_streamDecode_t* APE_LZ4_createStreamDecode(void);
+int                 APE_LZ4_freeStreamDecode (APE_LZ4_streamDecode_t* LZ4_stream);
 
 /*
  * APE_LZ4_setStreamDecode
@@ -266,7 +266,7 @@ int                 APE_LZ4_freeStreamDecode (LZ4_streamDecode_t* LZ4_stream);
  * Setting a size of 0 is allowed (same effect as reset).
  * Return : 1 if OK, 0 if error
  */
-int APE_LZ4_setStreamDecode (LZ4_streamDecode_t* LZ4_streamDecode, const char* dictionary, int dictSize);
+int APE_LZ4_setStreamDecode (APE_LZ4_streamDecode_t* LZ4_streamDecode, const char* dictionary, int dictSize);
 
 /*
 *_continue() :
@@ -285,8 +285,8 @@ int APE_LZ4_setStreamDecode (LZ4_streamDecode_t* LZ4_streamDecode, const char* d
     Whenever these conditions are not possible, save the last 64KB of decoded data into a safe buffer,
     and indicate where it is saved using APE_LZ4_setStreamDecode()
 */
-int APE_LZ4_decompress_safe_continue (LZ4_streamDecode_t* LZ4_streamDecode, const char* source, char* dest, int compressedSize, int maxDecompressedSize);
-int APE_LZ4_decompress_fast_continue (LZ4_streamDecode_t* LZ4_streamDecode, const char* source, char* dest, int originalSize);
+int APE_LZ4_decompress_safe_continue (APE_LZ4_streamDecode_t* LZ4_streamDecode, const char* source, char* dest, int compressedSize, int maxDecompressedSize);
+int APE_LZ4_decompress_fast_continue (APE_LZ4_streamDecode_t* LZ4_streamDecode, const char* source, char* dest, int originalSize);
 
 
 /*
@@ -294,7 +294,7 @@ Advanced decoding functions :
 *_usingDict() :
     These decoding functions work the same as
     a combination of APE_LZ4_setStreamDecode() followed by LZ4_decompress_x_continue()
-    They are stand-alone. They don't need nor update an LZ4_streamDecode_t structure.
+    They are stand-alone. They don't need nor update an APE_LZ4_streamDecode_t structure.
 */
 int APE_LZ4_decompress_safe_usingDict (const char* source, char* dest, int compressedSize, int maxDecompressedSize, const char* dictStart, int dictSize);
 int APE_LZ4_decompress_fast_usingDict (const char* source, char* dest, int originalSize, const char* dictStart, int dictSize);

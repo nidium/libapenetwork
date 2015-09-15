@@ -1309,20 +1309,20 @@ typedef struct
     size_t extDictSize;
     const BYTE* prefixEnd;
     size_t prefixSize;
-} LZ4_streamDecode_t_internal;
+} APE_LZ4_streamDecode_t_internal;
 
 /*
  * If you prefer dynamic allocation methods,
  * APE_LZ4_createStreamDecode()
- * provides a pointer (void*) towards an initialized LZ4_streamDecode_t structure.
+ * provides a pointer (void*) towards an initialized APE_LZ4_streamDecode_t structure.
  */
-LZ4_streamDecode_t* APE_LZ4_createStreamDecode(void)
+APE_LZ4_streamDecode_t* APE_LZ4_createStreamDecode(void)
 {
-    LZ4_streamDecode_t* lz4s = (LZ4_streamDecode_t*) ALLOCATOR(1, sizeof(LZ4_streamDecode_t));
+    APE_LZ4_streamDecode_t* lz4s = (APE_LZ4_streamDecode_t*) ALLOCATOR(1, sizeof(APE_LZ4_streamDecode_t));
     return lz4s;
 }
 
-int APE_LZ4_freeStreamDecode (LZ4_streamDecode_t* LZ4_stream)
+int APE_LZ4_freeStreamDecode (APE_LZ4_streamDecode_t* LZ4_stream)
 {
     FREEMEM(LZ4_stream);
     return 0;
@@ -1335,9 +1335,9 @@ int APE_LZ4_freeStreamDecode (LZ4_streamDecode_t* LZ4_stream)
  * Loading a size of 0 is allowed (same effect as no dictionary).
  * Return : 1 if OK, 0 if error
  */
-int APE_LZ4_setStreamDecode (LZ4_streamDecode_t* LZ4_streamDecode, const char* dictionary, int dictSize)
+int APE_LZ4_setStreamDecode (APE_LZ4_streamDecode_t* LZ4_streamDecode, const char* dictionary, int dictSize)
 {
-    LZ4_streamDecode_t_internal* lz4sd = (LZ4_streamDecode_t_internal*) LZ4_streamDecode;
+    APE_LZ4_streamDecode_t_internal* lz4sd = (APE_LZ4_streamDecode_t_internal*) LZ4_streamDecode;
     lz4sd->prefixSize = (size_t) dictSize;
     lz4sd->prefixEnd = (const BYTE*) dictionary + dictSize;
     lz4sd->externalDict = NULL;
@@ -1352,9 +1352,9 @@ int APE_LZ4_setStreamDecode (LZ4_streamDecode_t* LZ4_streamDecode, const char* d
     If it's not possible, save the relevant part of decoded data into a safe buffer,
     and indicate where it stands using APE_LZ4_setStreamDecode()
 */
-int APE_LZ4_decompress_safe_continue (LZ4_streamDecode_t* LZ4_streamDecode, const char* source, char* dest, int compressedSize, int maxOutputSize)
+int APE_LZ4_decompress_safe_continue (APE_LZ4_streamDecode_t* LZ4_streamDecode, const char* source, char* dest, int compressedSize, int maxOutputSize)
 {
-    LZ4_streamDecode_t_internal* lz4sd = (LZ4_streamDecode_t_internal*) LZ4_streamDecode;
+    APE_LZ4_streamDecode_t_internal* lz4sd = (APE_LZ4_streamDecode_t_internal*) LZ4_streamDecode;
     int result;
 
     if (lz4sd->prefixEnd == (BYTE*)dest)
@@ -1381,9 +1381,9 @@ int APE_LZ4_decompress_safe_continue (LZ4_streamDecode_t* LZ4_streamDecode, cons
     return result;
 }
 
-int APE_LZ4_decompress_fast_continue (LZ4_streamDecode_t* LZ4_streamDecode, const char* source, char* dest, int originalSize)
+int APE_LZ4_decompress_fast_continue (APE_LZ4_streamDecode_t* LZ4_streamDecode, const char* source, char* dest, int originalSize)
 {
-    LZ4_streamDecode_t_internal* lz4sd = (LZ4_streamDecode_t_internal*) LZ4_streamDecode;
+    APE_LZ4_streamDecode_t_internal* lz4sd = (APE_LZ4_streamDecode_t_internal*) LZ4_streamDecode;
     int result;
 
     if (lz4sd->prefixEnd == (BYTE*)dest)
