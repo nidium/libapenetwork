@@ -116,7 +116,6 @@ enum ape_socket_state {
     APE_SOCKET_ST_SHUTDOWN
 };
 
-
 typedef enum _ape_socket_data_autorelease {
     APE_DATA_STATIC,
     APE_DATA_GLOBAL_STATIC,
@@ -127,9 +126,8 @@ typedef enum _ape_socket_data_autorelease {
 
 typedef struct _ape_socket ape_socket;
 
-
 typedef struct {
-    void (*on_read)         (ape_socket *, ape_global *, void *arg);
+    void (*on_read)         (ape_socket *, const uint8_t *data, size_t len, ape_global *, void *arg);
     void (*on_disconnect)   (ape_socket *, ape_global *, void *arg);
     void (*on_connect)      (ape_socket *, ape_socket *, ape_global *, void *arg);
     void (*on_connected)    (ape_socket *, ape_global *, void *arg);
@@ -178,6 +176,12 @@ struct _ape_socket {
             char *cmp_buffer;
             char *dict_buffer;
         } tx;
+
+        struct {
+            APE_LZ4_streamDecode_t *ctx;
+            uint32_t decompress_position;
+            uint32_t current_block_size;
+        } rx;
     } lz4;
 
     struct {

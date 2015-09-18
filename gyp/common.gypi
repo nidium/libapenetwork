@@ -22,7 +22,7 @@
                         '10.7'
                     ],
                     'SDKROOT': [
-                        'macosx10.9'
+                        'macosx10.11'
                     ],
                     'OTHER_CPLUSPLUSFLAGS': [ 
 		        '-stdlib=libc++',
