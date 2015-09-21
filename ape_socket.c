@@ -51,6 +51,7 @@
 #include <string.h>
 
 #define APE_LZ4_BLOCK_SIZE (1024*8)
+#define APE_LZ4_BLOCK_COMP_SIZE APE_LZ4_COMPRESSBOUND(APE_LZ4_BLOCK_SIZE)
 #define APE_LZ4_BUFFER_SIZE (1024*16)
 
 #define APE_LZ4_DICT_BUFFER_SIZE (1024*64)
@@ -121,7 +122,9 @@ void APE_socket_enable_lz4(ape_socket *socket, int rxtx)
     }
 
     if ((rxtx & APE_LZ4_COMPRESS_RX) && !socket->lz4.rx.ctx) {
-        socket->lz4.rx.ctx = APE_LZ4_createStreamDecode();
+        socket->lz4.rx.ctx          = APE_LZ4_createStreamDecode();
+        socket->lz4.rx.dict_buffer.data    = malloc(APE_LZ4_DICT_BUFFER_SIZE);
+        socket->lz4.rx.dict_buffer.pos     = 0;
         socket->lz4.rx.decompress_position = 0;
         socket->lz4.rx.current_block_size  = 0;
     }
@@ -138,6 +141,7 @@ static void APE_socket_free_lz4(ape_socket *socket)
 
     if (socket->lz4.rx.ctx) {
         APE_LZ4_freeStreamDecode(socket->lz4.rx.ctx);
+        free(socket->lz4.rx.dict_buffer.data);
     }
 }
 
@@ -764,10 +768,11 @@ int APE_socket_write(ape_socket *socket, void *data,
 
             printf("Number of blocks : %d\n", number_of_blocks);
 
+            /* Maximum size of a compressed buffer */
+            int block_size = APE_LZ4_BLOCK_COMP_SIZE;
             /*
                 Add 4 bytes to save the original size of each block
             */
-            int block_size = APE_LZ4_COMPRESSBOUND(APE_LZ4_BLOCK_SIZE);
             int dst_len = (block_size + sizeof(int)) * number_of_blocks;
             /*
                 Check if we can use our pre-allocated buffer
@@ -794,7 +799,7 @@ int APE_socket_write(ape_socket *socket, void *data,
                     printf("LZ4 compression error %d\n", cmp_len);
                     return -1;
                 }
-
+                
                 printf("Original Len : %d | Compressed len : %d\n", ape_min(APE_LZ4_BLOCK_SIZE, len - (APE_LZ4_BLOCK_SIZE * cur_block)), cmp_len);
             }
 
@@ -1323,40 +1328,84 @@ socket_reread:
             socket->states.state != APE_SOCKET_ST_SHUTDOWN) {
 
             if (APE_SOCKET_IS_LZ4(socket, rx)) {
-                printf("Got a read from a compressed stream (total size %ld)\n", socket->data_in.used);
-                int buffer_pos = 0;
+                const char *pData = (char *)socket->data_in.data;
+                ssize_t pLen = socket->data_in.used;
+                char tmpBuf[APE_LZ4_BLOCK_SIZE];
 
-                printf("Position %u\n", socket->lz4.rx.decompress_position);
+                while (pLen > 0) {
 
-                /* Read next block size */
-                if (socket->lz4.rx.decompress_position < sizeof(int)) {
+                    int buffer_pos = 0;
 
-                    buffer_pos = ape_min(socket->data_in.used,
-                        sizeof(int)-socket->lz4.rx.decompress_position);
+                    /* Read next block size */
+                    if (socket->lz4.rx.decompress_position < sizeof(int)) {
 
-                    printf("Reading %d bytes\n", buffer_pos);
+                        buffer_pos = ape_min(pLen,
+                            sizeof(int)-socket->lz4.rx.decompress_position);
 
-                    memcpy(&socket->lz4.rx.current_block_size+socket->lz4.rx.decompress_position,
-                        socket->data_in.data,
-                        buffer_pos);
-                }
 
-                socket->lz4.rx.decompress_position += socket->data_in.used;
+                        memcpy(&socket->lz4.rx.current_block_size+socket->lz4.rx.decompress_position,
+                            pData,
+                            buffer_pos);
 
-                if (socket->data_in.used > buffer_pos) {
-                    printf("Remaining data... block is %d bytes\n",
-                        socket->lz4.rx.current_block_size);
+                        pData += buffer_pos;
+                    }
 
-                    char readorigin[APE_LZ4_BLOCK_SIZE];
+                    socket->lz4.rx.decompress_position += pLen;
 
-                    int rc = APE_LZ4_decompress_safe_continue(socket->lz4.rx.ctx,
-                        (const char *)&socket->data_in.data[buffer_pos], readorigin, socket->lz4.rx.current_block_size, APE_LZ4_BLOCK_SIZE);
+                    /* do we have enough data? */
+                    if (pLen > buffer_pos &&
+                        socket->lz4.rx.current_block_size <= APE_LZ4_BLOCK_COMP_SIZE &&
+                        pLen - buffer_pos >= socket->lz4.rx.current_block_size) {
 
-                    printf("Decomp : %d\n", rc);
-                    
-                    socket->callbacks.on_read(socket,
-                        (const unsigned char *)readorigin,
-                        rc, socket->ape, socket->callbacks.arg);
+                        char *pDecomp = socket->lz4.rx.dict_buffer.data + socket->lz4.rx.dict_buffer.pos;
+
+                        int rc = APE_LZ4_decompress_safe_continue(socket->lz4.rx.ctx,
+                /* src */                 pData,
+                /* dst */                 tmpBuf,
+                /* comp size */           socket->lz4.rx.current_block_size,
+                /* maxDecompressedSize */ APE_LZ4_BLOCK_SIZE);
+
+                        if (rc <= 0) {
+                            fprintf(stderr, "[Error] LZ4 Decompression error %d\n", rc);
+                            io_error = 1;
+                            break;
+                        }
+
+                        if (socket->lz4.rx.dict_buffer.pos + rc > APE_LZ4_DICT_BUFFER_SIZE) {
+                            int availsize = APE_LZ4_DICT_BUFFER_SIZE - socket->lz4.rx.dict_buffer.pos;
+                            int needsize = rc - availsize;
+
+                            memmove(socket->lz4.rx.dict_buffer.data,
+                                socket->lz4.rx.dict_buffer.data + needsize,
+                                socket->lz4.rx.dict_buffer.pos - needsize);
+
+                            memcpy((socket->lz4.rx.dict_buffer.data+socket->lz4.rx.dict_buffer.pos) - needsize, tmpBuf, rc);
+
+                            socket->lz4.rx.dict_buffer.pos = APE_LZ4_DICT_BUFFER_SIZE;
+                        } else {
+                            memcpy(socket->lz4.rx.dict_buffer.data+socket->lz4.rx.dict_buffer.pos, tmpBuf, rc);
+                            socket->lz4.rx.dict_buffer.pos += rc;
+                        }
+
+                        APE_LZ4_setStreamDecode(socket->lz4.rx.ctx, socket->lz4.rx.dict_buffer.data, socket->lz4.rx.dict_buffer.pos);
+
+                        socket->callbacks.on_read(socket,
+                            (const unsigned char *)tmpBuf,
+                            rc, socket->ape, socket->callbacks.arg);
+
+                        pLen -= socket->lz4.rx.current_block_size + sizeof(int);
+                        pData += socket->lz4.rx.current_block_size;
+                        socket->lz4.rx.decompress_position = 0;
+
+                    } else if (socket->lz4.rx.current_block_size > APE_LZ4_BLOCK_COMP_SIZE) {
+                        /* invalid block size received */
+                        io_error = 1;
+                        break;
+                    } else {
+                        printf("broke pLen : %ld, buffer_pos %d, curblock %d\n", pLen, buffer_pos, socket->lz4.rx.current_block_size);
+                        io_error = 1;
+                        break;
+                    } /* else if not enough data */
                 }
             } else {
 

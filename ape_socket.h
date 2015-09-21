@@ -179,6 +179,16 @@ struct _ape_socket {
 
         struct {
             APE_LZ4_streamDecode_t *ctx;
+            struct {
+                char *data;
+                int pos;
+            } dict_buffer;
+
+            struct {
+                char *data;
+                int used;
+            } buffer;
+
             uint32_t decompress_position;
             uint32_t current_block_size;
         } rx;
