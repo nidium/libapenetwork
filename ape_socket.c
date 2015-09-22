@@ -135,7 +135,7 @@ void APE_socket_enable_lz4(ape_socket *socket, int rxtx)
     }
 }
 
-static void APE_socket_free_lz4(ape_socket *socket)
+static void ape_socket_free_lz4(ape_socket *socket)
 {
 
     if (socket->lz4.tx.ctx) {
@@ -147,6 +147,7 @@ static void APE_socket_free_lz4(ape_socket *socket)
     if (socket->lz4.rx.ctx) {
         APE_LZ4_freeStreamDecode(socket->lz4.rx.ctx);
         free(socket->lz4.rx.dict_buffer.data);
+        free(socket->lz4.rx.buffer.data);
     }
 }
 
@@ -577,6 +578,7 @@ static int ape_socket_free(void *arg)
     ape_destroy_pool_with_cleaner(socket->jobs.head,
         ape_socket_job_pool_cleaner, socket);
 
+    ape_socket_free_lz4(socket);
     free(socket);
 
     return 0;
@@ -771,8 +773,6 @@ int APE_socket_write(ape_socket *socket, void *data,
 
             int number_of_blocks = len / APE_LZ4_BLOCK_SIZE + (len % APE_LZ4_BLOCK_SIZE ? 1 : 0);
 
-            printf("Number of blocks : %d\n", number_of_blocks);
-
             /* Maximum size of a compressed buffer */
             int block_size = APE_LZ4_BLOCK_COMP_SIZE;
             /*
@@ -804,10 +804,7 @@ int APE_socket_write(ape_socket *socket, void *data,
                     printf("LZ4 compression error %d\n", cmp_len);
                     return -1;
                 }
-                
-                printf("Original Len : %d | Compressed len : %d\n", ape_min(APE_LZ4_BLOCK_SIZE, len - (APE_LZ4_BLOCK_SIZE * cur_block)), cmp_len);
             }
-
 
             /*
                 We can't keep track of our buffer.
