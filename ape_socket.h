@@ -187,6 +187,7 @@ struct _ape_socket {
             struct {
                 char *data;
                 int used;
+                int size;
             } buffer;
 
             uint32_t decompress_position;

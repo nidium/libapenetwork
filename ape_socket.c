@@ -125,6 +125,11 @@ void APE_socket_enable_lz4(ape_socket *socket, int rxtx)
         socket->lz4.rx.ctx          = APE_LZ4_createStreamDecode();
         socket->lz4.rx.dict_buffer.data    = malloc(APE_LZ4_DICT_BUFFER_SIZE);
         socket->lz4.rx.dict_buffer.pos     = 0;
+
+        socket->lz4.rx.buffer.size         = APE_LZ4_BLOCK_COMP_SIZE + sizeof(int);
+        socket->lz4.rx.buffer.data         = malloc(socket->lz4.rx.buffer.size);
+        socket->lz4.rx.buffer.used         = 0;
+
         socket->lz4.rx.decompress_position = 0;
         socket->lz4.rx.current_block_size  = 0;
     }
@@ -1328,9 +1333,36 @@ socket_reread:
             socket->states.state != APE_SOCKET_ST_SHUTDOWN) {
 
             if (APE_SOCKET_IS_LZ4(socket, rx)) {
+
                 const char *pData = (char *)socket->data_in.data;
-                ssize_t pLen = socket->data_in.used;
-                char tmpBuf[APE_LZ4_BLOCK_SIZE];
+                ssize_t     pLen = socket->data_in.used;
+                char        tmpBuf[APE_LZ4_BLOCK_SIZE];
+                int         leftOver = 0;
+                int         to_copy_from_socket = 0;
+
+                /*
+                    We have some leftover data in our data buffer
+                */
+                if (socket->lz4.rx.buffer.used) {
+                    to_copy_from_socket = ape_min(socket->data_in.used,
+                        socket->lz4.rx.buffer.size - socket->lz4.rx.buffer.used);
+
+                    memcpy(socket->lz4.rx.buffer.data + socket->lz4.rx.buffer.used,
+                        socket->data_in.data,
+                        to_copy_from_socket);
+
+                    socket->lz4.rx.buffer.used += to_copy_from_socket;
+
+                    pLen     = socket->lz4.rx.buffer.used;
+                    pData    = socket->lz4.rx.buffer.data;
+
+                    /*
+                        Amount of data remaining in our socket buffer
+                    */
+                    leftOver = socket->data_in.used - to_copy_from_socket;
+
+                    printf("Buffer set to a size of %d (of %d), leftover : %d\n", to_copy_from_socket, socket->lz4.rx.buffer.size, leftOver);
+                }
 
                 while (pLen > 0) {
 
@@ -1338,16 +1370,16 @@ socket_reread:
 
                     /* Read next block size */
                     if (socket->lz4.rx.decompress_position < sizeof(int)) {
-
                         buffer_pos = ape_min(pLen,
-                            sizeof(int)-socket->lz4.rx.decompress_position);
+                            sizeof(int) - socket->lz4.rx.decompress_position);
 
-
-                        memcpy(&socket->lz4.rx.current_block_size+socket->lz4.rx.decompress_position,
+                        memcpy(&socket->lz4.rx.current_block_size + socket->lz4.rx.decompress_position,
                             pData,
                             buffer_pos);
 
                         pData += buffer_pos;
+
+                        printf("Blocksize set to %d from %d bytes (total %ld)\n", socket->lz4.rx.current_block_size, buffer_pos, pLen);
                     }
 
                     socket->lz4.rx.decompress_position += pLen;
@@ -1360,15 +1392,17 @@ socket_reread:
                         char *pDecomp = socket->lz4.rx.dict_buffer.data + socket->lz4.rx.dict_buffer.pos;
 
                         int rc = APE_LZ4_decompress_safe_continue(socket->lz4.rx.ctx,
-                /* src */                 pData,
-                /* dst */                 tmpBuf,
-                /* comp size */           socket->lz4.rx.current_block_size,
-                /* maxDecompressedSize */ APE_LZ4_BLOCK_SIZE);
+                        /* src */                 pData,
+                        /* dst */                 tmpBuf,
+                        /* comp size */           socket->lz4.rx.current_block_size,
+                        /* maxDecompressedSize */ APE_LZ4_BLOCK_SIZE);
 
                         if (rc <= 0) {
                             fprintf(stderr, "[Error] LZ4 Decompression error %d\n", rc);
                             io_error = 1;
                             break;
+                        } else {
+                            printf("[decompressed] %d bytes\n", rc);
                         }
 
                         if (socket->lz4.rx.dict_buffer.pos + rc > APE_LZ4_DICT_BUFFER_SIZE) {
@@ -1395,17 +1429,40 @@ socket_reread:
 
                         pLen -= socket->lz4.rx.current_block_size + sizeof(int);
                         pData += socket->lz4.rx.current_block_size;
+
+                        if (leftOver) {
+                            /*
+                                Reset pData into out original socket data
+                                to avoid unecessary data copy
+                            */
+                            int consumed = socket->lz4.rx.current_block_size - (socket->lz4.rx.buffer.used - to_copy_from_socket);
+                            
+                            pData = (const char *)socket->data_in.data + consumed;
+                            pLen  = socket->data_in.used - consumed;
+                            leftOver = 0;
+                        }
+
+                        if (socket->lz4.rx.buffer.used) {
+                            socket->lz4.rx.buffer.used = 0;
+                        }
+
                         socket->lz4.rx.decompress_position = 0;
+                        socket->lz4.rx.current_block_size  = 0;
 
                     } else if (socket->lz4.rx.current_block_size > APE_LZ4_BLOCK_COMP_SIZE) {
                         /* invalid block size received */
+                        printf("io_error from block size (%d)\n", socket->lz4.rx.current_block_size);
                         io_error = 1;
                         break;
-                    } else {
-                        printf("broke pLen : %ld, buffer_pos %d, curblock %d\n", pLen, buffer_pos, socket->lz4.rx.current_block_size);
-                        io_error = 1;
+                    } else if (pLen - buffer_pos < socket->lz4.rx.current_block_size) {
+                        memmove(socket->lz4.rx.buffer.data, pData, pLen);
+                        socket->lz4.rx.buffer.used = pLen - buffer_pos;
                         break;
                     } /* else if not enough data */
+                }
+
+                if (leftOver) {
+                    printf("Leftover data to be processed\n");
                 }
             } else {
 
