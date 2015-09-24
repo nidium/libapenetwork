@@ -17,7 +17,10 @@ DEPEDENCY_REPO = "http://deps.nidium.com"
 
 Platform.setEnviron(
     "CC=clang",
-    "CXX=clang++", 
+    "CXX=clang++",
+    "CXXFLAGS=-Wno-error",
+    "CXXFLAGS=-Wno-conversion-null",
+    "CFLAGS=-Wno-error",
     #"CXXFLAGS=-stdlib=libc++",
     #"LDFLAGS=-stdlib=libc++",
     "MACOSX_DEPLOYMENT_TARGET=10.7"
@@ -28,7 +31,7 @@ Gyp.setExec("third-party/gyp/gyp")
 @Deps.register("gyp")
 def gyp():
     return {
-        "location": Deps.SvnRepo("http://gyp.googlecode.com/svn/trunk/", revision=1967),
+        "location": Deps.GitRepo("http://chromium.googlesource.com/external/gyp", revision='1967'),
         "patchs": ["gyp.patch"]
     }
 
