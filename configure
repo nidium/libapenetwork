@@ -31,7 +31,7 @@ Gyp.setExec("third-party/gyp/gyp")
 @Deps.register("gyp")
 def gyp():
     return {
-        "location": Deps.GitRepo("http://chromium.googlesource.com/external/gyp", revision='1967'),
+        "location": Deps.GitRepo("http://chromium.googlesource.com/external/gyp", revision='b38e5f2f93fa5b31a6001bd21b9d8dcbf73e44e7'),
         "patchs": ["gyp.patch"]
     }
 
