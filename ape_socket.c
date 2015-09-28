@@ -153,12 +153,10 @@ static void ape_socket_free_lz4(ape_socket *socket)
 
 ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
 {
-    int sock = from, proto = SOCK_STREAM;
-
-    ape_socket *ret = NULL;
+    int sock = from, proto = (pt == APE_SOCKET_PT_UDP ? SOCK_DGRAM : SOCK_STREAM);
+    ape_socket *ret;
     
     _nco++;
-    proto = (pt == APE_SOCKET_PT_UDP ? SOCK_DGRAM : SOCK_STREAM);
 
     /* TODO: set IPPROTO_UDP/TCP ? */
     if ((sock == 0 &&
@@ -169,46 +167,29 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
         return NULL;
     }
 
-    ret             = malloc(sizeof(*ret));
-    ret->ape        = ape;
-    ret->s.fd       = sock;
-    ret->s.type     = APE_EVENT_SOCKET;
-    ret->states.flags   = 0;
-    ret->states.type    = APE_SOCKET_TP_UNKNOWN;
-    ret->states.state   = APE_SOCKET_ST_PENDING;
-    ret->states.proto   = pt;
-    ret->ctx            = NULL;
-    ret->parent         = NULL;
-    ret->dns_state      = NULL;
-    ret->lz4.tx.ctx        = NULL;
-    ret->lz4.rx.ctx        = NULL;
-    ret->lz4.tx.cmp_buffer     = NULL;
+    ret = malloc(sizeof(*ret));
+    memset(ret, 0, sizeof(*ret));
+    ret->ape = ape;
+
+    ret->s = {
+        .fd   = sock,
+        .type = APE_EVENT_SOCKET
+    };
+
+    ret->states = {
+        .flags = 0,
+        .proto = pt,
+        .type  = APE_SOCKET_TP_UNKNOWN,
+        .state = APE_SOCKET_ST_PENDING
+    };
 
 #ifdef _HAVE_SSL_SUPPORT
     ret->SSL.issecure   = (pt == APE_SOCKET_PT_SSL);
-    ret->SSL.ssl        = NULL;
 #endif
-    ret->callbacks.on_read          = NULL;
-    ret->callbacks.on_disconnect    = NULL;
-    ret->callbacks.on_connect       = NULL;
-    ret->callbacks.on_connected     = NULL;
-    ret->callbacks.on_message       = NULL;
-    ret->callbacks.on_drain         = NULL;
-    ret->callbacks.arg              = NULL;
-
-    ret->remote_port = 0;
-    ret->local_port  = 0;
-    ret->max_buffer_memory_mb = 0;
-    ret->current_buffer_memory_bytes = 0;
-
-    memset(&ret->sockaddr, 0, sizeof(struct sockaddr_in));
 
     buffer_init(&ret->data_in);
-
     ape_init_job_list(&ret->jobs, 2);
     
-    //printf("New socket : %d\n", sock);
-
     return ret;
 }
 
