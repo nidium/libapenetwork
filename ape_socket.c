@@ -67,35 +67,33 @@ It behaves the same for socket file descriptor to use
 either ioctl(...FIONBIO...) or fcntl(...O_NONBLOCK...)
 */
 #ifdef FIONBIO
-static __inline int setnonblocking(int fd)
-{
-    int  ret = 1;
-
-    return ioctl(fd, FIONBIO, &ret);
-}
+  static __inline int setnonblocking(int fd)
+  {
+      int  ret = 1;
+  
+      return ioctl(fd, FIONBIO, &ret);
+  }
 #else
-#define setnonblocking(fd) fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NONBLOCK)
+  #define setnonblocking(fd) fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NONBLOCK)
 #endif
 
 #ifdef __WIN32
-#define read(fd, buf, len) recv(fd, buf, len, 0)
-long int writev(int fd, const struct iovec* vector, int count)
-{
-    DWORD sent;
-    int ret = WSASend(fd, (LPWSABUF)vector, count, &sent, 0, 0, 0);
-
-    return sent;
-}
+  #define read(fd, buf, len) recv(fd, buf, len, 0)
+  long int writev(int fd, const struct iovec* vector, int count)
+  {
+      DWORD sent;
+      int ret = WSASend(fd, (LPWSABUF)vector, count, &sent, 0, 0, 0);
+  
+      return sent;
+  }
 #endif
 
 int _nco = 0, _ndec = 0;
 
-#if 0
-static ape_socket_jobs_t *ape_socket_new_jobs_queue(size_t n);
-#endif
 static ape_socket_jobs_t *ape_socket_job_get_slot(ape_socket *socket, int type);
 static ape_pool_list_t *ape_socket_new_packet_queue(size_t n);
-static int ape_socket_queue_data(ape_socket *socket, unsigned char *data, size_t len, size_t offset, ape_socket_data_autorelease data_type);
+static int ape_socket_queue_data(ape_socket *socket, unsigned char *data,
+    size_t len, size_t offset, ape_socket_data_autorelease data_type);
 static void ape_init_job_list(ape_pool_list_t *list, size_t n);
 
 __inline static void ape_socket_release_data(unsigned char *data, ape_socket_data_autorelease data_type)
@@ -444,6 +442,7 @@ void APE_socket_shutdown(ape_socket *socket)
     if (!socket) {
         return;
     }
+
     if (socket->states.state == APE_SOCKET_ST_SHUTDOWN) {
         return;
     }
@@ -695,7 +694,6 @@ int APE_socket_write(ape_socket *socket, void *data,
 #ifdef __WIN32
   #define ssize_t int
 #endif
-    printf("Writing...\n");
     size_t t_bytes = 0, r_bytes = len;
     ssize_t n = 0;
     int io_error = 0, rerrno = 0;
@@ -851,6 +849,9 @@ char *APE_socket_ipv4(ape_socket *socket)
         return NULL;
     }
 
+    /*
+        /!\ this is not reentrant
+    */
     char *ip = inet_ntoa(socket->sockaddr.sin_addr);
 
     return ip;
@@ -858,11 +859,7 @@ char *APE_socket_ipv4(ape_socket *socket)
 
 int APE_socket_is_online(ape_socket *socket)
 {
-    if (!socket) {
-        return 0;
-    }
-
-    return (socket->states.state == APE_SOCKET_ST_ONLINE);
+    return (socket && socket->states.state == APE_SOCKET_ST_ONLINE);
 }
 
 int ape_socket_do_jobs(ape_socket *socket)
@@ -1393,12 +1390,10 @@ int ape_socket_read(ape_socket *socket)
                         nread = 0;
                         break;
                     case SSL_ERROR_WANT_WRITE:
-                        printf("Want write\n");
                         break;
                     case SSL_ERROR_WANT_READ:
                         break;
                     default:
-                        printf("Force shutdown %d\n", socket->s.fd);
                         APE_socket_shutdown_now(socket);
                         return 0;
                 }
@@ -1418,7 +1413,6 @@ socket_reread:
                     case EAGAIN:
                         break;
                     case ETIMEDOUT:
-                        fprintf(stderr, "Socket timedout\n");
                         /* fall through */
                     default:
                         io_error = 1;
@@ -1490,13 +1484,6 @@ static void ape_init_job_list(ape_pool_list_t *list, size_t n)
 {
     ape_init_pool_list(list, sizeof(ape_socket_jobs_t), n);
 }
-
-#if 0
-static ape_socket_jobs_t *ape_socket_new_jobs_queue(size_t n)
-{
-    return (ape_socket_jobs_t *)ape_new_pool(sizeof(ape_socket_jobs_t), n);
-}
-#endif
 
 static ape_pool_list_t *ape_socket_new_packet_queue(size_t n)
 {
