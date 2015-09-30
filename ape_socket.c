@@ -156,7 +156,6 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
     
     _nco++;
 
-    /* TODO: set IPPROTO_UDP/TCP ? */
     if ((sock == 0 &&
         (sock = socket((pt == APE_SOCKET_PT_UNIX ? AF_UNIX : AF_INET) /* TODO AF_INET6 */, proto, 0)) == -1) ||
         setnonblocking(sock) == -1) {
@@ -169,17 +168,13 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
     memset(ret, 0, sizeof(*ret));
     ret->ape = ape;
 
-    ret->s = {
-        .fd   = sock,
-        .type = APE_EVENT_SOCKET
-    };
+    ret->s.fd   = sock;
+    ret->s.type = APE_EVENT_SOCKET;
 
-    ret->states = {
-        .flags = 0,
-        .proto = pt,
-        .type  = APE_SOCKET_TP_UNKNOWN,
-        .state = APE_SOCKET_ST_PENDING
-    };
+    ret->states.flags = 0;
+    ret->states.proto = pt;
+    ret->states.type  = APE_SOCKET_TP_UNKNOWN;
+    ret->states.state = APE_SOCKET_ST_PENDING;
 
 #ifdef _HAVE_SSL_SUPPORT
     ret->SSL.issecure   = (pt == APE_SOCKET_PT_SSL);
