@@ -53,7 +53,6 @@ typedef struct _websocket_state
     #pragma pack(2)
     struct {
         unsigned char start;
-        unsigned char length; /* 7 bit length */
         union {
             unsigned short short_length; /* 16 bit length */
             unsigned long long int extended_length; /* 64 bit length */
@@ -66,6 +65,7 @@ typedef struct _websocket_state
     int data_inkey;
     int frame_pos;
     int close_sent;
+    int mask:1;
 } websocket_state;
 
 #ifdef __cplusplus

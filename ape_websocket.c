@@ -68,7 +68,7 @@ char *ape_ws_compute_key(const char *key, unsigned int key_len)
 }
 
 void ape_ws_write(ape_socket *socket_client, unsigned char *data,
-    size_t len, int binary, ape_socket_data_autorelease data_type)
+    size_t len, int binary, ape_socket_data_autorelease data_type, uint32_t *cipherKey)
 {
     unsigned char payload_head[32] = { 0x80 | (binary ? 0x02 : 0x01) };
     size_t payload_length = 0;
@@ -97,9 +97,23 @@ void ape_ws_write(ape_socket *socket_client, unsigned char *data,
         payload_length = 10;
     }
 
+    if (cipherKey) {
+         /* MASK bit */
+        payload_head[1] |= 0x80;
+    }
+
     PACK_TCP(socket_client->s.fd);
         APE_socket_write(socket_client, payload_head,
             payload_length, APE_DATA_STATIC);
+
+        if (cipherKey) {
+            /* in-place ciphering */
+            for (int i = 0; i < len; i++) {
+                data[i] ^= ((uint8_t *)cipherKey)[i%4];
+            }
+
+            APE_socket_write(socket_client, cipherKey, sizeof(uint32_t), APE_DATA_COPY);
+        }
         APE_socket_write(socket_client, data, len, data_type);
     FLUSH_TCP(socket_client->s.fd);
 }
@@ -213,10 +227,8 @@ void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t le
                 break;
             case WS_STEP_LENGTH:
                 /* Check for MASK bit */
-                if (!(*pData & 0x80)) {
-                    //websocket->step = 
-                    return;
-                }
+                websocket->mask = (*pData & 0x80);
+                    
                 switch (*pData & 0x7F) { /* 7bit length */
                     case 126:
                         /* Following 16bit are length */
@@ -229,7 +241,7 @@ void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t le
                     default:
                         /* We have the actual length */
                         websocket->frame_payload.extended_length = *pData & 0x7F;
-                        websocket->step = WS_STEP_KEY;
+                        websocket->step = websocket->mask ? WS_STEP_KEY : WS_STEP_DATA;
 
                         break;
                 }
@@ -243,7 +255,7 @@ void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t le
                     websocket->frame_payload.extended_length =
                         ntohs(websocket->frame_payload.short_length);
 
-                    websocket->step = WS_STEP_KEY;
+                    websocket->step = websocket->mask ? WS_STEP_KEY : WS_STEP_DATA;
                 }
                 break;
             case WS_STEP_EXTENDED_LENGTH:
@@ -255,7 +267,7 @@ void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t le
                     websocket->frame_payload.extended_length =
                         ntohl(websocket->frame_payload.extended_length >> 32);
 
-                    websocket->step = WS_STEP_KEY;
+                    websocket->step = websocket->mask ? WS_STEP_KEY : WS_STEP_DATA;
                 }
                 break;
             case WS_STEP_DATA:
@@ -264,9 +276,11 @@ void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t le
                         websocket->frame_payload.extended_length + 1);
                 }
                 
-                websocket->data[websocket->data_inkey] =
-                    *pData ^ websocket->key.val[websocket->data_inkey % 4];
 
+                websocket->data[websocket->data_inkey] = websocket->mask ?
+                            *pData ^ websocket->key.val[websocket->data_inkey % 4] :
+                            *pData;
+                            
                 websocket->data_inkey++;
                 
                 if (--websocket->frame_payload.extended_length == 0) {
