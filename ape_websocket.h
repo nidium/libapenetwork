@@ -65,7 +65,7 @@ typedef struct _websocket_state
     int data_inkey;
     int frame_pos;
     int close_sent;
-    int mask:1;
+    int mask;
 } websocket_state;
 
 #ifdef __cplusplus
@@ -76,7 +76,8 @@ void ape_ws_init(websocket_state *state);
 void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t len);
 char *ape_ws_compute_key(const char *key, unsigned int key_len);
 void ape_ws_write(ape_socket *socket_client, unsigned char *data,
-    size_t len, int binary, ape_socket_data_autorelease data_type);
+    size_t len, int binary,
+    ape_socket_data_autorelease data_type, uint32_t *cipherKey);
     
 void ape_ws_close(websocket_state *state);
 void ape_ws_ping(websocket_state *state);

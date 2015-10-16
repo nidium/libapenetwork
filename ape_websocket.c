@@ -42,7 +42,6 @@ void ape_ws_init(websocket_state *state)
     state->close_sent = 0;
 
     state->frame_payload.start  = 0;
-    state->frame_payload.length = 0;
     state->frame_payload.extended_length = 0;
     state->frame_pos = 0;
 }
@@ -120,8 +119,9 @@ void ape_ws_write(ape_socket *socket_client, unsigned char *data,
 
 void ape_ws_close(websocket_state *state)
 {
-    if (state->close_sent)
+    if (state->close_sent) {
         return;
+    }
     
     state->close_sent = 1;
     APE_socket_write(state->socket, (void *)"\x88\x00", 2, APE_DATA_STATIC);
@@ -129,10 +129,10 @@ void ape_ws_close(websocket_state *state)
 
 void ape_ws_ping(websocket_state *state)
 {
-    if (state->close_sent)
+    if (state->close_sent) {
         return;
+    }
     
-    printf("Ping is sent...\n");
     APE_socket_write(state->socket, (void *)"\x89\x00", 2, APE_DATA_STATIC);
 }
 
@@ -276,11 +276,10 @@ void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t le
                         websocket->frame_payload.extended_length + 1);
                 }
                 
-
                 websocket->data[websocket->data_inkey] = websocket->mask ?
                             *pData ^ websocket->key.val[websocket->data_inkey % 4] :
                             *pData;
-                            
+
                 websocket->data_inkey++;
                 
                 if (--websocket->frame_payload.extended_length == 0) {

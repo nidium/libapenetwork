@@ -234,9 +234,12 @@ extern "C" {
 ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape);
 
 void APE_socket_enable_lz4(ape_socket *socket, int rxtx);
-int APE_socket_setTimeout(ape_socket *socket, int secs);
 void APE_socket_setBufferMaxSize(ape_socket *socket, size_t MB);
+void APE_socket_shutdown(ape_socket *socket);
+void APE_socket_shutdown_now(ape_socket *socket);
+void APE_socket_remove_callbacks(ape_socket *socket);
 
+int APE_socket_setTimeout(ape_socket *socket, int secs);
 int APE_socket_listen(ape_socket *socket, uint16_t port,
         const char *local_ip, int defer_accept, int reuse_port);
 int APE_socket_connect(ape_socket *socket, uint16_t port,
@@ -244,11 +247,10 @@ int APE_socket_connect(ape_socket *socket, uint16_t port,
 int APE_socket_write(ape_socket *socket, void *data,
     size_t len, ape_socket_data_autorelease data_type);
 int APE_socket_writev(ape_socket *socket, const struct iovec *iov, int iovcnt);
-void APE_socket_shutdown(ape_socket *socket);
-void APE_socket_shutdown_now(ape_socket *socket);
 int APE_sendfile(ape_socket *socket, const char *file);
-char *APE_socket_ipv4(ape_socket *socket);
 int APE_socket_is_online(ape_socket *socket);
+
+char *APE_socket_ipv4(ape_socket *socket);
 
 int ape_socket_destroy(ape_socket *socket);
 int ape_socket_do_jobs(ape_socket *socket);

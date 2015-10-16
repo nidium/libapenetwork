@@ -487,6 +487,16 @@ void APE_socket_shutdown_now(ape_socket *socket)
     ape_shutdown(socket, SHUT_RDWR);
 }
 
+void APE_socket_remove_callbacks(ape_socket *socket)
+{
+    socket->callbacks.on_connect    = NULL;
+    socket->callbacks.on_connected  = NULL;
+    socket->callbacks.on_disconnect = NULL;
+    socket->callbacks.on_drain      = NULL;
+    socket->callbacks.on_message    = NULL;
+    socket->callbacks.arg           = NULL;
+}
+
 static int ape_socket_close(ape_socket *socket)
 {
     ape_global *ape;
