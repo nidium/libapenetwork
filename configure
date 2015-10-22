@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python2.7
 import os 
 
 from konstructor import Deps
@@ -22,14 +22,12 @@ Platform.setEnviron(
     #"LDFLAGS=-stdlib=libc++",
     "MACOSX_DEPLOYMENT_TARGET=10.7"
 )
-Gyp.setArgs("--depth ./ --include=gyp/config.gypi --include=gyp/common.gypi")
 Gyp.setExec("third-party/gyp/gyp")
 
 @Deps.register("gyp")
 def gyp():
     return {
-        "location": Deps.SvnRepo("http://gyp.googlecode.com/svn/trunk/", revision=1967),
-        "patchs": ["gyp.patch"]
+        "location": Deps.SvnRepo("http://gyp.googlecode.com/svn/trunk/", revision=1967)
     }
 
 @Deps.register("c-ares")
@@ -100,5 +98,6 @@ Gyp.set("native_output", "../build/")
 Gyp.set("native_output_third_party", "../build/third-party/")
 
 if __name__ == '__main__':
+    Gyp.setArgs("--depth ./ --include=gyp/config.gypi --include=gyp/common.gypi")
     Build.add(Gyp("gyp/network.gyp"));
     Konstruct.start() 

@@ -14,6 +14,6 @@
         'third_party_path': '<(DEPTH)/<(third_party)',
         'asan%': 0,
         'profiler%': 0,
-	'target_os%': '<(OS)'
+        'target_os%': '<(OS)'
     },
 }
