@@ -38,7 +38,7 @@ void events_loop(ape_global *ape)
     ape_event_descriptor *evd;
     int nexttimeout = 1;
     //uint64_t start_monotonic = mach_absolute_time(), end_monotonic;
-
+event_loop:
     while(ape->is_running && ape_running) {
         int i;
 
@@ -134,5 +134,12 @@ void events_loop(ape_global *ape)
         }
         nexttimeout = process_timers(&ape->timersng);
     }
+
+    if (ape->is_running && ape->kill_handler && ape->kill_handler(0, ape)) {
+        ape_running = 1;
+        goto event_loop;
+    }
+
+    fprintf(stdout, "[libapenetwork] exiting event loop...\n");
 }
 
