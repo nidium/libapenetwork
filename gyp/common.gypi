@@ -10,9 +10,6 @@
            #'-fvisibility=hidden',
             '-Wall',
         ],
-        'cflags_cc': [
-            '-std=c++11'
-        ],
         'ldflags': [
             '-L<(native_output_third_party)',
         ],
@@ -25,13 +22,10 @@
                 'x86_64',
             ],
             'MACOSX_DEPLOYMENT_TARGET': [
-                '10.7'
+                '<(mac_deployment_target)'
             ],
             'SDKROOT': [
-                'macosx10.11'
-            ],
-            'OTHER_CPLUSPLUSFLAGS': [ 
-                '-stdlib=libc++',
+                'macosx<(mac_version)'
             ],
         },
         'configurations': {
