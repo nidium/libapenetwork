@@ -96,7 +96,7 @@ void events_loop(ape_global *ape)
                                 Execute the jobs list.
                                 If the job list is done (returns 1), call drain callback.
                             */
-                            printf("Do job...%d\n", (cursocket->states.events_flags & EVENT_WRITE));
+                            //printf("Do job...%d\n", (cursocket->states.events_flags & EVENT_WRITE));
                             if (ape_socket_do_jobs(cursocket) == 1 &&
                                 cursocket->callbacks.on_drain != NULL) {
                                 cursocket->callbacks.on_drain(
