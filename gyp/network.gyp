@@ -13,9 +13,6 @@
 #                'USE_SPECIFIC_HANDLER',
 #                'USE_SELECT_HANDLER'
             ],
-            'cflags': [
-               #'-fvisibility=hidden',
-            ],
         },
     }, {
         'target_name': 'nativenetwork-link',
@@ -47,6 +44,9 @@
         'type': 'static_library',
         'dependencies': [
             'network.gyp:nativenetwork-includes',
+        ],
+        'cflags': [
+            #'-fvisibility=hidden',
         ],
         'sources': [
             '../native_netlib.c',
