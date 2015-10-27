@@ -78,8 +78,8 @@ void set_timer_to_low_resolution(ape_timers *timers, int low);
 }
 #endif
 
-#define timer_dispatch_async(callback, params) add_timer(&ape->timersng, 1, callback, params)
-#define timer_dispatch_async_unprotected(callback, params) add_timer(&ape->timersng, 1, callback, params)->flags &= ~APE_TIMER_IS_PROTECTED
+#define timer_dispatch_async(callback, params) add_timer(&ape->timersng, 0, callback, params)
+#define timer_dispatch_async_unprotected(callback, params) add_timer(&ape->timersng, 0, callback, params)->flags &= ~APE_TIMER_IS_PROTECTED
 
 
 #endif
