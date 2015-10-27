@@ -129,8 +129,6 @@ ape_ssl_t *ape_ssl_init_con(ape_ssl_t *parent, int fd, int accept)
     ssl = malloc(sizeof(*ssl));
     ssl->ctx = NULL;
     ssl->con = con;
-    
-    /* TODO: SSL_set_connect_state for SSL connection */
 
     return ssl;
 }
