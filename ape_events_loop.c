@@ -40,6 +40,7 @@ void events_loop(ape_global *ape)
     //uint64_t start_monotonic = mach_absolute_time(), end_monotonic;
 
     while(ape->is_running && ape_running) {
+        ape_socket *cursocket;
         int i;
 
         events_shrink(&ape->events);
@@ -48,11 +49,11 @@ void events_loop(ape_global *ape)
         }
 
         for (i = 0; i < nfd; i++) {
-            ape_socket *cursocket = APE_EVENT_SOCKET_PTR(evd);
-
             if ((evd = events_get_current_evd(&ape->events, i)) == NULL) {
                 continue;
             }
+
+            cursocket = APE_EVENT_SOCKET_PTR(evd);
             
             bitev = events_revent(&ape->events, i);
 
