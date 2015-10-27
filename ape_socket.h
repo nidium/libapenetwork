@@ -205,6 +205,7 @@ struct _ape_socket {
 #ifdef _HAVE_SSL_SUPPORT
     struct {
         struct _ape_ssl *ssl;
+        int need_write;
         uint8_t issecure;
     } SSL;
 #endif

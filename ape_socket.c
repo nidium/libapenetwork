@@ -178,6 +178,7 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
 
 #ifdef _HAVE_SSL_SUPPORT
     ret->SSL.issecure   = (pt == APE_SOCKET_PT_SSL);
+    ret->SSL.need_write = 0;
 #endif
 
     buffer_init(&ret->data_in);
@@ -731,6 +732,13 @@ int APE_socket_write(ape_socket *socket, void *data,
                         break;
                     case SSL_ERROR_WANT_WRITE:
                     case SSL_ERROR_WANT_READ:
+                        /*
+                            Flag that indicates that we need to recall
+                            the same ape_ssl_write() in the next socket read event.
+                            We will call ape_socket_do_jobs() to retry.
+                        */
+                        socket->SSL.need_write = 1;
+
                         /*  In the case where OpenSSL didn't manage to write 
                             the whole buffer we need to recall ape_ssl_write() 
                             with the same buffer content and len.
@@ -915,6 +923,7 @@ int ape_socket_do_jobs(ape_socket *socket)
                                 break;
                             case SSL_ERROR_WANT_WRITE:
                             case SSL_ERROR_WANT_READ:
+                                socket->SSL.need_write = 1;
                                 socket->states.flags |= APE_SOCKET_WOULD_BLOCK;
                                 return 0;
                             default:
@@ -1371,6 +1380,11 @@ int ape_socket_read(ape_socket *socket)
 {
     ssize_t nread;
     int io_error = 0;
+
+    if (APE_SOCKET_ISSECURE(socket) && socket->SSL.need_write) {
+        socket->SSL.need_write = 0;
+        ape_socket_do_jobs(socket);
+    }
 
     if (socket->states.state != APE_SOCKET_ST_ONLINE) {
 
