@@ -74,6 +74,7 @@ ape_global *native_netlib_init()
     ape->timersng.last_identifier = 0;
 
     ape->ctx = NULL;
+    ape->kill_handler = NULL;
 
     ape_dns_init(ape);
 #ifdef _HAVE_SSL_SUPPORT

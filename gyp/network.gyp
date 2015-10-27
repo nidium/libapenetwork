@@ -66,7 +66,8 @@
             '../ape_websocket.c',
             '../ape_sha1.c',
             '../ape_ssl.c',
-            '../lz4.c'
+            '../lz4.c',
+            '../ape_blowfish.c'
         ],
     }],
 }

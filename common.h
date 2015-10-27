@@ -85,6 +85,8 @@ struct _ape_global {
 
     uint32_t failed_write_count;
     uint64_t total_memory_buffered;
+
+    int (*kill_handler)  (int code, struct _ape_global *ape);
 };
 
 #endif
