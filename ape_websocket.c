@@ -44,6 +44,7 @@ void ape_ws_init(websocket_state *state)
     state->frame_payload.start  = 0;
     state->frame_payload.extended_length = 0;
     state->frame_pos = 0;
+    state->data_inkey = 0;
 }
 
 char *ape_ws_compute_key(const char *key, unsigned int key_len)
@@ -173,12 +174,10 @@ static int ape_ws_process_end_message(websocket_state *websocket)
             printf("Got a pong frame\n");
             break;
         case 0x1: /* ASCII frame */
-            printf("Got an ASCII data frame\n");
              websocket->on_frame(websocket, websocket->data,
                 websocket->data_inkey, 0);           
             break;
         case 0x2: /* Binary frame */
-            printf("Got a Binary data frame\n");
             websocket->on_frame(websocket, websocket->data,
                 websocket->data_inkey, 1);
             break;
@@ -223,6 +222,7 @@ void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t le
                 /* Contain fragmentation infos & opcode (+ reserved bits) */
                 websocket->frame_payload.start = *pData;
                 websocket->step = WS_STEP_LENGTH;
+                websocket->data_inkey = 0;
 
                 break;
             case WS_STEP_LENGTH:
@@ -242,6 +242,16 @@ void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t le
                         /* We have the actual length */
                         websocket->frame_payload.extended_length = *pData & 0x7F;
                         websocket->step = websocket->mask ? WS_STEP_KEY : WS_STEP_DATA;
+
+                         /* "no application data" */
+                        if (!websocket->mask && !websocket->frame_payload.extended_length) {
+
+                            if (!ape_ws_process_end_message(websocket)) {
+                                return;
+                            }
+
+                            websocket->frame_pos = -1;
+                        }
 
                         break;
                 }
