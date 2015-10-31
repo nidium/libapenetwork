@@ -64,15 +64,16 @@ typedef struct _websocket_state
 
     int data_inkey;
     int frame_pos;
-    int close_sent;
     int mask;
+    int close_sent:4; 
+    int is_client:4;
 } websocket_state;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void ape_ws_init(websocket_state *state);
+void ape_ws_init(websocket_state *state, int isclient);
 void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t len);
 char *ape_ws_compute_key(const char *key, unsigned int key_len);
 void ape_ws_write(ape_socket *socket_client, unsigned char *data,

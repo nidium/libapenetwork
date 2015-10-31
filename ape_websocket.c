@@ -32,7 +32,7 @@
 
 #define WS_GUID "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 
-void ape_ws_init(websocket_state *state)
+void ape_ws_init(websocket_state *state, int isclient)
 {
     state->socket = NULL;
     state->step    = WS_STEP_START;
@@ -40,6 +40,7 @@ void ape_ws_init(websocket_state *state)
     state->error   = 0;
     state->key.pos = 0;
     state->close_sent = 0;
+    state->is_client = isclient;
 
     state->frame_payload.start  = 0;
     state->frame_payload.extended_length = 0;
@@ -123,9 +124,15 @@ void ape_ws_close(websocket_state *state)
     if (state->close_sent) {
         return;
     }
-    
+
+    unsigned char payload_head[2] = { 0x88, 0x00 };
+
+    if (state->is_client) {
+        payload_head[1] |= 0x80;
+    }
+
     state->close_sent = 1;
-    APE_socket_write(state->socket, (void *)"\x88\x00", 2, APE_DATA_STATIC);
+    APE_socket_write(state->socket, (void *)payload_head, 2, APE_DATA_STATIC);
 }
 
 void ape_ws_ping(websocket_state *state)
@@ -133,8 +140,31 @@ void ape_ws_ping(websocket_state *state)
     if (state->close_sent) {
         return;
     }
+
+    unsigned char payload_head[2] = { 0x89, 0x00 };
+
+    if (state->is_client) {
+        payload_head[1] |= 0x80;
+    }    
     
-    APE_socket_write(state->socket, (void *)"\x89\x00", 2, APE_DATA_STATIC);
+    APE_socket_write(state->socket, (void *)payload_head, 2, APE_DATA_STATIC);
+}
+
+void ape_ws_pong(websocket_state *state)
+{
+    if (state->close_sent) {
+        return;
+    }
+
+    unsigned char payload_head[2] = { 0x8A, 0x00 };
+
+    if (state->is_client) {
+        payload_head[1] |= 0x80;
+    }
+
+    printf("Send a pong frame\n");
+    
+    APE_socket_write(state->socket, (void *)payload_head, 2, APE_DATA_STATIC);
 }
 
 static void ape_ws_reset_frame_state(websocket_state *websocket)
@@ -168,7 +198,8 @@ static int ape_ws_process_end_message(websocket_state *websocket)
             retval = 0; /* Don't process anything more */
             break;
         case 0x9: /* Ping frame */
-            printf("Got a ping frame\n");
+            printf("Got a ping frame %d\n", websocket->data_inkey);
+            ape_ws_pong(websocket);
             break;
         case 0xA: /* Pong frame */
             printf("Got a pong frame\n");
