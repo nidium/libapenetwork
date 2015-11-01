@@ -93,10 +93,43 @@ def asan(asan):
 Deps.set("gyp", "c-ares", "openssl")
 Variables.set("depsRepo", DEPEDENCY_REPO)
 
+@CommandLine.option("--mac-sdk-version", default="")
+def macSdkVersion(version):
+    if version:
+        Gyp.set("mac_sdk_version", version)
+
+def findAppleSDK(type='macosx'):
+    import re
+    type = type.lower()
+    if type not in [ 'macosx', 'iphoneos', 'iphonesimulator']:
+        print "Invalid Apple SDK type %s" % type
+        exit()
+
+    cmd = 'xcodebuild -showsdks'
+    major = 0 
+    minor = 0 
+    code, output = Utils.run(cmd, failExit=True)
+    if code != 0 or output is None:
+        return None
+
+    output = output.split("\n")
+    for line in output:
+        if type in line:
+            v = re.search(type+"(\d+)\.(.*)", line)
+            if v is not None:
+                tmpMajor = int(v.group(1))
+                tmpMinor = int(v.group(1))
+                if tmpMajor >= major:
+                    major = tmpMajor
+                    minor = max(tmpMajor, minor)
+
+    return "%d.%d" % (major, minor) if major > 0 else None
+
 if Platform.system == "Darwin":
-    import platform
-    version, _, _ = platform.mac_ver()
-    Gyp.set("mac_version", float('.'.join(version.split('.')[:2])))
+    sdk = findAppleSDK()
+    if sdk is None:
+       Utils.exit("No macos SDK detected. Make sure Xcode is correctly installed and configured")
+    Gyp.set("mac_sdk_version", sdk)
 
 # Temporary fix to make deps.py & Konstructor works 
 Gyp.set("native_output", "../build/")

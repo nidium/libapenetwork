@@ -25,7 +25,7 @@
                 '<(mac_deployment_target)'
             ],
             'SDKROOT': [
-                'macosx<(mac_version)'
+                'macosx<(mac_sdk_version)'
             ],
         },
         'configurations': {
