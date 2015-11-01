@@ -12,7 +12,10 @@
                 '_HAVE_SSL_SUPPORT',
 #                'USE_SPECIFIC_HANDLER',
 #                'USE_SELECT_HANDLER'
-            ]
+            ],
+            'cflags': [
+               #'-fvisibility=hidden',
+            ],
         },
     }, {
         'target_name': 'nativenetwork-link',
@@ -42,36 +45,8 @@
     }, {
         'target_name': 'nativenetwork',
         'type': 'static_library',
-        'includes': [
-            'common.gypi',
-            'config.gypi'
-        ],
-        'include_dirs': [
-            '<(third_party_path)/c-ares/',
-            '<(third_party_path)/openssl/include/',
-            '../',
-        ],
-        'defines': [
-            '_HAVE_SSL_SUPPORT',
-#            'USE_SPECIFIC_HANDLER',
-#            'USE_SELECT_HANDLER'
-        ],
-        'conditions': [
-            ['target_os=="android"', {
-                'defines': ['__ANDROID__', 'ANDROID'],
-            }],
-            ['OS=="mac"', {
-                'xcode_settings': {
-                    'OTHER_CFLAGS': [
-                        #'-fvisibility=hidden'
-                    ],
-                },
-            }],
-            ['OS=="linux"', {
-                'cflags': [
-                    '-fvisibility=hidden',
-                ],
-            }],
+        'dependencies': [
+            'network.gyp:nativenetwork-includes',
         ],
         'sources': [
             '../native_netlib.c',

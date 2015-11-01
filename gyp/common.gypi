@@ -1,32 +1,40 @@
 {
     'target_defaults': {
         'default_configuration': 'Release',
+        'conditions': [
+            ['target_os=="android"', {
+                'defines': ['__ANDROID__', 'ANDROID'],
+            }],
+        ],
+        'cflags': [
+           #'-fvisibility=hidden',
+            '-Wall',
+        ],
+        'ldflags': [
+            '-L<(native_output_third_party)',
+        ],
+        'xcode_settings': {
+            "OTHER_LDFLAGS": [
+                '-L<(native_output_third_party)',
+                '-F<(native_output_third_party)',
+            ],
+            'ARCHS': [
+                'x86_64',
+            ],
+            'MACOSX_DEPLOYMENT_TARGET': [
+                '<(mac_deployment_target)'
+            ],
+            'SDKROOT': [
+                'macosx<(mac_version)'
+            ],
+        },
         'configurations': {
             'Debug': {
                 'cflags': [
                     '-O0',
                     '-g',
                 ],
-                'ldflags': [
-                    '-L<(native_output_third_party)',
-                ],
                 'xcode_settings': {
-                    "OTHER_LDFLAGS": [
-                        '-L<(native_output_third_party)',
-                        '-F<(native_output_third_party)',
-                    ],
-                    'ARCHS': [
-                        'x86_64',
-                    ],
-                    'MACOSX_DEPLOYMENT_TARGET': [
-                        '10.7'
-                    ],
-                    'SDKROOT': [
-                        'macosx10.11'
-                    ],
-                    'OTHER_CPLUSPLUSFLAGS': [ 
-		        '-stdlib=libc++',
-                    ],
                     'OTHER_CFLAGS': [ 
                         '-g',
                         '-O0'
@@ -38,37 +46,11 @@
                 'cflags': [
                     '-g',
                     '-O2',
-                    '-Wall',
-                ],
-                'ldflags': [
-                    '-L<(native_output_third_party)',
                 ],
                 'xcode_settings': {
-                    "OTHER_LDFLAGS": [
-                        '-L<(native_output_third_party)',
-                        '-F<(native_output_third_party)',
-                    ],
-                    'ARCHS': [
-                        'x86_64',
-                    ],
-                    'OTHER_CPLUSPLUSFLAGS': [ 
-                        '-stdlib=libc++',
-                        '-g',
-                        '-O2',
-                        '-Wall',
-                        '-Wno-invalid-offsetof'
-                    ],
-                    'MACOSX_DEPLOYMENT_TARGET': [
-                        '10.7'
-                    ],
-                    'SDKROOT': [
-                        'macosx10.9'
-                    ],
                     'OTHER_CFLAGS': [ 
                         '-g',
                         '-O2',
-                        '-Wall',
-                        '-Wno-invalid-offsetof'
                     ]
                 },
             }
