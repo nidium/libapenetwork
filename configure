@@ -106,24 +106,19 @@ def findAppleSDK(type='macosx'):
         exit()
 
     cmd = 'xcodebuild -showsdks'
-    major = 0 
-    minor = 0 
     code, output = Utils.run(cmd, failExit=True)
     if code != 0 or output is None:
         return None
 
     output = output.split("\n")
+    sdks = []
     for line in output:
         if type in line:
-            v = re.search(type+"(\d+)\.(.*)", line)
+            v = re.search(type + "([0-9\.]+)", line)
             if v is not None:
-                tmpMajor = int(v.group(1))
-                tmpMinor = int(v.group(2))
-                if tmpMajor >= major:
-                    major = tmpMajor
-                    minor = max(tmpMajor, minor)
+                sdks.append(v.group(1))
 
-    return "%d.%d" % (major, minor) if major > 0 else None
+    return sdks[len(sdks) - 1]
 
 if Platform.system == "Darwin":
     sdk = findAppleSDK()
