@@ -106,7 +106,7 @@ def findAppleSDK(type='macosx'):
         exit()
 
     cmd = 'xcodebuild -showsdks'
-    code, output = Utils.run(cmd, failExit=True)
+    code, output = Utils.run(cmd, failExit=True, returnOutput=True)
     if code != 0 or output is None:
         return None
 
