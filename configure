@@ -118,7 +118,7 @@ def findAppleSDK(type='macosx'):
             v = re.search(type+"(\d+)\.(.*)", line)
             if v is not None:
                 tmpMajor = int(v.group(1))
-                tmpMinor = int(v.group(1))
+                tmpMinor = int(v.group(2))
                 if tmpMajor >= major:
                     major = tmpMajor
                     minor = max(tmpMajor, minor)
