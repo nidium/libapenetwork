@@ -24,6 +24,10 @@
 
 #include "common.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef int (*ape_gethostbyname_callback)(const char *ip, void *arg,
         int status);
 
@@ -47,7 +51,10 @@ int ape_dns_init(ape_global *ape);
 ape_dns_state *ape_gethostbyname(const char *host, ape_gethostbyname_callback callback,
         void *arg, ape_global *ape);
 
+#ifdef __cplusplus
+}
 #endif
 
-// vim: ts=4 sts=4 sw=4 et
+#endif
+
 

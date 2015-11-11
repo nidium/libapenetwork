@@ -12,7 +12,7 @@
                 '_HAVE_SSL_SUPPORT',
 #                'USE_SPECIFIC_HANDLER',
 #                'USE_SELECT_HANDLER'
-            ]
+            ],
         },
     }, {
         'target_name': 'nativenetwork-link',
@@ -42,42 +42,16 @@
     }, {
         'target_name': 'nativenetwork',
         'type': 'static_library',
-        'includes': [
-            'common.gypi',
-            'config.gypi'
+        'dependencies': [
+            'network.gyp:nativenetwork-includes',
         ],
-        'include_dirs': [
-            '<(third_party_path)/c-ares/',
-            '<(third_party_path)/openssl/include/',
-            '../',
-        ],
-        'defines': [
-            '_HAVE_SSL_SUPPORT',
-#            'USE_SPECIFIC_HANDLER',
-#            'USE_SELECT_HANDLER'
-        ],
-        'conditions': [
-            ['target_os=="android"', {
-                'defines': ['__ANDROID__', 'ANDROID'],
-            }],
-            ['OS=="mac"', {
-                'xcode_settings': {
-                    'OTHER_CFLAGS': [
-                        #'-fvisibility=hidden'
-                    ],
-                },
-            }],
-            ['OS=="linux"', {
-                'cflags': [
-                    '-fvisibility=hidden',
-                ],
-            }],
+        'cflags': [
+            #'-fvisibility=hidden',
         ],
         'sources': [
             '../native_netlib.c',
             '../ape_pool.c',
             '../ape_hash.c',
-            '../ape_http_parser.c',
             '../ape_array.c',
             '../ape_buffer.c',
             '../ape_events.c',
@@ -87,12 +61,13 @@
             '../ape_events_loop.c',
             '../ape_socket.c',
             '../ape_dns.c',
-            '../ape_timers.c',
             '../ape_timers_next.c',
             '../ape_base64.c',
             '../ape_websocket.c',
             '../ape_sha1.c',
-            '../ape_ssl.c'
+            '../ape_ssl.c',
+            '../lz4.c',
+            '../ape_blowfish.c'
         ],
     }],
 }

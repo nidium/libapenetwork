@@ -52,7 +52,7 @@
 #define CONST_STR_LEN(x) x, x ? sizeof(x) - 1 : 0
 #define CONST_STR_LEN2(x) x ? sizeof(x) - 1 : 0, x
 
-#define _APE_ABS_MASK(val) (val >> sizeof(int) * 8 - 1)
+#define _APE_ABS_MASK(val) (val >> (sizeof(int) * 8 - 1))
 #define APE_ABS(val) (val + _APE_ABS_MASK(val)) ^ _APE_ABS_MASK(val)
 
 typedef struct _ape_global ape_global;
@@ -71,7 +71,6 @@ struct _ape_global {
 #endif
     unsigned int seed;
     struct _fdevent events;
-
     struct {
         struct ares_channeldata *channel;
         struct {
@@ -81,16 +80,14 @@ struct _ape_global {
         } sockets;
 
     } dns;
+    ape_timers timersng;
+    int is_running;
 
-	struct {
-		struct _ticks_callback *timers;
-		unsigned int ntimers;
-	} timers;
+    uint32_t failed_write_count;
+    uint64_t total_memory_buffered;
 
-	ape_timers timersng;
-	
-  int is_running;
+    int (*kill_handler)  (int code, struct _ape_global *ape);
 };
 
-
 #endif
+

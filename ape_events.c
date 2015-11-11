@@ -163,5 +163,17 @@ int events_init(ape_global *ape)
     return -1;
 }
 
-// vim: ts=4 sts=4 sw=4 et
+void events_destroy(struct _fdevent *ev) {
+    /* free should be delegated to the corresponding subclass */
+    free(ev->events); // @TODO:  del events and close fd's?
+
+    ev->add     = NULL;
+    ev->mod     = NULL;
+    ev->del     = NULL;
+    ev->poll    = NULL;
+    ev->revent  = NULL;
+    ev->reload  = NULL;
+    ev->setsize = NULL;
+    ev->get_current_evd = NULL;
+}
 

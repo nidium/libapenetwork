@@ -120,6 +120,7 @@ ape_ssl_t *ape_ssl_init_con(ape_ssl_t *parent, int fd, int accept)
 
     if (SSL_set_fd(con, fd) != 1) {
         printf("Failed to set fd on ssl\n");
+        SSL_free(con);
         return NULL;
     }
     
@@ -128,8 +129,6 @@ ape_ssl_t *ape_ssl_init_con(ape_ssl_t *parent, int fd, int accept)
     ssl = malloc(sizeof(*ssl));
     ssl->ctx = NULL;
     ssl->con = con;
-    
-    /* TODO: SSL_set_connect_state for SSL connection */
 
     return ssl;
 }
@@ -172,3 +171,4 @@ void ape_ssl_destroy(ape_ssl_t *ssl)
     free(ssl);
 }
 #endif
+

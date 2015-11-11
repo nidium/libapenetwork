@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python2.7
 import os 
 
 from konstructor import Deps
@@ -9,6 +9,7 @@ from konstructor import Platform
 from konstructor import Variables
 from konstructor import Konstruct
 from konstructor import Utils
+from konstructor import Log
 from konstructor import ROOT
 
 Gyp = Builder.Gyp
@@ -22,14 +23,12 @@ Platform.setEnviron(
     #"LDFLAGS=-stdlib=libc++",
     "MACOSX_DEPLOYMENT_TARGET=10.7"
 )
-Gyp.setArgs("--depth ./ --include=gyp/config.gypi --include=gyp/common.gypi")
 Gyp.setExec("third-party/gyp/gyp")
 
 @Deps.register("gyp")
 def gyp():
     return {
-        "location": Deps.SvnRepo("http://gyp.googlecode.com/svn/trunk/", revision=1967),
-        "patchs": ["gyp.patch"]
+        "location": Deps.SvnRepo("http://gyp.googlecode.com/svn/trunk/", revision=1967)
     }
 
 @Deps.register("c-ares")
@@ -81,8 +80,9 @@ def debug(debug):
 def gypConfig(thirdPartyPath):
     if thirdPartyPath:
         Deps.setDir(thirdPartyPath)
-        Variables.set("thirdPartyPath", thirdPartyPath)
-        Gyp.set("third_party", thirdPartyPath)
+        Variables.set("thirdPartyPath", os.path.abspath(thirdPartyPath))
+        # Gyp needs a relative path
+        Gyp.set("third_party", os.path.relpath(thirdPartyPath))
         Gyp.setExec(os.path.join(thirdPartyPath, "gyp", "gyp"))
 
 @CommandLine.option("--asan", default=False)
@@ -95,10 +95,44 @@ def asan(asan):
 Deps.set("gyp", "c-ares", "openssl")
 Variables.set("depsRepo", DEPEDENCY_REPO)
 
+@CommandLine.option("--mac-sdk-version", default="")
+def macSdkVersion(version):
+    if version:
+        Gyp.set("mac_sdk_version", version)
+
+def findAppleSDK(type='macosx'):
+    import re
+    type = type.lower()
+    if type not in [ 'macosx', 'iphoneos', 'iphonesimulator']:
+        Log.error("Invalid Apple SDK type %s" % type)
+        exit()
+
+    cmd = 'xcodebuild -showsdks'
+    code, output = Utils.run(cmd, failExit=True, returnOutput=True)
+    if code != 0 or output is None:
+        return None
+
+    output = output.split("\n")
+    sdks = []
+    for line in output:
+        if type in line:
+            v = re.search(type + "([0-9\.]+)", line)
+            if v is not None:
+                sdks.append(v.group(1))
+
+    return sdks[len(sdks) - 1]
+
+if Platform.system == "Darwin":
+    sdk = findAppleSDK()
+    if sdk is None:
+       Utils.exit("No macos SDK detected. Make sure Xcode is correctly installed and configured")
+    Gyp.set("mac_sdk_version", sdk)
+
 # Temporary fix to make deps.py & Konstructor works 
 Gyp.set("native_output", "../build/")
 Gyp.set("native_output_third_party", "../build/third-party/")
 
 if __name__ == '__main__':
+    Gyp.setArgs("--depth ./ --include=gyp/config.gypi --include=gyp/common.gypi")
     Build.add(Gyp("gyp/network.gyp"));
     Konstruct.start() 

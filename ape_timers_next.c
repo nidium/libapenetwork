@@ -171,7 +171,7 @@ int process_timers(ape_timers *timers)
     return ape_max((timers->run_in_low_resolution ? 100 : 1), (int)((inums-lastsample+500000)/1000000));
 }
 
-ape_timer *get_timer_by_id(ape_timers *timers, int identifier)
+ape_timer *get_timer_by_id(ape_timers *timers, uint64_t identifier)
 {
     ape_timer *cur;
     for (cur = timers->head; cur != NULL; cur = cur->next) {
@@ -182,7 +182,7 @@ ape_timer *get_timer_by_id(ape_timers *timers, int identifier)
     return NULL;
 }
 
-void clear_timer_by_id(ape_timers *timers, int identifier, int force)
+void clear_timer_by_id(ape_timers *timers, uint64_t identifier, int force)
 {
     ape_timer *cur;
     for (cur = timers->head; cur != NULL; cur = cur->next) {
@@ -208,6 +208,15 @@ void del_timers_unprotected(ape_timers *timers)
         }
 
         cur = cur->next;
+    }
+}
+
+void del_timers_all(ape_timers *timers)
+{
+    ape_timer *cur = timers->head;
+
+    while (cur != NULL) {
+        cur = del_timer(timers, cur);
     }
 }
 
@@ -237,7 +246,7 @@ ape_timer *del_timer(ape_timers *timers, ape_timer *timer)
 
 void timer_stats_print(ape_timer *timer)
 {
-    printf("%d\t\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n", timer->identifier,
+    printf("%zd\t\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n", timer->identifier,
         timer->stats.nexec,
         timer->stats.totaltime,
         timer->stats.max,
@@ -292,3 +301,4 @@ void set_timer_to_low_resolution(ape_timers *timers, int low)
 {
     timers->run_in_low_resolution = low;
 }
+

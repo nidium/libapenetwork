@@ -23,6 +23,7 @@
 #include "common.h"
 #include "ape_buffer.h"
 #include "ape_pool.h"
+#include "lz4.h"
 
 #ifdef _WIN32
 
@@ -84,8 +85,8 @@ struct iovec
         setsockopt(fd, IPPROTO_TCP, TCP_CORK, &__state, sizeof(__state)); \
     } while(0)
 #else
-    #define PACK_TCP(fd)
-    #define FLUSH_TCP(fd)
+    #define PACK_TCP(fd) ((void)fd);
+    #define FLUSH_TCP(fd) ((void)fd);
 #endif
 
 
@@ -97,7 +98,8 @@ enum ape_socket_flags {
 enum ape_socket_proto {
     APE_SOCKET_PT_TCP,
     APE_SOCKET_PT_UDP,
-    APE_SOCKET_PT_SSL
+    APE_SOCKET_PT_SSL,
+    APE_SOCKET_PT_UNIX
 };
 
 enum ape_socket_type {
@@ -114,7 +116,6 @@ enum ape_socket_state {
     APE_SOCKET_ST_SHUTDOWN
 };
 
-
 typedef enum _ape_socket_data_autorelease {
     APE_DATA_STATIC,
     APE_DATA_GLOBAL_STATIC,
@@ -125,9 +126,8 @@ typedef enum _ape_socket_data_autorelease {
 
 typedef struct _ape_socket ape_socket;
 
-
 typedef struct {
-    void (*on_read)         (ape_socket *, ape_global *, void *arg);
+    void (*on_read)         (ape_socket *, const uint8_t *data, size_t len, ape_global *, void *arg);
     void (*on_disconnect)   (ape_socket *, ape_global *, void *arg);
     void (*on_connect)      (ape_socket *, ape_socket *, ape_global *, void *arg);
     void (*on_connected)    (ape_socket *, ape_global *, void *arg);
@@ -137,6 +137,8 @@ typedef struct {
     void *arg;
 } ape_socket_callbacks;
 
+#define APE_LZ4_COMPRESS_TX (1 << 1)
+#define APE_LZ4_COMPRESS_RX (1 << 2)
 
 /* Jobs pool */
 /* (1 << 0) is reserved */
@@ -147,13 +149,7 @@ typedef struct {
 #define APE_SOCKET_JOB_IOV      (1 << 5)
 
 typedef struct _ape_socket_jobs_t {
-    union {
-        void *data;
-        int fd;
-        buffer *buf;
-    } ptr; /* public */
-    struct _ape_pool *next;
-    uint32_t flags;
+    ape_pool_t pool;
     off_t offset;
 } ape_socket_jobs_t;
 
@@ -175,6 +171,31 @@ struct _ape_socket {
     struct _ape_dns_cb_argv *dns_state;
 
     struct {
+        struct {
+            APE_LZ4_stream_t *ctx;
+            char *cmp_buffer;
+            char *dict_buffer;
+        } tx;
+
+        struct {
+            APE_LZ4_streamDecode_t *ctx;
+            struct {
+                char *data;
+                int pos;
+            } dict_buffer;
+
+            struct {
+                char *data;
+                int used;
+                int size;
+            } buffer;
+
+            uint32_t decompress_position;
+            uint32_t current_block_size;
+        } rx;
+    } lz4;
+
+    struct {
         uint8_t flags;
         uint8_t proto;
         uint8_t type;
@@ -184,14 +205,18 @@ struct _ape_socket {
 #ifdef _HAVE_SSL_SUPPORT
     struct {
         struct _ape_ssl *ssl;
+        int need_write;
         uint8_t issecure;
     } SSL;
 #endif
     uint16_t    remote_port;
     uint16_t    local_port;
+    size_t      max_buffer_memory_mb;
+    size_t      current_buffer_memory_bytes;
 };
 
 #define APE_SOCKET_FD(socket) socket->s.fd
+#define APE_SOCKET_IS_LZ4(socket, onwhat) (socket->lz4.onwhat.ctx)
 
 #define APE_SOCKET_PACKET_FREE (1 << 1)
 
@@ -209,6 +234,13 @@ extern "C" {
 
 ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape);
 
+void APE_socket_enable_lz4(ape_socket *socket, int rxtx);
+void APE_socket_setBufferMaxSize(ape_socket *socket, size_t MB);
+void APE_socket_shutdown(ape_socket *socket);
+void APE_socket_shutdown_now(ape_socket *socket);
+void APE_socket_remove_callbacks(ape_socket *socket);
+
+int APE_socket_setTimeout(ape_socket *socket, int secs);
 int APE_socket_listen(ape_socket *socket, uint16_t port,
         const char *local_ip, int defer_accept, int reuse_port);
 int APE_socket_connect(ape_socket *socket, uint16_t port,
@@ -216,11 +248,10 @@ int APE_socket_connect(ape_socket *socket, uint16_t port,
 int APE_socket_write(ape_socket *socket, void *data,
     size_t len, ape_socket_data_autorelease data_type);
 int APE_socket_writev(ape_socket *socket, const struct iovec *iov, int iovcnt);
-void APE_socket_shutdown(ape_socket *socket);
-void APE_socket_shutdown_now(ape_socket *socket);
 int APE_sendfile(ape_socket *socket, const char *file);
-char *APE_socket_ipv4(ape_socket *socket);
 int APE_socket_is_online(ape_socket *socket);
+
+char *APE_socket_ipv4(ape_socket *socket);
 
 int ape_socket_destroy(ape_socket *socket);
 int ape_socket_do_jobs(ape_socket *socket);
@@ -239,6 +270,4 @@ int ape_socket_write_udp(ape_socket *from, const char *data,
         ape_global *ape);
 */
 #endif
-
-// vim: ts=4 sts=4 sw=4 et
 

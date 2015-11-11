@@ -60,10 +60,14 @@ void ape_pool_rewind(ape_pool_list_t *list);
 
 void ape_init_pool_list(ape_pool_list_t *list, size_t size, size_t n);
 void ape_destroy_pool(ape_pool_t *pool);
+void ape_destroy_pool_with_cleaner(ape_pool_t *pool,
+    ape_pool_clean_callback cleaner, void *ctx);
 void ape_destroy_pool_ordered(ape_pool_t *pool,
     ape_pool_clean_callback cleaner, void *ctx);
 void ape_destroy_pool_list(ape_pool_list_t *list);
 void ape_destroy_pool_list_ordered(ape_pool_list_t *list,
+    ape_pool_clean_callback cleaner, void *ctx);
+void ape_destroy_pool_list_with_cleaner(ape_pool_list_t *list,
     ape_pool_clean_callback cleaner, void *ctx);
 #ifdef __cplusplus
 }
@@ -80,6 +84,4 @@ void ape_destroy_pool_list_ordered(ape_pool_list_t *list,
             for (__pool_item = _list->current->prev; __pool_item != NULL && (_val = __pool_item->ptr.data) != NULL; __pool_item = __pool_item->prev)
 
 #endif
-
-// vim: ts=4 sts=4 sw=4 et
 

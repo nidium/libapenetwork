@@ -48,9 +48,6 @@
     <ClCompile Include="..\ape_hash.c">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="..\ape_http_parser.c">
-      <Filter>Fichiers sources</Filter>
-    </ClCompile>
     <ClCompile Include="..\ape_pool.c">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
@@ -95,9 +92,6 @@
     <ClInclude Include="..\ape_hash.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="..\ape_http_parser.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
     <ClInclude Include="..\ape_pool.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
@@ -108,9 +102,6 @@
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="..\ape_ssl.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ape_timers.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="..\ape_timers_next.h">

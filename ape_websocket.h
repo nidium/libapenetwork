@@ -41,7 +41,6 @@ typedef struct _websocket_state
     void (*on_frame)(struct _websocket_state *,
         const unsigned char *, ssize_t, int binary);
     
-    unsigned int offset;
     unsigned short int error;
     //ws_version version;
     
@@ -54,7 +53,6 @@ typedef struct _websocket_state
     #pragma pack(2)
     struct {
         unsigned char start;
-        unsigned char length; /* 7 bit length */
         union {
             unsigned short short_length; /* 16 bit length */
             unsigned long long int extended_length; /* 64 bit length */
@@ -63,23 +61,27 @@ typedef struct _websocket_state
     #pragma pack()
     
     ws_payload_step step;
-    int data_pos;
+
     int data_inkey;
     int frame_pos;
-    int close_sent;
+    int mask;
+    int close_sent:4; 
+    int is_client:4;
 } websocket_state;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void ape_ws_init(websocket_state *state);
+void ape_ws_init(websocket_state *state, int isclient);
 void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t len);
 char *ape_ws_compute_key(const char *key, unsigned int key_len);
 void ape_ws_write(ape_socket *socket_client, unsigned char *data,
-    size_t len, int binary, ape_socket_data_autorelease data_type);
+    size_t len, int binary,
+    ape_socket_data_autorelease data_type, uint32_t *cipherKey);
     
 void ape_ws_close(websocket_state *state);
+void ape_ws_ping(websocket_state *state);
 
 #ifdef __cplusplus
 }
@@ -88,3 +90,4 @@ void ape_ws_close(websocket_state *state);
 #define WEBSOCKET_HARDCODED_HEADERS "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\n"
 
 #endif
+

@@ -22,7 +22,7 @@
 
 #include <stdint.h>
 
-#define HACH_TABLE_MAX 8192
+#define HACH_TABLE_MAX 8209
 
 typedef struct _ape_htable_item ape_htable_item_t;
 
@@ -95,6 +95,4 @@ uint32_t hashtbl_seek_val32(ape_htable_t *htbl, const char *key, int key_len);
 #endif
 
 #endif
-
-// vim: ts=4 sts=4 sw=4 et
 

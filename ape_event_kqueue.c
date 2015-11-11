@@ -50,7 +50,9 @@ static int event_kqueue_add(struct _fdevent *ev,
 		if (kevent(ev->kq_fd, &kev, 1, NULL, 0, &ts) == -1) {
 			return -1;
 		}
-	
+	} else {
+		EV_SET(&kev, evd->fd, EVFILT_READ, EV_DELETE, 0, 0, evd);
+		kevent(ev->kq_fd, &kev, 1, NULL, 0, NULL);
 	}
 
 	if (bitadd & EVENT_WRITE) {
@@ -63,7 +65,9 @@ static int event_kqueue_add(struct _fdevent *ev,
 		if (kevent(ev->kq_fd, &kev, 1, NULL, 0, &ts) == -1) {
 			return -1;
 		}
-	
+	} else {
+		EV_SET(&kev, evd->fd, EVFILT_WRITE, EV_DELETE, 0, 0, evd);
+		kevent(ev->kq_fd, &kev, 1, NULL, 0, NULL);		
 	}
 
 	return 1;
@@ -86,7 +90,7 @@ static int event_kqueue_poll(struct _fdevent *ev, int timeout_ms)
 	
 	ts.tv_sec = timeout_ms / 1000;
 	ts.tv_nsec = (timeout_ms % 1000) * 1000000;
-
+	
 	if ((nfds = kevent(ev->kq_fd, NULL, 0, ev->events, ev->basemem * 2, &ts)) == -1) {
 		return -1;
 	}
@@ -154,7 +158,7 @@ int event_kqueue_init(struct _fdevent *ev)
 	ev->del				= NULL;
 	ev->mod				= event_kqueue_mod;
 
-	printf("Event loop started using kqueue()\n");
+	//printf("Event loop started using kqueue()\n");
 	
 	return 1;
 }
