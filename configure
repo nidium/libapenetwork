@@ -9,6 +9,7 @@ from konstructor import Platform
 from konstructor import Variables
 from konstructor import Konstruct
 from konstructor import Utils
+from konstructor import Log
 from konstructor import ROOT
 
 Gyp = Builder.Gyp
@@ -79,8 +80,9 @@ def debug(debug):
 def gypConfig(thirdPartyPath):
     if thirdPartyPath:
         Deps.setDir(thirdPartyPath)
-        Variables.set("thirdPartyPath", thirdPartyPath)
-        Gyp.set("third_party", thirdPartyPath)
+        Variables.set("thirdPartyPath", os.path.abspath(thirdPartyPath))
+        # Gyp needs a relative path
+        Gyp.set("third_party", os.path.relpath(thirdPartyPath))
         Gyp.setExec(os.path.join(thirdPartyPath, "gyp", "gyp"))
 
 @CommandLine.option("--asan", default=False)
@@ -102,7 +104,7 @@ def findAppleSDK(type='macosx'):
     import re
     type = type.lower()
     if type not in [ 'macosx', 'iphoneos', 'iphonesimulator']:
-        print "Invalid Apple SDK type %s" % type
+        Log.error("Invalid Apple SDK type %s" % type)
         exit()
 
     cmd = 'xcodebuild -showsdks'
