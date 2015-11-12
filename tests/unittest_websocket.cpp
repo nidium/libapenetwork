@@ -9,7 +9,7 @@ TEST(Websocket, Simple)
 {
 	websocket_state wss;
 
-	ape_ws_init(&wss);
+	ape_ws_init(&wss, 0);
 	EXPECT_EQ(wss.step, WS_STEP_START);
 	ape_ws_close(&wss);
 }

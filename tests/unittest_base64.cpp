@@ -49,7 +49,7 @@ TEST(Base64, EncodeDecodeSafe)
 	EXPECT_TRUE(strcmp(encoded, gro) == 0);
 
 	size = base64_decode((unsigned char *)pdummy, encoded, strlen(gro));
-	EXPECT_EQ(size, -1);
+	EXPECT_EQ(size, 64);
 	EXPECT_TRUE(strncmp(pdummy, org, 35) == 0);
 
 	free(encoded);

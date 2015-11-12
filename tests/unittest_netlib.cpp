@@ -14,8 +14,6 @@ TEST(Netlib, Simple)
 	g_ape = native_netlib_init();
 	EXPECT_TRUE(g_ape != NULL);
 	EXPECT_EQ(g_ape->is_running, 1);
-	EXPECT_EQ(g_ape->timers.ntimers, 0);
-	EXPECT_TRUE(g_ape->timers.timers == NULL);
 	EXPECT_EQ(g_ape->timersng.run_in_low_resolution, 0);
 	EXPECT_EQ(g_ape->timersng.last_identifier, 0);
 	EXPECT_TRUE(g_ape->timersng.head == NULL);
@@ -23,6 +21,6 @@ TEST(Netlib, Simple)
 	
 	ape_running = g_ape->is_running = 0;
 
-	//native_netlib_destroy(g_ape);
+	native_netlib_destroy(g_ape);
 }
 

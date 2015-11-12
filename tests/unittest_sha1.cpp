@@ -46,7 +46,7 @@ TEST(SHA1, File)
 	char * filename;
 
 	memset(&digest, '\0', 21);
-	filename = strdup("../ape_sha1.h");
+	filename = strdup("./ape_sha1.h");
 	success = sha1_file(filename, digest);
 	EXPECT_EQ(success, 0);
 	EXPECT_EQ(strlen((char*)digest), 20 );
