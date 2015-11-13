@@ -1,5 +1,6 @@
 {
-    'targets': [{
+    'targets': [
+    {
         'target_name': 'nativenetwork-unittests',
         'type': 'executable',
         'include_dirs': [
@@ -56,6 +57,78 @@
             '../tests/unittest_timersng.cpp',
             '../tests/unittest_websocket.cpp',
         ],
-    }]
+    },
+    {
+        'target_name': 'libapenetwork_benchmark_new_pool',
+        'type': 'executable',
+        'include_dirs': [
+                '../',
+         ],
+        'conditions': [
+            ['OS=="linux"', {
+                "link_settings": {
+                    'libraries': [
+                        '-lz',
+                        '-lrt',
+                    ]
+                }
+            }],
+            ['OS=="mac"', {
+                "link_settings": {
+                    'libraries': [
+                        '-z',
+                        '-rt',
+                    ]
+                }
+            }]
+        ],
+        'dependencies': [
+            'network.gyp:*',
+        ],
+        'cflags': [
+            #'-fvisibility=hidden',
+        ],
+        'sources': [
+            '../tests/benchmark_new_pool.c',
+        ],
+    },
+    {
+        'target_name': 'libapenetwork_benchmark_timers_next',
+        'type': 'executable',
+        'include_dirs': [
+                '../',
+         ],
+        'conditions': [
+            ['OS=="linux"', {
+                "link_settings": {
+                    'libraries': [
+                        '-lz',
+                        '-lrt',
+                        '-ldl',
+                    ]
+                }
+            }],
+            ['OS=="mac"', {
+                "link_settings": {
+                    'libraries': [
+                        '-z',
+                        '-rt',
+                        '-dl',
+                    ]
+                }
+            }]
+        ],
+        'dependencies': [
+            'network.gyp:*',
+        ],
+        'cflags': [
+            #'-fvisibility=hidden',
+        ],
+        'sources': [
+            '../tests/benchmark_timers_next.c',
+        ],
+    }
+
+    ]
 }
 
