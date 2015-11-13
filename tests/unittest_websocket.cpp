@@ -13,10 +13,11 @@ TEST(Websocket, Simple)
 	EXPECT_EQ(wss.step, WS_STEP_START);
 	ape_ws_close(&wss);
 }
+
 /*
-@TODO
-ape_ws_process_frame
-ape_ws_compute_key
-ape_ws_write
+//@TODO: ape_ws_process_frame
+//@TODO: ape_ws_compute_key
+//@TODO: ape_ws_write
+//@TODO: void ape_ws_ping(websocket_state *state)
 */
 

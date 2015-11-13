@@ -1,7 +1,7 @@
 {
     'targets': [
     {
-        'target_name': 'nativenetwork-unittests',
+        'target_name': 'libnativenetwork_unittests',
         'type': 'executable',
         'include_dirs': [
                 '../',

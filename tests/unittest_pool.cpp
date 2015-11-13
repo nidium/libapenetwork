@@ -249,6 +249,7 @@ TEST(Pool, push)
 
 /*
 //@TODO:  foreach
+//@TODO:  ape_destroy_pool_with_cleaner
 //@TODO:  foreach_reverse (Especially in combination with head_to_current, head_to_queue
 */
 
@@ -271,3 +272,4 @@ TEST(Pool, SimplePoolList)
 		ape_destroy_pool_list(list);
 	}
 }
+

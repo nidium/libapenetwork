@@ -105,7 +105,7 @@ TEST(TimersNg, Timer)
 	dummy = get_timer_by_id(&g_ape->timersng, 5);
 	EXPECT_TRUE(dummy == timer1);
 
-//	native_netlib_destroy(g_ape);
+	native_netlib_destroy(g_ape);
 
 }
 
@@ -130,6 +130,7 @@ TEST(TimersNg, Interval)
 	dummy = get_timer_by_id(&g_ape->timersng, 2);
 	EXPECT_TRUE(dummy == NULL);
 	
-//	native_netlib_destroy(g_ape);
+	native_netlib_destroy(g_ape);
 
 }
+

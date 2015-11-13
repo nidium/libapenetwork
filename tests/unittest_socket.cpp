@@ -6,9 +6,9 @@
 #include <native_netlib.h>
 #include <ape_socket.h>
 
-//@TODO: int APE_socket_listen(ape_socket *socket, uint16_t port,
-//@TODO: int APE_socket_connect(ape_socket *socket, uint16_t port,
-//@TODO: int APE_socket_write(ape_socket *socket, void *data,
+//@TODO: int APE_socket_listen(ape_socket *socket, uint16_t port, const char *local_ip, int defer_accept, int reuse_port);
+//@TODO: int APE_socket_connect(ape_socket *socket, uint16_t port, const char *local_ip, int defer_accept, int reuse_port);
+//@TODO: int APE_socket_write(ape_socket *socket, void *data,const char *local_ip, int defer_accept, int reuse_port);
 //@TODO: int APE_socket_writev(ape_socket *socket, const struct iovec *iov, int iovcnt);
 //@TODO: void APE_socket_shutdown(ape_socket *socket);
 //@TODO: void APE_socket_shutdown_now(ape_socket *socket);
@@ -20,8 +20,16 @@
 //@TODO: int ape_socket_read(ape_socket *socket);
 //@TODO: int ape_socket_read_udp(ape_socket *socket);
 //@TODO: int ape_socket_connected(void *arf);
-//@TODO: int ape_socket_write_udp(ape_socket *from, const char *data,
+//@TODO: int ape_socket_write_udp(ape_socket *from, const char *data, size_t len, const char *ip, uint16_t port);
 //@TODO: int ape_socket_write_file(ape_socket *socket, const char *file,
+//@TODO: static void ape_socket_packet_pool_cleaner(ape_pool_t *pool, void *ctx)
+//@TODO: static void ape_socket_job_pool_cleaner(ape_pool_t *pool, void *ctx)
+//@TODO: void APE_socket_setBufferMaxSize(ape_socket *socket, size_t MB)
+//@TODO: int APE_socket_setTimeout(ape_socket *socket, int secs)
+//@TODO: void APE_socket_enable_lz4(ape_socket *socket, int rxtx);
+//@TODO: static void APE_socket_free_lz4(ape_socket *socket)
+//@TODO: APE_SOCKET_IS_LZ4(socket, onwhat) (socket->lz4.onwhat.ctx);
+//@TODO: static int ape_socket_read_lz4_stream(ape_socket *socket)
 
 TEST(Socket, Simple)
 {
@@ -59,6 +67,6 @@ TEST(Socket, Simple)
 	ret = ape_socket_destroy(socket);
 	EXPECT_EQ(ret, 0);
 
-	//native_netlib_destroy(g_ape);
+	native_netlib_destroy(g_ape);
 }
 

@@ -13,9 +13,9 @@ TEST(Blowfish, Simple)
 
 	APE_blowfish_init(&ctx, &key, key_len);
 }
+
 /*
-@TODO
-APE_blowfish_init
-APE_blowfish_crypt_ecb
+@TODO: APE_blowfish_init
+@TODO: APE_blowfish_crypt_ecb
 */
 

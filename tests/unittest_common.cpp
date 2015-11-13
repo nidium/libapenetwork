@@ -115,6 +115,5 @@ TEST(Common, ConstStrLenMacro)
 	EXPECT_TRUE(strcmp(test.str, "H") == 0 );
 #undef MYSTR
 	}
-
 }
 

@@ -28,6 +28,6 @@ TEST(Events, Init)
 	EXPECT_EQ(g_ape->events.nfd, 0);
 	EXPECT_TRUE(g_ape->events.handler != 0);
 
-	//native_netlib_destroy(g_ape);
+	native_netlib_destroy(g_ape);
 }
 

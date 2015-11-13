@@ -25,13 +25,9 @@ TEST(SSL, Simple)
 }
 
 /*
-@TODO
-ape_ssl_init_ctx
-
-ape_ssl_init_con
-ape_ssl_shutdown(sslCtx);
-
-ape_ssl_read
-ape_ssl_write
+@TODO: ape_ssl_init_ctx
+@TODO: ape_ssl_shutdown(sslCtx);
+@TODO: ape_ssl_read
+@TODO: ape_ssl_write
 */
 #endif

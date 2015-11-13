@@ -115,3 +115,4 @@ TEST(Buffer, UTF8)
 	free(copy);
 	
 }
+

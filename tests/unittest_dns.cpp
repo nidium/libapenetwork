@@ -27,8 +27,9 @@ TEST(DNS, Init)
 	EXPECT_EQ(g_ape->dns.sockets.size, 32);
 	EXPECT_EQ(g_ape->dns.sockets.used, 0);
 
-	//native_netlib_destroy(g_ape);
+	native_netlib_destroy(g_ape);
 }
+
 TEST(DNS, Invalidate)
 {
 	ape_dns_state state;
@@ -53,5 +54,6 @@ TEST(DNS, Resolve)
 	dns_state = ape_gethostbyname("212.83.162.183", shutdown_loop_on_resolve, (void*)"212.83.162.183", g_ape);
 	events_loop(g_ape);
 
-	//native_netlib_destroy(g_ape);
+	native_netlib_destroy(g_ape);
 }
+
