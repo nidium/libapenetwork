@@ -59,6 +59,14 @@ def gperftools():
         "outputs": [[".libs/libprofiler.so.0$", "libprofiler.so"], {"src": "src/pprof", "dest": "../../tools/pprof"}]
     }
 
+@Deps.register("gtest")
+def gtest():
+    return {
+        "location": Deps.GitRepo("git@github.com:google/googletest.git", tag="release-1.7.0"),
+        "build": ["cmake .", "make"],
+        "outputs": [["./libgtest.a", "./libgtest_main.a"] ]
+    }
+
 #####
 
 @CommandLine.option("--cpu-profiling", default=False)
@@ -89,6 +97,13 @@ def gypConfig(thirdPartyPath):
 def asan(asan):
     if asan:
         Gyp.set("asan", 1)
+
+@CommandLine.option("--gtest", default=False)
+def gtest(gtest):
+    if gtest:
+        Gyp.set("asan", 1)
+        Deps.set("gtest")
+        Gyp.set("gtest", 1)
 
 #####
 
@@ -135,4 +150,5 @@ Gyp.set("native_output_third_party", "../build/third-party/")
 if __name__ == '__main__':
     Gyp.setArgs("--depth ./ --include=gyp/config.gypi --include=gyp/common.gypi")
     Build.add(Gyp("gyp/network.gyp"));
+    Build.add(Gyp("gyp/network-unittests.gyp"));
     Konstruct.start() 
