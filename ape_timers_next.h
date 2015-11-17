@@ -51,10 +51,20 @@ typedef struct _ape_timer
 	struct _ape_timer *prev;
 } ape_timer;
 
+typedef struct _ape_async
+{
+    timer_callback callback;
+    timer_callback clearfunc;
+
+    void *arg;
+    struct _ape_async *next;
+} ape_async;
 
 typedef struct _ape_timers
 {
 	ape_timer *head;
+    ape_async *head_async;
+
 	uint64_t last_identifier;
     int run_in_low_resolution;
 } ape_timers;
@@ -73,6 +83,8 @@ void timers_stats_print(ape_timers *timers);
 void del_timers_unprotected(ape_timers *timers);
 void del_timers_all(ape_timers *timers);
 void set_timer_to_low_resolution(ape_timers *timers, int low);
+
+ape_async *add_async(ape_timers *timers, timer_callback cb, void *arg);
 
 #ifdef __cplusplus
 }
