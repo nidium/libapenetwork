@@ -16,22 +16,19 @@
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
 #include "common.h"
-#include "ape_events.h"
-#ifndef __WIN32
-#include <sys/time.h>
-#include <unistd.h>
-#else
-#include "port\windows.h"
-#endif
-#include <time.h>
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 
-
-#include "ape_socket.h"
+#ifndef _WIN32
+  #include <sys/time.h>
+  #include <unistd.h>
+  #include "port/POSIX.h"
+#else
+  #include "port\windows.h"
+#endif
 
 #ifdef USE_SELECT_HANDLER
 

@@ -16,10 +16,9 @@
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
 #include "ape_pool.h"
+
 #include <stdlib.h>
-#include <stdio.h>
 
 ape_pool_t *ape_new_pool(size_t size, size_t n)
 {

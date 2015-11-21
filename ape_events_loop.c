@@ -16,18 +16,19 @@
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
 #include "common.h"
+
+#include <stdio.h>
+#include <stddef.h>
+
+#ifndef _WIN32
+  #include <sys/time.h>
+#endif
+
 #include "ape_events.h"
 #include "ape_socket.h"
 #include "ape_timers_next.h"
 #include "ape_events_loop.h"
-
-#ifndef __WIN32
-#include <sys/time.h>
-#endif
-#include <stdio.h>
-#include <stddef.h>
 
 extern int ape_running;
 

@@ -22,6 +22,8 @@
 
 #define _HAS_ARES_SUPPORT
 
+#include <ares.h>
+
 #include "common.h"
 
 #ifdef __cplusplus

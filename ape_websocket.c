@@ -16,19 +16,19 @@
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
 #include "ape_websocket.h"
-#include "ape_sha1.h"
-#include "ape_base64.h"
-
-#include "ape_socket.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+
 #ifndef _WIN32
-#include <arpa/inet.h>
+  #include <arpa/inet.h>
+  #include <netinet/in.h>
 #endif
+
+#include "ape_sha1.h"
+#include "ape_base64.h"
 
 #define WS_GUID "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 

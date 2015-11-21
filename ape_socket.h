@@ -26,27 +26,25 @@
 #include "lz4.h"
 
 #ifdef _WIN32
-
-//#include <winsock2.h>
-//#pragma comment(lib, "ws2_32.lib")
-
-#if 0
-#define ECONNRESET WSAECONNRESET
-#define EINPROGRESS WSAEINPROGRESS
-#define EALREADY WSAEALREADY
-#define ECONNABORTED WSAECONNABORTED
-#endif
-#define ioctl ioctlsocket
-#define hstrerror(x) ""
+  //#include <winsock2.h>
+  //#pragma comment(lib, "ws2_32.lib")
+  #if 0
+    #define ECONNRESET WSAECONNRESET
+    #define EINPROGRESS WSAEINPROGRESS
+    #define EALREADY WSAEALREADY
+    #define ECONNABORTED WSAECONNABORTED
+  #endif
+  #define ioctl ioctlsocket
+  #define hstrerror(x) ""
 #else
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <sys/un.h>
-#include <arpa/inet.h>
+  #include <sys/socket.h>
+  #include <sys/ioctl.h>
+  #include <sys/un.h>
+  #include <netinet/in.h>
+  #include <netinet/tcp.h>
+  #include <arpa/inet.h>
 
-#include <netdb.h>
+  #include <netdb.h>
 #endif
 
 #define APE_SOCKET_BACKLOG 511
@@ -61,7 +59,7 @@
   #define APE_SOCKET_ISSECURE(socket) 0
 #endif
 
-#ifdef __WIN32
+#ifdef _WIN32
 struct iovec
 {
   unsigned long iov_len;

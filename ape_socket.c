@@ -16,13 +16,13 @@
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
 #include "ape_socket.h"
-#include "ape_dns.h"
-#include "ape_timers_next.h"
-#include "ape_ssl.h"
-#include <stdint.h>
+
 #include <stdio.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <string.h>
+
 #ifndef _WIN32
   #include <sys/time.h>
   #include <unistd.h>
@@ -32,23 +32,18 @@
   #include <io.h>
   #include <malloc.h>
 #endif
-#include <fcntl.h>
-#include <time.h>
-#include <errno.h>
-#include <stdlib.h>
 
 #ifdef _MSC_VER
-  #include <ares.h>
   #include "port\windows.h"
 #else
-  #include "ares.h"
+  #include "port/POSIX.h"
 #endif
 
 #ifdef __linux__
   #include <sys/sendfile.h>
 #endif
-#include <limits.h>
-#include <string.h>
+
+#include "ape_dns.h"
 
 #define APE_LZ4_BLOCK_SIZE (1024*8)
 #define APE_LZ4_BLOCK_COMP_SIZE APE_LZ4_COMPRESSBOUND(APE_LZ4_BLOCK_SIZE)
@@ -77,7 +72,7 @@ either ioctl(...FIONBIO...) or fcntl(...O_NONBLOCK...)
   #define setnonblocking(fd) fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NONBLOCK)
 #endif
 
-#ifdef __WIN32
+#ifdef _WIN32
   #define read(fd, buf, len) recv(fd, buf, len, 0)
   long int writev(int fd, const struct iovec* vector, int count)
   {
@@ -160,7 +155,7 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
         (sock = socket((pt == APE_SOCKET_PT_UNIX ? AF_UNIX : AF_INET) /* TODO AF_INET6 */, proto, 0)) == -1) ||
         setnonblocking(sock) == -1) {
 
-        printf("[Socket] Cant create socket(%d) : %s\n", SOCKERRNO, strerror(SOCKERRNO));
+        printf("[Socket] Cant create eocket(%d) : %s\n", SOCKERRNO, strerror(SOCKERRNO));
         return NULL;
     }
 

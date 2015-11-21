@@ -16,16 +16,11 @@
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
 #include "common.h"
-#include "ape_events.h"
-#include "ape_socket.h"
 
 #include <stdlib.h>
-#include <stdio.h>
 
 #define APE_DEFAULT_EVENTS_SIZE 32
-
 
 int events_add(ape_event_descriptor *evd, int bitadd, ape_global *ape)
 {
