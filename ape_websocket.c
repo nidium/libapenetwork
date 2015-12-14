@@ -185,7 +185,6 @@ static int ape_ws_process_end_message(websocket_state *websocket)
 
     switch (opcode) {
         case 0x8: /* Close frame */
-            printf("Got a close frame\n");
             if (!websocket->close_sent) {
                 unsigned char payload_head[2] = { 0x88, 0x00 };
                 APE_socket_write(websocket->socket,
@@ -196,11 +195,9 @@ static int ape_ws_process_end_message(websocket_state *websocket)
             retval = 0; /* Don't process anything more */
             break;
         case 0x9: /* Ping frame */
-            printf("Got a ping frame %d\n", websocket->data_inkey);
             ape_ws_pong(websocket);
             break;
         case 0xA: /* Pong frame */
-            printf("Got a pong frame\n");
             break;
         case 0x1: /* ASCII frame */
              websocket->on_frame(websocket, websocket->data,
