@@ -162,8 +162,6 @@ void ape_ws_pong(websocket_state *state)
         payload_head[1] |= 0x80;
     }
 
-    printf("Send a pong frame\n");
-    
     APE_socket_write(state->socket, (void *)payload_head, 2, APE_DATA_STATIC);
 }
 
