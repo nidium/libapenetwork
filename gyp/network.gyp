@@ -48,6 +48,16 @@
         'cflags': [
             #'-fvisibility=hidden',
         ],
+        'conditions': [
+            ['OS=="linux"', {
+                'link_settings': {
+                    'ldflags': [
+                         '-B/usr/lib/gold-ld'
+                        ],
+                    },
+                }
+           ],
+        ],
         'sources': [
             '../native_netlib.c',
             '../ape_pool.c',
