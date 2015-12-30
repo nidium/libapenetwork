@@ -17,8 +17,8 @@ Gyp = Builder.Gyp
 DEPEDENCY_REPO = "http://deps.nidium.com"
 
 Platform.setEnviron(
-    "CC=clang",
-    "CXX=clang++", 
+    "CC=clang-3.4",
+    "CXX=clang++-3.4", 
     #"CXXFLAGS=-stdlib=libc++",
     #"LDFLAGS=-stdlib=libc++",
     "MACOSX_DEPLOYMENT_TARGET=10.7"
@@ -49,6 +49,14 @@ def openssl():
         "location": DEPEDENCY_REPO + "/openssl-1.0.1g.tar.gz",
         "build": [configure, "make build_crypto", "make build_ssl"],
         "outputs": ["libssl(.a|.lib)", "libcrypto(.a|.lib)"]
+    }
+
+@Deps.register("zlib")
+def zlip():
+    return {
+        "location": "http://zlib.net/zlib-1.2.8.tar.gz",
+        "build": ["./configure", "make"],
+        "outputs": ["libz.a"]
     }
 
 @Deps.register("gperftools")
@@ -92,7 +100,7 @@ def asan(asan):
 
 #####
 
-Deps.set("gyp", "c-ares", "openssl")
+Deps.set("gyp", "c-ares", "openssl", "zlib")
 Variables.set("depsRepo", DEPEDENCY_REPO)
 
 @CommandLine.option("--mac-sdk-version", default="")

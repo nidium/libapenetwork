@@ -7,6 +7,7 @@
                 '../',
                 '<(third_party_path)/c-ares/',
                 '<(third_party_path)/openssl/include/',
+                '<(third_party_path)/zlib/',
             ],
             'defines': [
                 '_HAVE_SSL_SUPPORT',
@@ -26,6 +27,7 @@
                             '-lssl',
                             '-lcrypto',
                             '-lm',
+                            '-lz',
                         ]
                     }
                 }],
@@ -34,6 +36,7 @@
                         'libraries': [
                             'libssl.a',
                             'libcrypto.a'
+                            'libz.a'
                         ]
                     }
                 }]
