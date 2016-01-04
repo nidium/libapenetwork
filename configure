@@ -17,8 +17,8 @@ Gyp = Builder.Gyp
 DEPEDENCY_REPO = "http://deps.nidium.com"
 
 Platform.setEnviron(
-    "CC=clang-3.4",
-    "CXX=clang++-3.4", 
+    "CC=clang",
+    "CXX=clang++", 
     #"CXXFLAGS=-stdlib=libc++",
     #"LDFLAGS=-stdlib=libc++",
     "MACOSX_DEPLOYMENT_TARGET=10.7"

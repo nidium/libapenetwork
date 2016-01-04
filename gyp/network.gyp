@@ -35,7 +35,7 @@
                     "link_settings": {
                         'libraries': [
                             'libssl.a',
-                            'libcrypto.a'
+                            'libcrypto.a',
                             'libz.a'
                         ]
                     }
