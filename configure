@@ -98,6 +98,13 @@ def asan(asan):
     if asan:
         Gyp.set("asan", 1)
 
+@CommandLine.option("--module", default="")
+def module(module):
+    if not module:
+        return
+
+    Deps.set(Deps.Konstruct(module, module + "/configure"))
+
 #####
 
 Deps.set("gyp", "c-ares", "openssl", "zlib")
