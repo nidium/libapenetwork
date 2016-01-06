@@ -4,6 +4,7 @@
         'target_name': 'nativenetwork-unittests-settings',
         'type': 'none',
         'direct_dependent_settings': {
+            'product_dir': '../tests/bin/',
             'include_dirs': [
                  '<(third_party_path)/gtest/include',
              ],
@@ -56,6 +57,7 @@
     {
         'target_name': 'nativenetwork_benchmark_new_pool',
         'type': 'executable',
+        'product_dir': '../tests/bin/',
         'dependencies': [
             'network.gyp:*',
         ],
@@ -66,6 +68,7 @@
     {
         'target_name': 'nativenetwork_benchmark_timers_next',
         'type': 'executable',
+        'product_dir': '../tests/bin/',
         'dependencies': [
             'network.gyp:*',
         ],
