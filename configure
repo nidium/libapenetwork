@@ -9,6 +9,7 @@ from konstructor import Platform
 from konstructor import Variables
 from konstructor import Konstruct
 from konstructor import Utils
+from konstructor import Tests
 from konstructor import Log
 from konstructor import ROOT
 
@@ -124,10 +125,22 @@ def test(unitTests):
 
     Build.add(Gyp("gyp/network-unittests.gyp"));
 
+    @Konstruct.hook("postBuild")
+    def runTest(success):
+        if Utils.promptYesNo("Build is finished, do you want to run tests?"):
+            if Tests.run():
+                Log.success("All test passed \o/")
+            else:
+                Log.error("Unit tests failed :(")
+
 #####
 
 Deps.set("gyp", "c-ares", "openssl", "zlib")
 Variables.set("depsRepo", DEPEDENCY_REPO)
+Tests.register(
+    "tests/bin/nativenetwork-unittests",
+    "tests/bin/nativenetwork_benchmark_new_pool", 
+    "tests/bin/nativenetwork_benchmark_timers_next")
 
 @CommandLine.option("--mac-sdk-version", default="")
 def macSdkVersion(version):
