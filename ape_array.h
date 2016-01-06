@@ -16,16 +16,17 @@
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
 #ifndef __APE_ARRAY_H
 #define __APE_ARRAY_H
 
+#ifdef _WIN32
+  #include "port/windows.h"
+#else
+  #include "port/POSIX.h"
+#endif
+
 #include "ape_pool.h"
 #include "ape_buffer.h"
-
-#ifdef _WIN32
-#include "port/windows.h"
-#endif
 
 typedef ape_pool_list_t ape_array_t;
 

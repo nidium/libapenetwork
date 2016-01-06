@@ -16,22 +16,18 @@
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
 #include "native_netlib.h"
-#include "common.h"
-#include "ape_dns.h"
-#include "ape_ssl.h"
 
 #include <stdlib.h>
 #include <signal.h>
-#include <time.h>
 #include <sys/types.h>
 
-#include <ares.h>
-
 #ifdef _WIN32
-#include <WinSock2.h>
+  #include <WinSock2.h>
 #endif
+
+#include "ape_dns.h"
+#include "ape_ssl.h"
 
 ape_global *native_netlib_init()
 {

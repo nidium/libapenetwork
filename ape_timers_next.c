@@ -16,11 +16,12 @@
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
 #include "ape_timers_next.h"
-#include "common.h"
+
 #include <stdlib.h>
 #include <stdio.h>
+
+#include "common.h"
 
 static void process_async(ape_timers *timers);
 static void del_async_all(ape_timers *timers);
@@ -29,7 +30,6 @@ static void del_async_all(ape_timers *timers);
   #include <mach/mach_time.h>
 #else
   #include <time.h>
-  
 #ifdef __WIN32
 LARGE_INTEGER
 getFILETIMEoffset()

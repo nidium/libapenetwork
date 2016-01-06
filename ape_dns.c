@@ -16,28 +16,19 @@
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+#include "ape_dns.h"
+
+#include <stdlib.h>
+#include <fcntl.h>
 
 #ifdef _WIN32
-  #include <ares.h>
   #include <io.h>
   #include <winsock2.h>
 #else
-  #include "ares.h"
   #include <netdb.h>
   #include <unistd.h>
   #include <arpa/inet.h>
 #endif
-
-#include <stdlib.h>
-#include "common.h"
-#include "ape_dns.h"
-#include "ape_events.h"
-
-#include <stdio.h>
-
-#include <fcntl.h>
-
-/* gcc *.c -I../deps/ ../deps/c-ares/.libs/libcares.a -lrt */
 
 #ifdef FIONBIO
 static __inline int setnonblocking(int fd)

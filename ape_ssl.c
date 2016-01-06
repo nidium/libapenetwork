@@ -1,5 +1,9 @@
 #include "ape_ssl.h"
+
 #if _HAVE_SSL_SUPPORT
+#include <stdio.h>
+#include <stdlib.h>
+
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 

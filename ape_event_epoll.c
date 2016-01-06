@@ -16,20 +16,15 @@
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
 #include "common.h"
-#include "ape_events.h"
-#ifndef _WIN32
-#include <sys/time.h>
-#include <unistd.h>
-#endif
-#include <time.h>
-#include <string.h>
+
 #include <stdlib.h>
 #include <stdio.h>
 
-
-#include "ape_socket.h"
+#ifndef _WIN32
+  #include <sys/time.h>
+  #include <unistd.h>
+#endif
 
 #ifdef USE_EPOLL_HANDLER
 

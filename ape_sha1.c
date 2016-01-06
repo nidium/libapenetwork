@@ -22,12 +22,10 @@
  *
  *  http://www.itl.nist.gov/fipspubs/fip180-1.htm
  */
-
+#include "ape_sha1.h"
 
 #include <string.h>
 #include <stdio.h>
-
-#include "ape_sha1.h"
 
 /* 
  * 32-bit integer manipulation macros (big endian)

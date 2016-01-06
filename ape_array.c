@@ -16,11 +16,10 @@
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
-//#include "common.h"
 #include "ape_array.h"
-#include <string.h>
 
+#include <string.h>
+#include <strings.h>
 
 static void ape_array_clean_cb(ape_pool_t *item, void *ctx);
 

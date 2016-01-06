@@ -25,8 +25,8 @@
 #include <stdint.h>
 
 #ifndef _WIN32
-#define APE_USE_ZLIB 1
-#include <zlib.h>
+  #define APE_USE_ZLIB 1
+  #include <zlib.h>
 
 typedef struct {
     z_stream zstream;
