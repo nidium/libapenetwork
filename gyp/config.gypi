@@ -20,5 +20,6 @@
 
         'asan%': 0,
         'profiler%': 0,
+        'unit_test%': 0,
     },
 }
