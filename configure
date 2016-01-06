@@ -63,7 +63,7 @@ def zlip():
 def gperftools():
     return {
         "location": "https://googledrive.com/host/0B6NtGsLhIcf7MWxMMF9JdTN3UVk/gperftools-2.2.1.zip",
-        "build": ["autoconf", "./configure", "make"],
+        "build": ["autoconf", "chmod +x ./configure", "./configure", "make"],
         "outputs": [[".libs/libprofiler.so.0$", "libprofiler.so"], {"src": "src/pprof", "dest": "../../tools/pprof"}]
     }
 
@@ -82,8 +82,17 @@ def profiler(profiler):
     if profiler:
         Gyp.set("profiler", 1)
         Deps.set("gperftools")
-        Platform.exportEnviron("CPUPROFILE=/tmp/profile.nidium")
-        Platform.exportEnviron("LD_LIBRARY_PATH=" + ROOT + "/build/third-party/${LD_LIBRARY_PATH:+:}${LD_LIBRARY_PATH:-}")
+
+        @Konstruct.hook("postBuild")
+        def profilerPostBuild(success):
+            if not success:
+                return
+
+            Log.info("-------------------------------------")
+            Log.info("You have enabled CPU profiling, you must set the following environement variables to enable CPU profiling when running your application : ")
+            Log.info("CPUPROFILE=/tmp/profile.nidium")
+            Log.info("LD_LIBRARY_PATH=" + ROOT + "/build/third-party/${LD_LIBRARY_PATH:+:}${LD_LIBRARY_PATH:-}")
+            Log.info("-------------------------------------")
 
 @CommandLine.option("--debug", default=False)
 def debug(debug):
