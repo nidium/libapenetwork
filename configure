@@ -141,6 +141,10 @@ def test(unitTests):
             else:
                 Log.error("Unit tests failed :(")
 
+@CommandLine.option("--assume-yes", default=False)
+def assumeYes(assumeYes):
+    Utils.promptAssumeYes(assumeYes)
+
 #####
 
 Deps.set("gyp", "c-ares", "openssl", "zlib")
