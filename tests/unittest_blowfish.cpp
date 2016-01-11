@@ -11,7 +11,7 @@ TEST(Blowfish, Simple)
 	int key_len = 6;
 	uint8_t key = 123;
 
-	APE_blowfish_init(&ctx, &key, key_len);
+//	APE_blowfish_init(&ctx, &key, key_len);
 }
 
 /*

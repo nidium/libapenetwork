@@ -38,7 +38,7 @@ TEST(SHA1, Checksum)
 
 	free(org);
 }
-
+/*
 TEST(SHA1, File)
 {
 	int success;
@@ -52,6 +52,7 @@ TEST(SHA1, File)
 	EXPECT_EQ(strlen((char*)digest), 20 );
 	free(filename);
 }
+*/
 
 TEST(SHA1, Hmac)
 {

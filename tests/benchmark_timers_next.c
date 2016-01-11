@@ -8,8 +8,9 @@ ape_global * g_ape;
 
 #define MIN_TIMEOUT 8
 
-static int resolve_cb( const char *ip, void * arg, int status)
+static int resolve_cb(const char *ip, void * arg, int status)
 {
+	ape_running = 0;
 	return 1;
 }
 

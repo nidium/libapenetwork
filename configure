@@ -70,7 +70,7 @@ def gperftools():
 @Deps.register("gtest")
 def gtest():
     return {
-        "location": Deps.GitRepo("git@github.com:google/googletest.git", tag="release-1.7.0"),
+        "location": Deps.GitRepo("https://github.com/google/googletest.git", tag="release-1.7.0"),
         "build": ["cmake .", "make"],
         "outputs": ["libgtest.a", "libgtest_main.a"]
     }
@@ -123,32 +123,30 @@ def module(module):
     Deps.set(Deps.Konstruct(module, module + "/configure"))
 
 @CommandLine.option("--unit-tests", default=False)
-def test(unitTests):
+def test_network(unitTests):
     if not unitTests:
         return
-
-    Gyp.set("asan", 1)
-    Deps.set("gtest")
-    Gyp.set("unit_test", 1)
-
-    Build.add(Gyp("gyp/network-unittests.gyp"));
-
+    head, tail = os.path.split(os.getcwd())
+    if tail == 'network':
+        subdir = ''
+    elif tail == 'nativejscore':
+        subdir = 'network'
+    else:
+        subdir = os.path.join('nativejscore', 'network')
+    Tests.register(subdir,
+            ["gyp/network-unittests.gyp"],
+            [ "tests/bin/nativenetwork-unittests",
+          #  "tests/bin/nativenetwork_benchmark_new_pool",
+            "tests/bin/nativenetwork_benchmark_timers_next"
+        ])
     @Konstruct.hook("postBuild")
-    def runTest(success):
-        if Utils.promptYesNo("Build is finished, do you want to run tests?"):
-            if Tests.run():
-                Log.success("All test passed \o/")
-            else:
-                Log.error("Unit tests failed :(")
+    def runNetworkTest(success):
+        Tests.runTest(success)
 
 #####
 
 Deps.set("gyp", "c-ares", "openssl", "zlib")
 Variables.set("depsRepo", DEPEDENCY_REPO)
-Tests.register(
-    "tests/bin/nativenetwork-unittests",
-    "tests/bin/nativenetwork_benchmark_new_pool", 
-    "tests/bin/nativenetwork_benchmark_timers_next")
 
 @CommandLine.option("--mac-sdk-version", default="")
 def macSdkVersion(version):
@@ -188,7 +186,7 @@ Gyp.set("native_output", "../build/")
 Gyp.set("native_output_third_party", "../build/third-party/")
 
 if __name__ == '__main__':
-    CommandLine.parse()
     Gyp.setArgs("--depth ./ --include=gyp/config.gypi --include=gyp/common.gypi")
     Build.add(Gyp("gyp/network.gyp"));
-    Konstruct.start() 
+    Konstruct.start()
+

@@ -14,6 +14,8 @@
                         'libraries': [
                             '-lgtest_main',
                             '-lgtest',
+                            '-ldl',
+                            '-lpthread',
                         ]
                     }
                 }],
@@ -59,6 +61,7 @@
         'type': 'executable',
         'product_dir': '../tests/bin/',
         'dependencies': [
+            'network-unittests.gyp:nativenetwork-unittests-settings',
             'network.gyp:*',
         ],
         'sources': [
@@ -70,6 +73,7 @@
         'type': 'executable',
         'product_dir': '../tests/bin/',
         'dependencies': [
+            'network-unittests.gyp:nativenetwork-unittests-settings',
             'network.gyp:*',
         ],
         'sources': [

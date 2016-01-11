@@ -10,7 +10,7 @@ TEST(Pool, Simple)
 
 	pool = NULL;
 
-	pool = ape_new_pool( 16, 2 );
+	pool = ape_new_pool( 0, 2 );
 	EXPECT_TRUE(pool != NULL);
 	EXPECT_TRUE(pool->next != NULL);
 	EXPECT_TRUE(pool->next->next == NULL);
@@ -20,60 +20,11 @@ TEST(Pool, Simple)
 	ape_destroy_pool( pool );
 }
 
-TEST(Pool, Looped)
-{
-#define SIZE_START 16
-#define SIZE_LIMIT 512
-#define SIZE_STEP 16 
-#define N_START 1
-#define N_LIMIT 128
-#define N_STEP 16 
-	ape_pool_t * pool;
-	size_t size, n;
-
-	pool = NULL;
-	pool = ape_new_pool(0, 1);
-	EXPECT_TRUE(pool != NULL);
-	ape_destroy_pool(pool);
-
-#if 0
-	// FIXME
-	pool = NULL;
-	pool = ape_new_pool(SIZE_START, 0);
-	EXPECT_TRUE(pool == NULL);
-#endif
-
-	for( n = 1; n < N_START; n += N_STEP ) {
-		for(size = 1; size < SIZE_START; size += SIZE_STEP) {
-			pool = NULL;
-			pool = ape_new_pool(size, n);
-			EXPECT_TRUE(pool != NULL);
-			ape_destroy_pool(pool);
-		}
-	}
-
-	for( n = N_START; n < N_LIMIT; n += N_STEP ) {
-		for(size = SIZE_START; size < SIZE_LIMIT; size += SIZE_STEP) {
-			pool = NULL;
-			pool = ape_new_pool(size, n);
-			EXPECT_TRUE(pool != NULL);
-			ape_destroy_pool(pool);
-		}
-	}
-#undef SIZE_START
-#undef SIZE_LIMIT
-#undef SIZE_STEP
-#undef N_START
-#undef N_LIMIT
-#undef N_STEP
-}
-
 struct dummy_t {
 	ape_pool_t pool;
 	int a;
 	char * b;
 };
-#if 0
 static struct dummy_t * Dummy_New( int a, const char * b)
 {
 	struct dummy_t * dummy;
@@ -90,9 +41,6 @@ static void Dummy_Delete(struct dummy_t *dummy)
 	free(dummy->b); dummy->b = NULL;
 	free(dummy); dummy = NULL;
 }
-
-
-#endif
 
 static void Dummy_Init( struct dummy_t * dummy)
 {
