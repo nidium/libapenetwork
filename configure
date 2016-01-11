@@ -143,6 +143,10 @@ def test_network(unitTests):
     def runNetworkTest(success):
         Tests.runTest(success)
 
+@CommandLine.option("--assume-yes", default=False)
+def assumeYes(assumeYes):
+    Utils.promptAssumeYes(assumeYes)
+
 #####
 
 Deps.set("gyp", "c-ares", "openssl", "zlib")
