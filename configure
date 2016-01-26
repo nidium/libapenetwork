@@ -15,11 +15,13 @@ from konstructor import ROOT
 
 Gyp = Builder.Gyp
 
+Variables.set('product', 'libapenetwork')
+
 DEPEDENCY_REPO = "http://deps.nidium.com"
 
 Platform.setEnviron(
     "CC=clang",
-    "CXX=clang++", 
+    "CXX=clang++",
     "LDFLAGS=%s" % (os.environ.get("LDFLAGS", "")),
     "MACOSX_DEPLOYMENT_TARGET=10.7"
 )
@@ -127,18 +129,23 @@ def test_network(unitTests):
     if not unitTests:
         return
     head, tail = os.path.split(os.getcwd())
-    if tail == 'network':
+    product = Variables.get('product', tail);
+    if product == 'libapenetwork':
         subdir = ''
-    elif tail == 'nativejscore':
+    elif product == 'nativejscore':
         subdir = 'network'
-    else:
+    elif  product in ['nativeserver', 'nativestudio']:
         subdir = os.path.join('nativejscore', 'network')
+    else:
+        subdir = os.path.join(os.path.split(head)[-1], tail)
+        Log.error("'Variable.product' is not defined in 'configure' " + subdir)
     Tests.register(subdir,
             ["gyp/network-unittests.gyp"],
             [ "tests/bin/nativenetwork-unittests",
           #  "tests/bin/nativenetwork_benchmark_new_pool",
             "tests/bin/nativenetwork_benchmark_timers_next"
         ])
+
     @Konstruct.hook("postBuild")
     def runNetworkTest(success):
         Tests.runTest(success)
@@ -185,7 +192,7 @@ if Platform.system == "Darwin":
        Utils.exit("No macos SDK detected. Make sure Xcode is correctly installed and configured")
     Gyp.set("mac_sdk_version", sdk)
 
-# Temporary fix to make deps.py & Konstructor works 
+# Temporary fix to make deps.py & Konstructor works
 Gyp.set("native_output", "../build/")
 Gyp.set("native_output_third_party", "../build/third-party/")
 
