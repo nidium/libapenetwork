@@ -88,7 +88,7 @@ ape_global *native_netlib_init()
 
     ape->failed_write_count    = 0;
     ape->total_memory_buffered = 0;
-    
+
     return ape;
 }
 
@@ -128,3 +128,4 @@ void native_netlib_destroy(ape_global * ape)
     //  destroying rest
     free(ape);
 }
+

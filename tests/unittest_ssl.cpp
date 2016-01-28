@@ -9,19 +9,19 @@
 
 TEST(SSL, Simple)
 {
-	ape_ssl_t *ssl;
+    ape_ssl_t *ssl;
 
-	ape_ssl_library_init();
-	
-	ssl = NULL;
-	ssl = ape_ssl_init_global_client_ctx();
-	
-	EXPECT_TRUE(ssl != NULL);
-	EXPECT_TRUE(ssl->ctx != NULL);
-	EXPECT_TRUE(ssl->con == NULL);
+    ape_ssl_library_init();
 
-	ape_ssl_destroy(ssl);
-	ape_ssl_library_destroy();
+    ssl = NULL;
+    ssl = ape_ssl_init_global_client_ctx();
+
+    EXPECT_TRUE(ssl != NULL);
+    EXPECT_TRUE(ssl->ctx != NULL);
+    EXPECT_TRUE(ssl->con == NULL);
+
+    ape_ssl_destroy(ssl);
+    ape_ssl_library_destroy();
 }
 
 /*
@@ -32,3 +32,4 @@ TEST(SSL, Simple)
 */
 
 #endif
+
