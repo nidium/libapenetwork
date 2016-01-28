@@ -52,7 +52,7 @@
             #'../tests/unittest_timersng.cpp',
             #'../tests/unittest_socket.cpp',
             #'../tests/unittest_dns.cpp',
-            #'../tests/unittest_ssl.cpp',
+            '../tests/unittest_ssl.cpp',
             '../tests/unittest_websocket.cpp',
         ],
     },
