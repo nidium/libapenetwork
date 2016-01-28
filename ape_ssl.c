@@ -2,14 +2,30 @@
 #if _HAVE_SSL_SUPPORT
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+#include <openssl/conf.h>
+#include <openssl/engine.h>
+#include <openssl/safestack.h>
 
 #define CIPHER_LIST "HIGH:!ADH:!MD5"
 
-void ape_ssl_init()
+void ape_ssl_library_init()
 {
     SSL_library_init();            
     SSL_load_error_strings();
     OpenSSL_add_all_algorithms();
+}
+
+void ape_ssl_library_destroy()
+{
+    FIPS_mode_set(0);
+    ENGINE_cleanup();
+    CONF_modules_unload(1);
+    CONF_modules_free();
+    EVP_cleanup();
+    CRYPTO_cleanup_all_ex_data();
+    sk_SSL_COMP_free(SSL_COMP_get_compression_methods());
+    ERR_remove_state(0);
+    ERR_free_strings();
 }
 
 static void ape_ssl_info_callback(const SSL *s, int where, int ret)
@@ -135,7 +151,7 @@ ape_ssl_t *ape_ssl_init_con(ape_ssl_t *parent, int fd, int accept)
 
 int ape_ssl_read(ape_ssl_t *ssl, void *buf, int num)
 {
-    if (ssl == NULL) {
+    if (ssl == NULL || ssl->con == NULL) {
         return 0;
     }
     return SSL_read(ssl->con, buf, num);
@@ -143,7 +159,7 @@ int ape_ssl_read(ape_ssl_t *ssl, void *buf, int num)
 
 int ape_ssl_write(ape_ssl_t *ssl, void *buf, int num)
 {
-    if (ssl == NULL) {
+    if (ssl == NULL || ssl->con == NULL) {
         printf("SSL: Cant write : no ssl ctx\n");
         return 0;
     }
@@ -152,7 +168,7 @@ int ape_ssl_write(ape_ssl_t *ssl, void *buf, int num)
 
 void ape_ssl_shutdown(ape_ssl_t *ssl)
 {
-    if (ssl == NULL) {
+    if (ssl == NULL || ssl->con == NULL) {
         printf("SSL: Cant read : no ssl ctx\n");
         return;
     }

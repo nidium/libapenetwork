@@ -79,7 +79,7 @@ ape_global *native_netlib_init()
 
     ape_dns_init(ape);
 #ifdef _HAVE_SSL_SUPPORT
-    ape_ssl_init();
+    ape_ssl_library_init();
     if ((ape->ssl_global_ctx = ape_ssl_init_global_client_ctx()) == NULL) {
         printf("SSL: failed to init global CTX\n");
     }
@@ -116,6 +116,14 @@ void native_netlib_destroy(ape_global * ape)
     events_destroy(&ape->events);
     // destroying timers
     del_timers_all(&ape->timersng);
+
+#ifdef _HAVE_SSL_SUPPORT
+    if (ape->ssl_global_ctx) {
+        ape_ssl_shutdown(ape->ssl_global_ctx);
+        ape_ssl_destroy(ape->ssl_global_ctx);
+    }
+    ape_ssl_library_destroy();
+#endif
 
     //  destroying rest
     free(ape);

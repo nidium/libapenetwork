@@ -14,7 +14,12 @@ typedef struct _ape_ssl {
     SSL     *con;
 } ape_ssl_t;
 
-void ape_ssl_init();
+void ape_ssl_library_init();
+void ape_ssl_library_destroy();
+ape_ssl_t *ape_ssl_init_ctx(const char *cert, const char *key);
+ape_ssl_t *ape_ssl_init_con(ape_ssl_t *parent, int fd, int accept);
+ape_ssl_t *ape_ssl_init_global_client_ctx();
+int ape_ssl_read(ape_ssl_t *ssl, void *buf, int num);
 ape_ssl_t *ape_ssl_init_ctx(const char *cert, const char *key);
 ape_ssl_t *ape_ssl_init_con(ape_ssl_t *parent, int fd, int accept);
 ape_ssl_t *ape_ssl_init_global_client_ctx();

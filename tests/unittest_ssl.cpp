@@ -11,7 +11,7 @@ TEST(SSL, Simple)
 {
 	ape_ssl_t *ssl;
 
-	ape_ssl_init();
+	ape_ssl_library_init();
 	
 	ssl = NULL;
 	ssl = ape_ssl_init_global_client_ctx();
@@ -21,7 +21,7 @@ TEST(SSL, Simple)
 	EXPECT_TRUE(ssl->con == NULL);
 
 	ape_ssl_destroy(ssl);
-	//is here a memleak of 8 bytes?
+	ape_ssl_library_destroy();
 }
 
 /*
@@ -30,4 +30,5 @@ TEST(SSL, Simple)
 @TODO: ape_ssl_read
 @TODO: ape_ssl_write
 */
+
 #endif
