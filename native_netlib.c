@@ -26,7 +26,8 @@
 #include <signal.h>
 #include <time.h>
 #include <sys/types.h>
-
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <ares.h>
 
 #ifdef _WIN32
@@ -89,6 +90,13 @@ ape_global *native_netlib_init()
     ape->failed_write_count    = 0;
     ape->total_memory_buffered = 0;
 
+    ape->urandom_fd = open("/dev/urandom", O_RDONLY);
+
+    if (!ape->urandom_fd) {
+        fprintf(stderr, "Cannot open /dev/urandom\n");
+        NULL;
+    }
+
     return ape;
 }
 
@@ -124,7 +132,7 @@ void native_netlib_destroy(ape_global * ape)
     }
     ape_ssl_library_destroy();
 #endif
-
+    close(ape->urandom_fd);
     //  destroying rest
     free(ape);
 }

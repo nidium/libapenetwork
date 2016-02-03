@@ -78,8 +78,8 @@ struct _ape_global {
             size_t size;
             size_t used;
         } sockets;
-
     } dns;
+
     ape_timers timersng;
     int is_running;
 
@@ -87,6 +87,8 @@ struct _ape_global {
     uint64_t total_memory_buffered;
 
     int (*kill_handler)  (int code, struct _ape_global *ape);
+
+    int urandom_fd;
 };
 
 #endif

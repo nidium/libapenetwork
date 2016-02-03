@@ -40,6 +40,15 @@ enum {
 
 static void ape_ws_send_frame(websocket_state *state, int opcode);
 
+static uint32_t ape_random32(ape_global *ape)
+{
+    uint32_t ret;
+
+    read(ape->urandom_fd, &ret, sizeof(uint32_t));
+
+    return ret;
+}
+
 void ape_ws_init(websocket_state *state, int isclient)
 {
     state->socket = NULL;
@@ -76,11 +85,12 @@ char *ape_ws_compute_key(const char *key, unsigned int key_len)
     return b64; /* must be released */
 }
 
-void ape_ws_write(ape_socket *socket_client, unsigned char *data,
-    size_t len, int binary, ape_socket_data_autorelease data_type, uint32_t *cipherKey)
+void ape_ws_write(websocket_state *state, unsigned char *data,
+    size_t len, int binary, ape_socket_data_autorelease data_type)
 {
     unsigned char payload_head[32] = { 0x80 | (binary ? 0x02 : 0x01) };
     size_t payload_length = 0;
+    ape_socket *socket_client = state->socket;
 
     if (len <= 125) {
         payload_head[1] = (unsigned char)len & 0x7F;
@@ -106,7 +116,7 @@ void ape_ws_write(ape_socket *socket_client, unsigned char *data,
         payload_length = 10;
     }
 
-    if (cipherKey) {
+    if (state->is_client) {
          /* MASK bit */
         payload_head[1] |= 0x80;
     }
@@ -115,7 +125,8 @@ void ape_ws_write(ape_socket *socket_client, unsigned char *data,
         APE_socket_write(socket_client, payload_head,
             payload_length, APE_DATA_STATIC);
 
-        if (cipherKey) {
+        if (state->is_client /* Masking */) {
+            uint32_t cipherKey = ape_random32(socket_client->ape);
             /* in-place ciphering */
             for (int i = 0; i < len; i++) {
                 data[i] ^= ((uint8_t *)cipherKey)[i%4];
