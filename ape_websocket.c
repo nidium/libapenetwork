@@ -171,7 +171,7 @@ static void ape_ws_send_frame(websocket_state *state, int opcode)
     }
 
     if (state->is_client /* Masking */) {
-        uint32_t cipherKey = ape_random32(socket_client->ape);
+        uint32_t cipherKey = ape_random32(state->socket->ape);
 
         APE_socket_write(state->socket, cipherKey, sizeof(uint32_t), APE_DATA_COPY);
     }
