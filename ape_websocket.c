@@ -129,10 +129,10 @@ void ape_ws_write(websocket_state *state, unsigned char *data,
             uint32_t cipherKey = ape_random32(socket_client->ape);
             /* in-place ciphering */
             for (int i = 0; i < len; i++) {
-                data[i] ^= ((uint8_t *)cipherKey)[i%4];
+                data[i] ^= ((uint8_t *)&cipherKey)[i%4];
             }
 
-            APE_socket_write(socket_client, cipherKey, sizeof(uint32_t), APE_DATA_COPY);
+            APE_socket_write(socket_client, &cipherKey, sizeof(uint32_t), APE_DATA_COPY);
         }
         APE_socket_write(socket_client, data, len, data_type);
     FLUSH_TCP(socket_client->s.fd);
@@ -173,7 +173,7 @@ static void ape_ws_send_frame(websocket_state *state, int opcode)
     if (state->is_client /* Masking */) {
         uint32_t cipherKey = ape_random32(state->socket->ape);
 
-        APE_socket_write(state->socket, cipherKey, sizeof(uint32_t), APE_DATA_COPY);
+        APE_socket_write(state->socket, &cipherKey, sizeof(uint32_t), APE_DATA_COPY);
     }
 
     APE_socket_write(state->socket, (void *)payload_head, 2, APE_DATA_COPY);
