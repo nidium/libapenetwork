@@ -170,13 +170,13 @@ static void ape_ws_send_frame(websocket_state *state, int opcode)
         state->close_sent = 1;
     }
 
+    APE_socket_write(state->socket, (void *)payload_head, 2, APE_DATA_COPY);
+
     if (state->is_client /* Masking */) {
         uint32_t cipherKey = ape_random32(state->socket->ape);
 
         APE_socket_write(state->socket, &cipherKey, sizeof(uint32_t), APE_DATA_COPY);
     }
-
-    APE_socket_write(state->socket, (void *)payload_head, 2, APE_DATA_COPY);
 }
 
 static void ape_ws_reset_frame_state(websocket_state *websocket)
