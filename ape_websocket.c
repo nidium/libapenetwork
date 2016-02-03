@@ -32,6 +32,14 @@
 
 #define WS_GUID "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 
+enum {
+    WS_CTRL_FRAME_CLOSE = 0x8,
+    WS_CTRL_FRAME_PING  = 0x9,
+    WS_CTRL_FRAME_PONG  = 0xA
+};
+
+static void ape_ws_send_frame(websocket_state *state, int opcode);
+
 void ape_ws_init(websocket_state *state, int isclient)
 {
     state->socket = NULL;
@@ -121,45 +129,34 @@ void ape_ws_write(ape_socket *socket_client, unsigned char *data,
 
 void ape_ws_close(websocket_state *state)
 {
-    if (state->close_sent) {
-        return;
-    }
-
-    unsigned char payload_head[2] = { 0x88, 0x00 };
-
-    if (state->is_client) {
-        payload_head[1] |= 0x80;
-    }
-
-    state->close_sent = 1;
-    APE_socket_write(state->socket, (void *)payload_head, 2, APE_DATA_STATIC);
+    ape_ws_send_frame(state, WS_CTRL_FRAME_CLOSE);
 }
 
 void ape_ws_ping(websocket_state *state)
 {
-    if (state->close_sent) {
-        return;
-    }
-
-    unsigned char payload_head[2] = { 0x89, 0x00 };
-
-    if (state->is_client) {
-        payload_head[1] |= 0x80;
-    }    
-    
-    APE_socket_write(state->socket, (void *)payload_head, 2, APE_DATA_STATIC);
+    ape_ws_send_frame(state, WS_CTRL_FRAME_PING);
 }
 
 void ape_ws_pong(websocket_state *state)
+{
+    ape_ws_send_frame(state, WS_CTRL_FRAME_PONG);
+}
+
+static void ape_ws_send_frame(websocket_state *state, int opcode)
 {
     if (state->close_sent) {
         return;
     }
 
-    unsigned char payload_head[2] = { 0x8A, 0x00 };
+    /* 0x80 == FIN frame (no continuation frame) */
+    unsigned char payload_head[2] = { 0x80 | opcode, 0x00 };
 
     if (state->is_client) {
         payload_head[1] |= 0x80;
+    }
+
+    if (opcode == WS_CTRL_FRAME_CLOSE) {
+        state->close_sent = 1;
     }
 
     APE_socket_write(state->socket, (void *)payload_head, 2, APE_DATA_STATIC);
@@ -185,13 +182,7 @@ static int ape_ws_process_end_message(websocket_state *websocket)
 
     switch (opcode) {
         case 0x8: /* Close frame */
-            if (!websocket->close_sent) {
-                unsigned char payload_head[2] = { 0x88, 0x00 };
-                APE_socket_write(websocket->socket,
-                    payload_head, 2, APE_DATA_STATIC);
-                websocket->close_sent = 1;
-            }
-            APE_socket_shutdown(websocket->socket);
+            ape_ws_close(websocket);
             retval = 0; /* Don't process anything more */
             break;
         case 0x9: /* Ping frame */
