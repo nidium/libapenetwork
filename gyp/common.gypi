@@ -5,6 +5,14 @@
             ['target_os=="android"', {
                 'defines': ['__ANDROID__', 'ANDROID'],
             }],
+            ['OS=="linux"', {
+                'link_settings': {
+                    'ldflags': [
+                         '-B/usr/lib/gold-ld'
+                        ],
+                    },
+                }
+            ],
         ],
         'cflags': [
            #'-fvisibility=hidden',
