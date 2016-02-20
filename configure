@@ -15,8 +15,6 @@ from konstructor import ROOT
 
 Gyp = Builder.Gyp
 
-Variables.set('product', 'libapenetwork')
-
 DEPEDENCY_REPO = "http://deps.nidium.com"
 
 Platform.setEnviron(
@@ -124,27 +122,26 @@ def module(module):
 
     Deps.set(Deps.Konstruct(module, module + "/configure"))
 
-@CommandLine.option("--unit-tests", default=False)
-def test_network(unitTests):
-    if not unitTests:
+@CommandLine.option("--unit-tests", nargs="?", const="all", default=None)
+@CommandLine.option("--auto-tests", nargs="?", const="all", default=None)
+def testNetwork(unitTests, autoTests):
+    if not unitTests and not autoTests:
         return
+
     head, tail = os.path.split(os.getcwd())
-    product = Variables.get('product', tail);
-    if product == 'libapenetwork':
-        subdir = ''
-    elif product == 'nativejscore':
-        subdir = 'network'
-    elif  product in ['nativeserver', 'nativestudio']:
-        subdir = os.path.join('nativejscore', 'network')
-    else:
-        subdir = os.path.join(os.path.split(head)[-1], tail)
-        Log.error("'Variable.product' is not defined in 'configure' " + subdir)
-    Tests.register(subdir,
-            ["gyp/network-unittests.gyp"],
-            [ "tests/bin/nativenetwork-unittests",
-          #  "tests/bin/nativenetwork_benchmark_new_pool",
-            "tests/bin/nativenetwork_benchmark_timers_next"
-        ])
+    cwd = os.path.dirname(os.path.realpath(__file__))
+
+    #TODO: once the unit tests are more stable' activate this once more:
+    #Builder.Gyp.set("asan", 1)
+    Gyp.set("unit_test", 1)
+    Deps.set("gtest")
+
+    if unitTests and ("network" in unitTests or "all" in unitTests):
+	Tests.register([os.path.join(cwd, test) for test in [
+	    "tests/bin/nativenetwork-unittests",
+	    # "tests/bin/nativenetwork_benchmark_new_pool",
+	    "tests/bin/nativenetwork_benchmark_timers_next"
+	]], builders=[Gyp("%s/gyp/network-unittests.gyp" % cwd)])
 
     @Konstruct.hook("postBuild")
     def runNetworkTest(success):
