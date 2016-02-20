@@ -55,7 +55,7 @@ def openssl():
 def zlip():
     return {
         "location": "http://zlib.net/zlib-1.2.8.tar.gz",
-        "build": ["./configure", "make"],
+        "build": ["./configure --static", "make"],
         "outputs": ["libz.a"]
     }
 
