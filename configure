@@ -133,15 +133,16 @@ def testNetwork(unitTests, autoTests):
 
     #TODO: once the unit tests are more stable' activate this once more:
     #Builder.Gyp.set("asan", 1)
-    Gyp.set("unit_test", 1)
-    Deps.set("gtest")
 
     if unitTests and ("network" in unitTests or "all" in unitTests):
-	Tests.register([os.path.join(cwd, test) for test in [
-	    "tests/bin/nativenetwork-unittests",
-	    # "tests/bin/nativenetwork_benchmark_new_pool",
-	    "tests/bin/nativenetwork_benchmark_timers_next"
-	]], builders=[Gyp("%s/gyp/network-unittests.gyp" % cwd)])
+        Gyp.set("unit_test", 1)
+        Deps.set("gtest")
+
+        Tests.register([os.path.join(cwd, test) for test in [
+            "tests/bin/nativenetwork-unittests",
+            # "tests/bin/nativenetwork_benchmark_new_pool",
+            "tests/bin/nativenetwork_benchmark_timers_next"
+        ]], builders=[Gyp("%s/gyp/network-unittests.gyp" % cwd)])
 
     @Konstruct.hook("postBuild")
     def runNetworkTest(success):
