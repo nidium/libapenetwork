@@ -23,7 +23,10 @@ Platform.setEnviron(
     "LDFLAGS=%s" % (os.environ.get("LDFLAGS", "")),
     "MACOSX_DEPLOYMENT_TARGET=10.7"
 )
-Gyp.setExec("third-party/gyp/gyp")
+
+# We explicitely set "python2.7 gyp_main.py" because "gyp" executable force 
+# the use of "python" which could be 2.7 or 3 and gyp does not work with python3
+Gyp.setExec("python2.7 third-party/gyp/gyp_main.py")
 
 @Deps.register("gyp")
 def gyp():
