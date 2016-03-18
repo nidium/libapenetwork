@@ -138,11 +138,11 @@ def testNetwork(unitTests, autoTests):
         Gyp.set("unit_test", 1)
         Deps.set("gtest")
 
-        Tests.register([os.path.join(cwd, test) for test in [
+        Tests.register([
             "tests/bin/nativenetwork-unittests",
             # "tests/bin/nativenetwork_benchmark_new_pool",
             "tests/bin/nativenetwork_benchmark_timers_next"
-        ]], builders=[Gyp("%s/gyp/network-unittests.gyp" % cwd)])
+        ], builders=[Gyp("%s/gyp/network-unittests.gyp" % cwd)])
 
     @Konstruct.hook("postBuild")
     def runNetworkTest(success):
