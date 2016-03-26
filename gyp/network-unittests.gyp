@@ -1,10 +1,9 @@
 {
     'targets': [
     {
-        'target_name': 'nativenetwork-unittests-settings',
+        'target_name': 'unittests-settings',
         'type': 'none',
         'direct_dependent_settings': {
-            'product_dir': '../tests/bin/',
             'include_dirs': [
                  '<(third_party_path)/gtest/include',
              ],
@@ -33,8 +32,9 @@
     {
         'target_name': 'nativenetwork-unittests',
         'type': 'executable',
+        'product_dir': '<(native_tests_output)',
         'dependencies': [
-            'network-unittests.gyp:nativenetwork-unittests-settings',
+            'network-unittests.gyp:unittests-settings',
             'network.gyp:*',
         ],
         'sources': [
@@ -59,9 +59,9 @@
     {
         'target_name': 'nativenetwork_benchmark_new_pool',
         'type': 'executable',
-        'product_dir': '../tests/bin/',
+        'product_dir': '<(native_tests_output)',
         'dependencies': [
-            'network-unittests.gyp:nativenetwork-unittests-settings',
+            'network-unittests.gyp:unittests-settings',
             'network.gyp:*',
         ],
         'sources': [
@@ -71,9 +71,9 @@
     {
         'target_name': 'nativenetwork_benchmark_timers_next',
         'type': 'executable',
-        'product_dir': '../tests/bin/',
+        'product_dir': '<(native_tests_output)',
         'dependencies': [
-            'network-unittests.gyp:nativenetwork-unittests-settings',
+            'network-unittests.gyp:unittests-settings',
             'network.gyp:*',
         ],
         'sources': [
