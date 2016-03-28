@@ -142,9 +142,9 @@ def testNetwork(unitTests, autoTests):
         Deps.set("gtest")
 
         Tests.register([
-            "tests/bin/nativenetwork-unittests",
-            # "tests/bin/nativenetwork_benchmark_new_pool",
-            "tests/bin/nativenetwork_benchmark_timers_next"
+            "build/tests/nativenetwork-unittests",
+            # "build/tests/nativenetwork_benchmark_new_pool",
+            "build/tests/nativenetwork_benchmark_timers_next"
         ], builders=[Gyp("%s/gyp/network-unittests.gyp" % cwd)])
 
     @Konstruct.hook("postBuild")
