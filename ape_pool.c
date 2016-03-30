@@ -21,27 +21,38 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-ape_pool_t *ape_new_pool(size_t size, size_t n)
+ape_pool_t *ape_new_pool(size_t size, const size_t n)
 {
-    unsigned int i;
-    
+    size_t i;
+    const size_t stop = n - 1;
+    ape_pool_t * pool, *current;
+
     if (size == 0) {
         size = sizeof(ape_pool_t);
+    } else if ( n == 0 ) {
+        return NULL;
+    } else if (size < sizeof(ape_pool_t) ) {
+        return NULL;
     }
-
-    ape_pool_t *pool = malloc(size * n), *current = NULL;
+    if (n == 0) {
+        return NULL;
+    }
+    current = pool = malloc(size * n);
     pool->prev = NULL;
-
-    for (i = 0; i < n; i++) {
-        current            = (ape_pool_t*)(((char *)&pool[0])+(i*size));
-        /* contiguous blocks */
-        current->next      = (i == n-1 ? NULL : (ape_pool_t*)(((char *)&pool[0])+((i+1)*size)));
+    i = 0;
+    while(current != NULL) {
         current->ptr.data  = NULL;
-        current->flags     = (i == 0 ? APE_POOL_ALLOC : 0);
-        if (current->next) {
+        current->flags = 0;
+        if (i == stop) {
+            current = current->next = NULL;
+        } else {
+            i++;
+            current->next = (ape_pool_t*) (( (char *)&pool[0]) + (i * size));
             current->next->prev = current;
+            current = current->next;
         }
     }
+    pool->flags = APE_POOL_ALLOC;
 
     return pool;
 }
