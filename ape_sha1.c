@@ -17,6 +17,10 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *  MA  02110-1301  USA
  */
+#include <string.h>
+#include <stdio.h>
+
+#include "ape_sha1.h"
 /*
  *  The SHA-1 standard was published by NIST in 1993.
  *
@@ -24,12 +28,7 @@
  */
 
 
-#include <string.h>
-#include <stdio.h>
-
-#include "ape_sha1.h"
-
-/* 
+/*
  * 32-bit integer manipulation macros (big endian)
  */
 #ifndef GET_UINT32_BE
