@@ -24,6 +24,19 @@ TEST(Buffer, Simple)
 	buffer_destroy(buf);
 }
 
+TEST(Buffer, Init)
+{
+	buffer buf;
+
+	buffer_init(&buf);
+
+	EXPECT_TRUE(buf.data == NULL);
+	EXPECT_EQ(buf.pos, 0);
+	EXPECT_EQ(buf.used, 0);
+	EXPECT_EQ(buf.size, 0);
+
+}
+
 TEST(Buffer, Append)
 {
 	char * text;
