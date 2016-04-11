@@ -42,7 +42,7 @@ def gyp():
 @Deps.register("c-ares")
 def cares():
     return {
-        "location": DEPEDENCY_REPO + "/c-ares-1.9.1.tar.gz",
+        "location": "http://c-ares.haxx.se/download/c-ares-1.11.0.tar.gz",
         "build": ["./configure", "make"],
         "outputs": [".libs/libcares.a"]
     }
