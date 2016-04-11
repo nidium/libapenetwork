@@ -38,7 +38,7 @@ Gyp.setExec("python2.7 third-party/gyp/gyp_main.py")
 @Deps.register("gyp")
 def gyp():
     return {
-        "location": Deps.GitRepo("https://chromium.googlesource.com/external/gyp", branch="master")
+        "location": Deps.GitRepo("https://chromium.googlesource.com/external/gyp", revision="4ec6c4e3a94bd04a6da2858163d40b2429b8aad1")
     }
 
 @Deps.register("c-ares")
@@ -80,7 +80,7 @@ def gperftools():
 @Deps.register("gtest")
 def gtest():
     return {
-        "location": Deps.GitRepo("https://github.com/google/googletest.git", branch="master"),
+        "location": Deps.GitRepo("https://github.com/google/googletest.git", revision="d225acc90bc3a8c420a9bcd1f033033c1ccd7fe0"),
         "build": ["cmake .", "make"],
         "outputs": ["googlemock/libgmock.a", "googlemock/libgmock_main.a", "googlemock/gtest/libgtest.a", "googlemock/gtest/libgtest_main.a"]
     }
