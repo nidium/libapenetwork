@@ -123,7 +123,7 @@ void native_netlib_destroy(ape_global * ape)
     //  destroying events
     events_destroy(&ape->events);
     // destroying timers
-    del_timers_all(&ape->timersng);
+    APE_timers_destroy_all(ape);
 
 #ifdef _HAVE_SSL_SUPPORT
     if (ape->ssl_global_ctx) {

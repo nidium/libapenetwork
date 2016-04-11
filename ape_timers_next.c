@@ -11,6 +11,38 @@
 
 static void process_async(ape_timers *timers);
 static void del_async_all(ape_timers *timers);
+static ape_timer_t *ape_timer_destroy(ape_timers *timers, ape_timer_t *timer);
+
+struct _ape_timer_t
+{
+    uint64_t identifier;
+    int flags;
+    uint64_t ticks_needs;
+    uint64_t schedule;
+    int nexec;
+    APE_timer_callback_t callback;
+    APE_timer_callback_t clearfunc;
+    void *arg;
+
+    struct {
+        unsigned int nexec;
+        unsigned int max;
+        unsigned int min;
+        unsigned int totaltime;
+    } stats;
+
+    struct _ape_timer_t *next;
+    struct _ape_timer_t *prev;
+};
+
+struct _ape_timer_async_t
+{
+    APE_timer_callback_t callback;
+    APE_timer_callback_t clearfunc;
+
+    void *arg;
+    struct _ape_timer_async_t *next;
+};
 
 #if defined(__APPLE__)
   #include <mach/mach_time.h>
@@ -95,9 +127,11 @@ static __inline uint64_t mach_absolute_time()
 #endif
 #endif
 
-int process_timers(ape_timers *timers)
+int ape_timers_process(ape_global *ape_ctx)
 {
-    ape_timer *cur = timers->head;
+    ape_timers *timers = &ape_ctx->timersng;
+
+    ape_timer_t *cur = timers->head;
     uint64_t inums = UINT64_MAX, lastsample = 0;
 
     process_async(timers);
@@ -107,7 +141,7 @@ int process_timers(ape_timers *timers)
         uint64_t start;
 
         if (cur->flags & APE_TIMER_IS_CLEARED) {
-            cur = del_timer(timers, cur);
+            cur = ape_timer_destroy(timers, cur);
             continue;
         }
 
@@ -122,7 +156,7 @@ int process_timers(ape_timers *timers)
             if (ret == -1) {
                 cur->schedule = start + cur->ticks_needs;
             } else if (ret == 0) {
-                cur = del_timer(timers, cur);
+                cur = ape_timer_destroy(timers, cur);
                 continue;
             } else {
                 cur->ticks_needs = ret * 1000000;
@@ -167,7 +201,7 @@ int process_timers(ape_timers *timers)
 
 static void process_async(ape_timers *timers)
 {
-    ape_async *cur = timers->head_async;
+    ape_timer_async_t *cur = timers->head_async;
 
     /*
         Don't put this after the loop in the
@@ -176,7 +210,7 @@ static void process_async(ape_timers *timers)
     timers->head_async = NULL;
 
     while (cur != NULL) {
-        ape_async *ctmp = cur->next;
+        ape_timer_async_t *ctmp = cur->next;
         
         cur->callback(cur->arg);
         cur->clearfunc(cur->arg);
@@ -187,9 +221,11 @@ static void process_async(ape_timers *timers)
 
 }
 
-ape_timer *get_timer_by_id(ape_timers *timers, uint64_t identifier)
+ape_timer_t *APE_timer_getbyid(ape_global *ape_ctx, uint64_t identifier)
 {
-    ape_timer *cur;
+    ape_timer_t *cur;
+    ape_timers *timers = &ape_ctx->timersng;
+
     for (cur = timers->head; cur != NULL; cur = cur->next) {
         if (cur->identifier == identifier) {
             return cur;
@@ -198,9 +234,21 @@ ape_timer *get_timer_by_id(ape_timers *timers, uint64_t identifier)
     return NULL;
 }
 
-void clear_timer_by_id(ape_timers *timers, uint64_t identifier, int force)
+void *APE_timer_getarg(ape_timer_t *timer)
 {
-    ape_timer *cur;
+    return timer->arg;
+}
+
+uint64_t APE_timer_getid(ape_timer_t *timer)
+{
+    return timer->identifier;
+}
+
+void APE_timer_clearbyid(ape_global *ape_ctx, uint64_t identifier, int force)
+{
+    ape_timer_t *cur;
+    ape_timers *timers = &ape_ctx->timersng;
+
     for (cur = timers->head; cur != NULL; cur = cur->next) {
         if (cur->identifier == identifier) {
             if (!(cur->flags & APE_TIMER_IS_PROTECTED) ||
@@ -213,13 +261,14 @@ void clear_timer_by_id(ape_timers *timers, uint64_t identifier, int force)
     }   
 }
 
-void del_timers_unprotected(ape_timers *timers)
+void APE_timers_destroy_unprotected(ape_global *ape_ctx)
 {
-    ape_timer *cur = timers->head;
+    ape_timers *timers = &ape_ctx->timersng;
+    ape_timer_t *cur = timers->head;
 
     while (cur != NULL) {
         if (!(cur->flags & APE_TIMER_IS_PROTECTED)) {
-            cur = del_timer(timers, cur);
+            cur = ape_timer_destroy(timers, cur);
             continue;
         }
 
@@ -229,12 +278,13 @@ void del_timers_unprotected(ape_timers *timers)
     del_async_all(timers);
 }
 
-void del_timers_all(ape_timers *timers)
+void APE_timers_destroy_all(ape_global *ape_ctx)
 {
-    ape_timer *cur = timers->head;
+    ape_timers *timers = &ape_ctx->timersng;
+    ape_timer_t *cur = timers->head;
 
     while (cur != NULL) {
-        cur = del_timer(timers, cur);
+        cur = ape_timer_destroy(timers, cur);
     }
 
     del_async_all(timers);
@@ -242,12 +292,12 @@ void del_timers_all(ape_timers *timers)
 
 static void del_async_all(ape_timers *timers)
 {
-    ape_async *async = timers->head_async;
+    ape_timer_async_t *async = timers->head_async;
 
     timers->head_async = NULL;
 
     while (async != NULL) {
-        ape_async *tmp = async->next;
+        ape_timer_async_t *tmp = async->next;
         async->clearfunc(async->arg);
         free(async);
 
@@ -256,9 +306,9 @@ static void del_async_all(ape_timers *timers)
 }
 
 /* delete *timer* and returns *timer->next* */
-ape_timer *del_timer(ape_timers *timers, ape_timer *timer)
+static ape_timer_t *ape_timer_destroy(ape_timers *timers, ape_timer_t *timer)
 {
-    ape_timer *ret;
+    ape_timer_t *ret;
 
     if (timer->prev == NULL) {
         timers->head = timer->next;
@@ -279,7 +329,14 @@ ape_timer *del_timer(ape_timers *timers, ape_timer *timer)
     return ret;
 }
 
-void timer_stats_print(ape_timer *timer)
+void APE_timer_destroy(ape_global *ape_ctx, ape_timer_t *timer)
+{
+    ape_timers *timers = &ape_ctx->timersng;
+
+    (void)ape_timer_destroy(timers, timer);
+}
+
+void ape_timer_stats_print(ape_timer_t *timer)
 {
     printf("%zd\t\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n", timer->identifier,
         timer->stats.nexec,
@@ -290,20 +347,23 @@ void timer_stats_print(ape_timer *timer)
             timer->stats.totaltime/timer->stats.nexec));
 }
 
-void timers_stats_print(ape_timers *timers)
+void ape_timers_stats_print(ape_global *ape_ctx)
 {
-    ape_timer *cur;
+    ape_timer_t *cur;
+    ape_timers *timers = &ape_ctx->timersng;
+
     printf("=======================\n");
     printf("Id\t\ttimes\texec\t\tmax\t\tmin\t\tavg\n");
     for (cur = timers->head; cur != NULL; cur = cur->next) {
-        timer_stats_print(cur);
+        ape_timer_stats_print(cur);
     }
     printf("=======================\n");
 }
 
-ape_async *add_async(ape_timers *timers, timer_callback cb, void *arg)
+ape_timer_async_t *APE_async(ape_global *ape_ctx, APE_timer_callback_t cb, void *arg)
 {
-    ape_async *async = (ape_async *)malloc(sizeof(ape_async));
+    ape_timer_async_t *async = (ape_timer_async_t *)malloc(sizeof(ape_timer_async_t));
+    ape_timers *timers = &ape_ctx->timersng;
 
     async->callback = cb;
     async->clearfunc = NULL;
@@ -315,12 +375,14 @@ ape_async *add_async(ape_timers *timers, timer_callback cb, void *arg)
     return async;
 }
 
-ape_timer *add_timer(ape_timers *timers, int ms, timer_callback cb, void *arg)
+ape_timer_t *APE_timer_create(ape_global *ape_ctx, int ms, APE_timer_callback_t cb, void *arg)
 {
+    ape_timers *timers = &ape_ctx->timersng;
+
     if (cb == NULL || timers == NULL) {
         return NULL;
     }
-    ape_timer *timer = (ape_timer *)malloc(sizeof(ape_timer));
+    ape_timer_t *timer = (ape_timer_t *)malloc(sizeof(ape_timer_t));
     timers->last_identifier++;
     timer->callback = cb;
     timer->ticks_needs = (uint64_t)ms * 1000000LL;
@@ -346,8 +408,10 @@ ape_timer *add_timer(ape_timers *timers, int ms, timer_callback cb, void *arg)
     return timer;
 }
 
-void set_timer_to_low_resolution(ape_timers *timers, int low)
+void APE_timer_setlowresolution(ape_global *ape_ctx, int low)
 {
+    ape_timers *timers = &ape_ctx->timersng;
+
     timers->run_in_low_resolution = low;
 }
 

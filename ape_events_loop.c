@@ -124,7 +124,7 @@ event_loop:
                 break;
             }
         }
-        nexttimeout = process_timers(&ape->timersng);
+        nexttimeout = ape_timers_process(ape);
     }
 
     if (ape->is_running && ape->kill_handler && ape->kill_handler(0, ape)) {
