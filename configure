@@ -33,10 +33,12 @@ Platform.setEnviron(
 # the use of "python" which could be 2.7 or 3 and gyp does not work with python3
 Gyp.setExec("python2.7 third-party/gyp/gyp_main.py")
 
+###
+
 @Deps.register("gyp")
 def gyp():
     return {
-        "location": Deps.SvnRepo("http://gyp.googlecode.com/svn/trunk/", revision=1967)
+        "location": Deps.GitRepo("https://chromium.googlesource.com/external/gyp", branch="master")
     }
 
 @Deps.register("c-ares")
