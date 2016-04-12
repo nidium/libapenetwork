@@ -33,16 +33,18 @@ Platform.setEnviron(
 # the use of "python" which could be 2.7 or 3 and gyp does not work with python3
 Gyp.setExec("python2.7 third-party/gyp/gyp_main.py")
 
+###
+
 @Deps.register("gyp")
 def gyp():
     return {
-        "location": Deps.SvnRepo("http://gyp.googlecode.com/svn/trunk/", revision=1967)
+        "location": Deps.GitRepo("https://chromium.googlesource.com/external/gyp", revision="4ec6c4e3a94bd04a6da2858163d40b2429b8aad1")
     }
 
 @Deps.register("c-ares")
 def cares():
     return {
-        "location": DEPEDENCY_REPO + "/c-ares-1.9.1.tar.gz",
+        "location": "http://c-ares.haxx.se/download/c-ares-1.11.0.tar.gz",
         "build": ["./configure", "make"],
         "outputs": [".libs/libcares.a"]
     }
@@ -54,7 +56,7 @@ def openssl():
         configure = "./Configure darwin64-x86_64-cc -no-shared"
 
     return {
-        "location": DEPEDENCY_REPO + "/openssl-1.0.1g.tar.gz",
+        "location": "https://github.com/openssl/openssl/archive/OpenSSL_1_0_1s.tar.gz",
         "build": [configure, "make build_crypto", "make build_ssl"],
         "outputs": ["libssl(.a|.lib)", "libcrypto(.a|.lib)"]
     }
@@ -70,17 +72,17 @@ def zlip():
 @Deps.register("gperftools")
 def gperftools():
     return {
-        "location": "https://googledrive.com/host/0B6NtGsLhIcf7MWxMMF9JdTN3UVk/gperftools-2.2.1.zip",
-        "build": ["autoconf", "chmod +x ./configure", "./configure", "make"],
+        "location": "https://github.com/gperftools/gperftools/releases/download/gperftools-2.5/gperftools-2.5.tar.gz",
+        "build": ["autoconf", "chmod +x ./configure", "./configure --enable-static --enable-shared", "make"],
         "outputs": [[".libs/libprofiler.so.0$", "libprofiler.so"], {"src": "src/pprof", "dest": "../../tools/pprof"}]
     }
 
 @Deps.register("gtest")
 def gtest():
     return {
-        "location": Deps.GitRepo("https://github.com/google/googletest.git", tag="release-1.7.0"),
+        "location": Deps.GitRepo("https://github.com/google/googletest.git", revision="d225acc90bc3a8c420a9bcd1f033033c1ccd7fe0"),
         "build": ["cmake .", "make"],
-        "outputs": ["libgtest.a", "libgtest_main.a"]
+        "outputs": ["googlemock/libgmock.a", "googlemock/libgmock_main.a", "googlemock/gtest/libgtest.a", "googlemock/gtest/libgtest_main.a"]
     }
 
 #####

@@ -9,7 +9,7 @@
         'type': 'none',
         'direct_dependent_settings': {
             'include_dirs': [
-                 '<(third_party_path)/gtest/include',
+                 '<(third_party_path)/gtest/googletest/include',
              ],
             'conditions': [
                 ['OS=="linux"', {
