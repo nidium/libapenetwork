@@ -16,8 +16,8 @@
 extern "C" {
 #endif
 
-ape_global *native_netlib_init();
-void native_netlib_destroy(ape_global *ape);
+ape_global *APE_init();
+void APE_destroy(ape_global *ape);
 
 #ifdef __cplusplus
 }
