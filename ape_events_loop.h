@@ -12,7 +12,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-void events_loop(ape_global *ape);
+
+
+void APE_loop_run(ape_global *ape);
+void APE_loop_stop();
+
 #ifdef __cplusplus
 }
 #endif

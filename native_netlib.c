@@ -34,7 +34,9 @@
 #include <WinSock2.h>
 #endif
 
-ape_global *native_netlib_init()
+int ape_running = 1;
+
+ape_global *APE_init()
 {
     ape_global *ape;
     struct _fdevent *fdev;
@@ -100,7 +102,7 @@ ape_global *native_netlib_init()
     return ape;
 }
 
-void native_netlib_destroy(ape_global * ape)
+void APE_destroy(ape_global * ape)
 {
     //  destroying dns
     struct _ares_sockets *as;

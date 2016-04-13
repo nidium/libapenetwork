@@ -18,7 +18,12 @@
 
 extern int ape_running;
 
-void events_loop(ape_global *ape)
+void APE_loop_stop()
+{
+    ape_running = 0;
+}
+
+void APE_loop_run(ape_global *ape)
 {
     int nfd, fd, bitev;
 
