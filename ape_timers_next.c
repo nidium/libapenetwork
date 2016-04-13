@@ -199,6 +199,31 @@ int ape_timers_process(ape_global *ape_ctx)
     return ape_max((timers->run_in_low_resolution ? 100 : 1), (int)((inums-lastsample+500000)/1000000));
 }
 
+int APE_timer_getflags(ape_timer_t *timer)
+{
+    return timer->flags;
+}
+
+void APE_timer_setflags(ape_timer_t *timer, int flags)
+{
+    timer->flags = flags;
+}
+
+void APE_timer_unprotect(ape_timer_t *timer)
+{
+    timer->flags &= ~APE_TIMER_IS_PROTECTED;
+}
+
+void APE_timer_setclearfunc(ape_timer_t *timer, APE_timer_callback_t cb)
+{
+    timer->clearfunc = cb;
+}
+
+void APE_async_setclearfunc(ape_timer_async_t *async, APE_timer_callback_t cb)
+{
+    async->clearfunc = cb;
+}
+
 static void process_async(ape_timers *timers)
 {
     ape_timer_async_t *cur = timers->head_async;

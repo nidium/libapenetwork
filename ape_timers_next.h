@@ -44,10 +44,15 @@ void APE_timers_destroy_unprotected(ape_global *ape_ctx);
 void APE_timers_destroy_all(ape_global *ape_ctx);
 void APE_timer_clearbyid(ape_global *ape_ctx, uint64_t identifier, int force);
 void APE_timer_setlowresolution(ape_global *ape_ctx, int low);
+void APE_timer_setflags(ape_timer_t *timer, int flags);
+int  APE_timer_getflags(ape_timer_t *timer);
+void APE_timer_unprotect(ape_timer_t *timer);
+void APE_timer_setclearfunc(ape_timer_t *timer, APE_timer_callback_t cb);
 
 void *APE_timer_getarg(ape_timer_t *timer);
 
 ape_timer_async_t *APE_async(ape_global *ape_ctx, APE_timer_callback_t cb, void *arg);
+void APE_async_setclearfunc(ape_timer_async_t *async, APE_timer_callback_t cb);
 
 int ape_timers_process(ape_global *ape_ctx);
 void ape_timer_stats_print(ape_timer_t *timer);
@@ -58,7 +63,7 @@ void ape_timers_stats_print(ape_global *ape_ctx);
 #endif
 
 #define timer_dispatch_async(callback, params) APE_timer_create(ape, 0, callback, params)
-#define timer_dispatch_async_unprotected(callback, params) APE_timer_create(ape, 0, callback, params)->flags &= ~APE_TIMER_IS_PROTECTED
+#define timer_dispatch_async_unprotected(callback, params) APE_timer_unprotect(APE_timer_create(ape, 0, callback, params))
 
 
 #endif
