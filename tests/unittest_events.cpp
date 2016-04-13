@@ -27,12 +27,12 @@ TEST(Events, Init)
 {
 	ape_global * g_ape;
 
-	g_ape = NULL;
-	g_ape = native_netlib_init();
+
+	g_ape = APE_init();
 	EXPECT_TRUE(g_ape->events.basemem > 0);
 	EXPECT_EQ(g_ape->events.nfd, 0);
 	EXPECT_TRUE(g_ape->events.handler != 0);
 
-	native_netlib_destroy(g_ape);
+	APE_destroy(g_ape);
 }
 

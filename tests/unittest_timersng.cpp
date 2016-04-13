@@ -10,6 +10,7 @@
 #include "unittest.h"
 
 #include <native_netlib.h>
+#include <ape_events_loop.h>
 
 static int counter;
 
@@ -39,7 +40,7 @@ static int shutdown_loop_on_timeout(void *param)
 		counter--;
 	}
 	if (counter == 0) {
-		ape_running = 0;
+		APE_loop_stop();
 	}
 	return 10;
 }
@@ -54,7 +55,7 @@ TEST(TimersNg, Timer)
 	val1 = 20;
 	val2 = 10;
 
-	g_ape = native_netlib_init();
+	g_ape = APE_init();
 
 	// see if we can find some none exisiting id
 	dummy = APE_timer_getbyid(g_ape, 1);
@@ -92,7 +93,7 @@ TEST(TimersNg, Timer)
 	EXPECT_EQ(APE_timer_getid(timer2), 3);
 
 	ape_running = g_ape->is_running = 0;
-	events_loop(g_ape);
+	APE_loop_run(g_ape);
 
 	//all timers should be clear
 	dummy = APE_timer_getbyid(g_ape, 2);
@@ -108,7 +109,7 @@ TEST(TimersNg, Timer)
 	dummy = APE_timer_getbyid(g_ape, 5);
 	EXPECT_TRUE(dummy == timer1);
 
-	native_netlib_destroy(g_ape);
+	APE_destroy(g_ape);
 
 }
 
@@ -119,7 +120,7 @@ TEST(TimersNg, Interval)
 	int val;
 
 	val = 199;
-	g_ape = native_netlib_init();
+	g_ape = APE_init();
 
 	// let's add a timeout
 	interval = APE_timer_create(g_ape, 1, shutdown_loop_on_timeout, &val);
@@ -127,13 +128,13 @@ TEST(TimersNg, Interval)
 	
 	counter = 200;
 	ape_running = 1;
-	events_loop(g_ape);
+	APE_loop_run(g_ape);
 
 	//all timers should be clear
 	dummy = APE_timer_getbyid(g_ape, 2);
 	EXPECT_TRUE(dummy == NULL);
 	
-	native_netlib_destroy(g_ape);
+	APE_destroy(g_ape);
 
 }
 

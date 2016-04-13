@@ -9,14 +9,14 @@
 #include <native_netlib.h>
 #include <ape_dns.h>
 
-int ape_running;
+
 ape_global * g_ape;
 
 #define MIN_TIMEOUT 8
 
 static int resolve_cb(const char *ip, void * arg, int status)
 {
-	ape_running = 0;
+	APE_loop_stop();
 	return 1;
 }
 
@@ -32,8 +32,7 @@ int main(const int argc, const char **argv)
 {
 	int minTime, resolve;
 
-	g_ape = native_netlib_init();
-	g_ape->is_running = ape_running = 1;
+	g_ape = APE_init();
 
 	resolve = 0;
 	if (argc == 1) {
@@ -50,11 +49,11 @@ int main(const int argc, const char **argv)
 	printf("starting interval with %d with%s resolving\n", minTime, (resolve)?"":"out");
 	ape_gethostbyname("nidium.com", resolve_cb, NULL, g_ape);
 	if (resolve){
-		add_timer(&g_ape->timersng, minTime, interval_cb, &minTime);
+		APE_timer_create(g_ape, minTime, interval_cb, &minTime);
 	}
 	
-	events_loop(g_ape);
-	native_netlib_destroy(g_ape);
+	APE_loop_run(g_ape);
+	APE_destroy(g_ape);
 
 	return 0;
 }

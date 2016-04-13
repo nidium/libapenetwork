@@ -17,6 +17,7 @@ void ape_ssl_library_init()
 
 void ape_ssl_library_destroy()
 {
+    return;
     FIPS_mode_set(0);
     ENGINE_cleanup();
     CONF_modules_unload(1);

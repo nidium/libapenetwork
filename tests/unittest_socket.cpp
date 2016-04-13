@@ -45,7 +45,7 @@ TEST(Socket, Simple)
 	int proto;
 
 	proto = APE_SOCKET_PT_TCP;
-	g_ape = native_netlib_init();
+	g_ape = APE_init();
 	ape_running = g_ape->is_running = 0;
 	socket = NULL;
 
@@ -73,6 +73,6 @@ TEST(Socket, Simple)
 	ret = ape_socket_destroy(socket);
 	EXPECT_EQ(ret, 0);
 
-	native_netlib_destroy(g_ape);
+	APE_destroy(g_ape);
 }
 
