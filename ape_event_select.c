@@ -22,13 +22,7 @@
 
 #ifdef USE_SELECT_HANDLER
 
-#ifndef MIN_TIMEOUT_MS
-# ifdef DEBUG_EVENT_SELECT
-#  define MIN_TIMEOUT_MS        1
-# else
-#  define MIN_TIMEOUT_MS        150
-# endif
-#endif
+#define MIN_TIMEOUT_MS 1
 
 enum {
     kWatchForRead_Event  = 1 << 0,
@@ -72,7 +66,7 @@ static int event_select_add(struct _fdevent *ev,
 
     hashtbl_append64(ev->fdhash, fd, fdinfo);
 
-    printf("[++++] added %d\n", fd);
+    printf("[++++] added fd %d\n", fd);
 
     return 1;
 }
@@ -87,7 +81,6 @@ static int event_select_del(struct _fdevent *ev, int fd)
 static int event_select_mod(struct _fdevent *ev,
     ape_event_descriptor *evd, int bitadd)
 {
-    
     select_fdinfo_t *fdinfo;
 
     fdinfo = hashtbl_seek64(ev->fdhash, evd->fd);
@@ -265,6 +258,7 @@ int event_select_init(struct _fdevent *ev)
     ev->revent            = event_select_revent;
     ev->reload            = event_select_reload;
     ev->setsize           = event_select_setsize;
+    ev->mod               = event_select_mod;
 
     printf("select() started with %i slots\n", ev->basemem);
 
