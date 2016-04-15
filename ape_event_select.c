@@ -47,9 +47,11 @@ typedef struct select_fdinfo_t
     char watchfor:8;
 } select_fdinfo_t;
 
-static int event_select_add(struct _fdevent *ev, int fd, int bitadd,
-        void *attach)
+static int event_select_add(struct _fdevent *ev,
+    ape_event_descriptor *evd, int bitadd)
 {
+    int fd = evd->fd;
+
     if (fd < 0 || fd > FD_SETSIZE) {
         printf("cant add event %d\n", fd);
         return -1;
@@ -57,7 +59,7 @@ static int event_select_add(struct _fdevent *ev, int fd, int bitadd,
 
     select_fdinfo_t *fdinfo = malloc(sizeof(select_fdinfo_t));
     fdinfo->fd = fd;
-    fdinfo->ptr = attach;
+    fdinfo->ptr = evd;
     fdinfo->watchfor = 0;
   
     if (bitadd & EVENT_READ) {
@@ -78,6 +80,32 @@ static int event_select_add(struct _fdevent *ev, int fd, int bitadd,
 static int event_select_del(struct _fdevent *ev, int fd)
 {
     hashtbl_erase64(ev->fdhash, fd);
+
+    return 1;
+}
+
+static int event_select_mod(struct _fdevent *ev,
+    ape_event_descriptor *evd, int bitadd)
+{
+    
+    select_fdinfo_t *fdinfo;
+
+    fdinfo = hashtbl_seek64(ev->fdhash, evd->fd);
+
+    if (!fdinfo) {
+        printf("event_select_mod() : failed to find current fd\n");
+        return 0;
+    }
+
+    fdinfo->watchfor = 0;
+  
+    if (bitadd & EVENT_READ) {
+        fdinfo->watchfor |= kWatchForRead_Event;
+    }
+
+    if (bitadd & EVENT_WRITE) {
+        fdinfo->watchfor |= kWatchForWrite_Event;
+    }
 
     return 1;
 }
@@ -171,9 +199,9 @@ static int event_select_poll(struct _fdevent *ev, int timeout_ms)
     return i;
 }
 
-static void *event_select_get_fd(struct _fdevent *ev, int i)
+static ape_event_descriptor *event_select_get_evd(struct _fdevent *ev, int i)
 {
-    return ev->events[i]->ptr;
+    return (ape_event_descriptor *)ev->events[i]->ptr;
 }
 
 static int event_select_revent(struct _fdevent *ev, int i)
@@ -233,7 +261,7 @@ int event_select_init(struct _fdevent *ev)
     ev->add               = event_select_add;
     ev->del               = event_select_del;
     ev->poll              = event_select_poll;
-    ev->get_current_fd    = event_select_get_fd;
+    ev->get_current_evd   = event_select_get_evd;
     ev->revent            = event_select_revent;
     ev->reload            = event_select_reload;
     ev->setsize           = event_select_setsize;
