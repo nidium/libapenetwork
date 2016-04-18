@@ -8,6 +8,8 @@
 
 #define __APE_PORT_WINDOWS_H
 
+#include <winsock2.h>
+
 #if defined(_WIN64)
   #define ssize_t __int64
 #else
@@ -18,6 +20,7 @@
 #define strcasecmp _stricmp
 
 typedef int socklen_t;
+typedef const char sockopt_t;
 
 #define sclose(x)  closesocket((x))
 #define swrite(fd, data, bytes) send(fd, (char *)data, bytes, 0)
@@ -103,13 +106,5 @@ typedef int socklen_t;
 #define ESTALE           WSAESTALE
 #define EREMOTE          WSAEREMOTE
 
-
-long int writev(int fd, const struct iovec* vector, int count)
-{
-    DWORD sent;
-    int ret = WSASend(fd, (LPWSABUF)vector, count, &sent, 0, 0, 0);
-
-    return sent;
-}
 
 #endif

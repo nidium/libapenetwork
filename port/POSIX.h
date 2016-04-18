@@ -16,4 +16,6 @@
 #define SOCKERRNO         (errno)
 #define SET_SOCKERRNO(x)  (errno = (x))
 
+typedef int sockopt_t;
+
 #endif

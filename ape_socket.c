@@ -26,7 +26,6 @@
 
 #ifdef _MSC_VER
   #include <ares.h>
-  #include "port\windows.h"
 #else
   #include "ares.h"
 #endif
@@ -47,6 +46,15 @@ static int ape_socket_free(void *arg);
 static int ape_shutdown(ape_socket *socket, int rw);
 static int ape_socket_destroy_async(ape_socket *socket);
 
+#ifdef _MSC_VER
+long int writev(int fd, const struct iovec* vector, int count)
+{
+    DWORD sent;
+    int ret = WSASend(fd, (LPWSABUF)vector, count, &sent, 0, 0, 0);
+
+    return sent;
+}
+#endif
 
 /*
 Use only one syscall (ioctl) if FIONBIO is defined
@@ -64,6 +72,9 @@ either ioctl(...FIONBIO...) or fcntl(...O_NONBLOCK...)
     #define setnonblocking(fd) fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NONBLOCK)
 #endif
 
+#ifndef SHUT_RDWR
+  #define SHUT_RDWR 2
+#endif
 
 int _nco = 0, _ndec = 0;
 
@@ -169,7 +180,7 @@ void APE_socket_setBufferMaxSize(ape_socket *socket, size_t MB)
     socket->max_buffer_memory_mb = MB;
 }
 
-int APE_socket_setTimeout(ape_socket *socket, int secs)
+int APE_socket_setTimeout(ape_socket *socket, sockopt_t secs)
 {
     if (socket->states.proto == APE_SOCKET_PT_UDP) {
         return 0;
@@ -186,7 +197,7 @@ int APE_socket_setTimeout(ape_socket *socket, int secs)
 #ifndef SO_KEEPALIVE
     #error "TCP KeepAlive not supported"
 #endif
-    int enable = 1;
+    sockopt_t enable = 1;
 
     if (setsockopt(socket->s.fd, SOL_SOCKET, SO_KEEPALIVE, &enable, sizeof(enable)) == -1) {
         fprintf(stderr, "Failed to set socket timeout (SO_KEEPALIVE) : error %d %s\n", errno, strerror(errno));
@@ -198,14 +209,14 @@ int APE_socket_setTimeout(ape_socket *socket, int secs)
         return 0;
     }
 #ifdef TCP_KEEPINTVL
-    int keepintvl = 5;
+    sockopt_t keepintvl = 5;
     if (setsockopt(socket->s.fd, IPPROTO_TCP, TCP_KEEPINTVL, &keepintvl, sizeof(keepintvl)) == -1) {
         fprintf(stderr, "Failed to set socket timeout (TCP_KEEPINTVL) : error %d %s\n", errno, strerror(errno));
         return 0;
     }
 #endif
 #ifdef TCP_KEEPCNT
-    int kepcnt = 3;
+    sockopt_t kepcnt = 3;
     if (setsockopt(socket->s.fd, IPPROTO_TCP, TCP_KEEPINTVL, &kepcnt, sizeof(kepcnt)) == -1) {
         fprintf(stderr, "Failed to set socket timeout (TCP_KEEPCNT) : error %d %s\n", errno, strerror(errno));
         return 0;
@@ -229,11 +240,8 @@ int APE_socket_listen(ape_socket *socket, uint16_t port,
         const char *local_ip, int defer_accept, int reuse_port)
 {
     struct sockaddr_in addr;
-#ifdef __WIN32
-    const char reuse_addr = 1;
-#else
-    int reuse_addr = 1;
-#endif
+    sockopt_t reuse_addr = 1;
+
 #ifdef TCP_DEFER_ACCEPT
     int timeout = 2;
 #endif
@@ -298,8 +306,6 @@ static int ape_socket_connect_ready_to_connect(const char *remote_ip,
 {
     ape_socket *socket = arg;
     struct sockaddr_in addr;
-    struct sockaddr_un unixaddr;
-
     struct sockaddr *punaddr;
     
     socket->dns_state = NULL;
@@ -312,12 +318,19 @@ static int ape_socket_connect_ready_to_connect(const char *remote_ip,
 #endif
 
     if (socket->states.proto == APE_SOCKET_PT_UNIX) {
+#ifdef _WIN32
+        fprintf(stderr, "[Error] Unix socket are not supported on Windows\n");
+        return -1;
+#else
+        struct sockaddr_un unixaddr;
+
         unixaddr.sun_family = AF_UNIX;
         memset(unixaddr.sun_path, 0, sizeof(unixaddr.sun_path));
         memcpy(unixaddr.sun_path, remote_ip,
             ape_min(strlen(remote_ip), sizeof(unixaddr.sun_path)-1));
 
         punaddr = (struct sockaddr*)&unixaddr;
+#endif
     } else {
 
         addr.sin_family = AF_INET;
@@ -755,7 +768,7 @@ int APE_socket_write(ape_socket *socket, void *data,
             for (int cur_block = 0; cur_block < number_of_blocks; cur_block++) {
 
                 int cmp_len = APE_LZ4_compress_fast_continue(socket->lz4.tx.ctx,
-                /* src */       data + (cur_block * APE_LZ4_BLOCK_SIZE),
+                /* src */       (char *)data + (cur_block * APE_LZ4_BLOCK_SIZE),
                 /* dst */       dst_cmp + dst_pos + sizeof(int),
                 /* src_size */  ape_min(APE_LZ4_BLOCK_SIZE, len - (APE_LZ4_BLOCK_SIZE * cur_block)),
                 /* dst_size */  block_size,

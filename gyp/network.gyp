@@ -13,6 +13,15 @@
                 '<(third_party_path)/openssl/include/',
                 '<(third_party_path)/zlib/',
             ],
+
+            'conditions': [
+                ['OS=="win"', {
+                    'include_dirs': [
+                        '<(third_party_path)/openssl/inc32/',
+                    ]
+                }]
+            ],
+            
             'defines': [
                 '_HAVE_SSL_SUPPORT',
 #                'USE_SPECIFIC_HANDLER',
