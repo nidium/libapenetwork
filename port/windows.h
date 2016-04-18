@@ -20,6 +20,8 @@
 typedef int socklen_t;
 
 #define sclose(x)  closesocket((x))
+#define swrite(fd, data, bytes) send(fd, (char *)data, bytes, 0)
+#define sread(fd, buf, len) recv(fd, buf, len, 0)
 
 #define SOCKERRNO         ((int)WSAGetLastError())
 #define SET_SOCKERRNO(x)  (WSASetLastError((int)(x)))
@@ -100,5 +102,14 @@ typedef int socklen_t;
 #define EDQUOT           WSAEDQUOT
 #define ESTALE           WSAESTALE
 #define EREMOTE          WSAEREMOTE
+
+
+long int writev(int fd, const struct iovec* vector, int count)
+{
+    DWORD sent;
+    int ret = WSASend(fd, (LPWSABUF)vector, count, &sent, 0, 0, 0);
+
+    return sent;
+}
 
 #endif

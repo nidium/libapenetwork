@@ -10,7 +10,8 @@
 #include <errno.h>
 
 #define sclose(x)  close((x))
-
+#define swrite(fd, data, bytes) write(fd, data, bytes)
+#define sread(fd, buf, len) read(fd, buf, len)
 
 #define SOCKERRNO         (errno)
 #define SET_SOCKERRNO(x)  (errno = (x))

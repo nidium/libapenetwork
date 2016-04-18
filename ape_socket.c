@@ -54,26 +54,16 @@ It behaves the same for socket file descriptor to use
 either ioctl(...FIONBIO...) or fcntl(...O_NONBLOCK...)
 */
 #ifdef FIONBIO
-  static __inline int setnonblocking(int fd)
-  {
-      int  ret = 1;
-  
-      return ioctl(fd, FIONBIO, &ret);
-  }
+    static __inline int setnonblocking(int fd)
+    {
+        int  ret = 1;
+
+        return ioctl(fd, FIONBIO, &ret);
+    }
 #else
-  #define setnonblocking(fd) fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NONBLOCK)
+    #define setnonblocking(fd) fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NONBLOCK)
 #endif
 
-#ifdef __WIN32
-  #define read(fd, buf, len) recv(fd, buf, len, 0)
-  long int writev(int fd, const struct iovec* vector, int count)
-  {
-      DWORD sent;
-      int ret = WSASend(fd, (LPWSABUF)vector, count, &sent, 0, 0, 0);
-  
-      return sent;
-  }
-#endif
 
 int _nco = 0, _ndec = 0;
 
@@ -684,9 +674,6 @@ int APE_socket_writev(ape_socket *socket, const struct iovec *iov, int iovcnt)
 int APE_socket_write(ape_socket *socket, void *data,
     size_t len, ape_socket_data_autorelease data_type)
 {
-#ifdef __WIN32
-  #define ssize_t int
-#endif
     size_t t_bytes = 0, r_bytes = len;
     ssize_t n = 0;
     int io_error = 0, rerrno = 0;
@@ -807,11 +794,8 @@ int APE_socket_write(ape_socket *socket, void *data,
         }
 #endif
         while (t_bytes < len) {
-#ifdef __WIN32
-            if ((n = send(socket->s.fd, (char *)data + t_bytes, r_bytes, 0)) < 0) {
-#else
-            if ((n = write(socket->s.fd, data + t_bytes, r_bytes)) < 0) {
-#endif
+
+            if ((n = swrite(socket->s.fd, data + t_bytes, r_bytes)) < 0) {
                 if (SOCKERRNO == EAGAIN && r_bytes != 0) {
                     socket->states.flags |= APE_SOCKET_WOULD_BLOCK;
                     ape_socket_queue_data(socket, data, len, t_bytes, data_type);
@@ -1017,6 +1001,7 @@ int ape_socket_do_jobs(ape_socket *socket)
             break;
         }
 #endif
+
         case APE_SOCKET_JOB_SHUTDOWN:
 
             ape_shutdown(socket, SHUT_RDWR);
