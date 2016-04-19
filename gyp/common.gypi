@@ -9,7 +9,11 @@
             ['target_os=="android"', {
                 'defines': ['__ANDROID__', 'ANDROID'],
             }],
+            ['target_os=="win"', {
+                'msvs_configuration_platform': 'x64'
+            }]
         ],
+        'msvs_configuration_platform': 'x64',
         'cflags': [
            #'-fvisibility=hidden',
             '-Wall',
@@ -17,6 +21,13 @@
         'ldflags': [
             '-L<(native_output_third_party)',
         ],
+        'msvs_settings': {
+            'VCLinkerTool': {
+                'LinkTimeCodeGeneration': 1,
+                'SubSystem': '1',  # console app
+                "AdditionalLibraryDirectories": ["<(native_output_third_party)"]
+            }               
+        },
         'xcode_settings': {
             "OTHER_LDFLAGS": [
                 '-L<(native_output_third_party)',

@@ -21,9 +21,11 @@
                     ]
                 }]
             ],
-            
+
             'defines': [
                 '_HAVE_SSL_SUPPORT',
+                'CARES_STATICLIB',
+                'FD_SETSIZE=2048'
 #                'USE_SPECIFIC_HANDLER',
 #                'USE_SELECT_HANDLER'
             ],
@@ -52,6 +54,21 @@
                             'libz.a'
                         ]
                     }
+                }],
+                ['OS=="win"', {
+                    "link_settings": {
+                        'libraries': [
+                            '-llibcares',
+                            '-lssleay32',
+                            '-llibeay32',
+                            # GDI and User32 are required by openssl
+                            '-lgdi32',
+                            '-lUser32',
+                            '-lWs2_32',
+                            # Required by c-ares (RegClose...)
+                            '-lAdvapi32'
+                        ]
+                    }                    
                 }]
             ],
         },
