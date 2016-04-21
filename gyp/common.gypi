@@ -17,6 +17,11 @@
         'ldflags': [
             '-L<(native_output_third_party)',
         ],
+        'target_conditions': [
+            ['_type=="static_library"', {
+                'standalone_static_library': 1, # disable thin archive
+            }],
+        ],
         'msvs_configuration_platform': 'x64',
         'msvs_settings': {
             'VCLinkerTool': {
