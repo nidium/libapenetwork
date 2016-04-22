@@ -4,8 +4,8 @@
    that can be found in the LICENSE file.
 */
 
-#ifndef _NATIVE_NETLIB_H_
-#define _NATIVE_NETLIB_H_
+#ifndef _APE_NETLIB_H_
+#define _APE_NETLIB_H_
 
 #include "common.h"
 #include "ape_socket.h"

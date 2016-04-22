@@ -82,7 +82,7 @@
             #'-fvisibility=hidden',
         ],
         'sources': [
-            '../native_netlib.c',
+            '../ape_netlib.c',
             '../ape_pool.c',
             '../ape_hash.c',
             '../ape_array.c',

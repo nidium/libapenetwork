@@ -17,7 +17,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "native_netlib.h"
+#include "ape_netlib.h"
 #include "common.h"
 #include "ape_dns.h"
 #include "ape_ssl.h"
