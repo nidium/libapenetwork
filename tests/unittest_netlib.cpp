@@ -9,7 +9,7 @@
 
 #include "unittest.h"
 
-#include <native_netlib.h>
+#include <ape_netlib.h>
 
 TEST(Netlib, Simple)
 {

@@ -11,7 +11,7 @@
 
 #include <ares.h>
 
-#include <native_netlib.h>
+#include <ape_netlib.h>
 #include <ape_dns.h>
 #include <ape_events_loop.h>
 

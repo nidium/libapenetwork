@@ -9,7 +9,7 @@
 
 #include "unittest.h"
 
-#include <native_netlib.h>
+#include <ape_netlib.h>
 
 //@TODO: int events_add(ape_event_descriptor *evd, int bitadd, ape_global *ape);
 //@TODO: int events_mod(ape_event_descriptor *evd, int bitadd, ape_global *ape);
