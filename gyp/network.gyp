@@ -4,7 +4,7 @@
 
 {
     'targets': [{
-        'target_name': 'nativenetwork-includes',
+        'target_name': 'network-includes',
         'type': 'none',
         'direct_dependent_settings': {
             'include_dirs': [
@@ -31,7 +31,7 @@
             ],
         },
     }, {
-        'target_name': 'nativenetwork-link',
+        'target_name': 'network-link',
         'type': 'none',
         'direct_dependent_settings': {
             'conditions': [
@@ -73,10 +73,10 @@
             ],
         },
     }, {
-        'target_name': 'nativenetwork',
+        'target_name': 'network',
         'type': 'static_library',
         'dependencies': [
-            'network.gyp:nativenetwork-includes',
+            'network.gyp:network-includes',
         ],
         'cflags': [
             #'-fvisibility=hidden',
