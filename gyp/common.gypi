@@ -15,7 +15,7 @@
             '-Wall',
         ],
         'ldflags': [
-            '-L<(native_output_third_party)',
+            '-L<(nidium_output_third_party)',
         ],
         'target_conditions': [
             ['_type=="static_library"', {
@@ -27,13 +27,13 @@
             'VCLinkerTool': {
                 'LinkTimeCodeGeneration': 1,
                 'SubSystem': '1',  # console app
-                "AdditionalLibraryDirectories": ["<(native_output_third_party)"]
-            }               
+                "AdditionalLibraryDirectories": ["<(nidium_output_third_party)"]
+            }
         },
         'xcode_settings': {
             "OTHER_LDFLAGS": [
-                '-L<(native_output_third_party)',
-                '-F<(native_output_third_party)',
+                '-L<(nidium_output_third_party)',
+                '-F<(nidium_output_third_party)',
             ],
             'ARCHS': [
                 'x86_64',

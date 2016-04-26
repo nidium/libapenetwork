@@ -149,7 +149,7 @@ def testNetwork(unitTests, autoTests):
         Deps.set("gtest")
 
         Tests.register([
-            "build/tests/nativenetwork-unittests"
+            "build/tests/network-unittests"
         ], builders=[Gyp("%s/gyp/network-unittests.gyp" % cwd)])
 
     @Konstruct.hook("postBuild")
@@ -199,8 +199,8 @@ if Platform.system == "Darwin":
     Gyp.set("mac_sdk_version", sdk)
 
 # Temporary fix to make deps.py & Konstructor works
-Gyp.set("native_output", "../build/")
-Gyp.set("native_output_third_party", "../build/third-party/")
+Gyp.set("nidium_output", "../build/")
+Gyp.set("nidium_output_third_party", "../build/third-party/")
 
 if __name__ == '__main__':
     Gyp.setArgs("--depth ./ --include=gyp/config.gypi --include=gyp/common.gypi")

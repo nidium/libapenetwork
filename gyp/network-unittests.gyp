@@ -34,9 +34,9 @@
         },
     },
     {
-        'target_name': 'nativenetwork-unittests',
+        'target_name': 'network-unittests',
         'type': 'executable',
-        'product_dir': '<(native_tests_output)',
+        'product_dir': '<(nidium_tests_output)',
         'dependencies': [
             'network-unittests.gyp:unittests-settings',
             'network.gyp:*',
@@ -61,9 +61,9 @@
         ],
     },
     {
-        'target_name': 'nativenetwork_benchmark_new_pool',
+        'target_name': 'network_benchmark_new_pool',
         'type': 'executable',
-        'product_dir': '<(native_tests_output)',
+        'product_dir': '<(nidium_tests_output)',
         'dependencies': [
             'network-unittests.gyp:unittests-settings',
             'network.gyp:*',
@@ -73,9 +73,9 @@
         ],
     },
     {
-        'target_name': 'nativenetwork_benchmark_timers_next',
+        'target_name': 'network_benchmark_timers_next',
         'type': 'executable',
-        'product_dir': '<(native_tests_output)',
+        'product_dir': '<(nidium_tests_output)',
         'dependencies': [
             'network-unittests.gyp:unittests-settings',
             'network.gyp:*',

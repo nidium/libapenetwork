@@ -4,9 +4,9 @@
 
 {
     'variables' : {
-        'native_output%': '../out/',
-        'native_output_third_party%': '../out/third-party-libs/release/',
-        'native_tests_output%': 'tests/',
+        'nidium_output%': '../out/',
+        'nidium_output_third_party%': '../out/third-party-libs/release/',
+        'nidium_tests_output%': 'tests/',
 
         # Hack to workaround two gyp issues : 
         # - Variables defined in command line are not relativized (at all)
