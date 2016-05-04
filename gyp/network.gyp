@@ -68,7 +68,7 @@
                             # Required by c-ares (RegClose...)
                             '-lAdvapi32'
                         ]
-                    }                    
+                    }
                 }]
             ],
         },

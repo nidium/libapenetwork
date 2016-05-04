@@ -28,7 +28,7 @@
                 'LinkTimeCodeGeneration': 1,
                 'SubSystem': '1',  # console app
                 "AdditionalLibraryDirectories": ["<(nidium_output_third_party)"]
-            }               
+            }
         },
         'xcode_settings': {
             "OTHER_LDFLAGS": [
