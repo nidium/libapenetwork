@@ -9,7 +9,7 @@
 
 #define _HAS_ARES_SUPPORT
 
-#include "common.h"
+#include "ape_common.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -7,7 +7,7 @@
 #ifndef __APE_EVENTS_LOOP_H_
 #define __APE_EVENTS_LOOP_H_
 
-#include "common.h"
+#include "ape_common.h"
 
 #ifdef __cplusplus
 extern "C" {

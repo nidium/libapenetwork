@@ -7,7 +7,7 @@
 #ifndef __APE_SOCKET_H
 #define __APE_SOCKET_H
 
-#include "common.h"
+#include "ape_common.h"
 #include "ape_buffer.h"
 #include "ape_pool.h"
 #include "ape_lz4.h"

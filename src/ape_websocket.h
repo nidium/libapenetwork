@@ -7,7 +7,7 @@
 #ifndef __APE_WEBSOCKET_H
 #define __APE_WEBSOCKET_H
 
-#include "common.h"
+#include "ape_common.h"
 #include "ape_socket.h"
 
 typedef enum {

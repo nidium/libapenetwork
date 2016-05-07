@@ -7,7 +7,7 @@
 #ifndef __APE_EVENTS_H_
 #define __APE_EVENTS_H_
 
-#include "common.h"
+#include "ape_common.h"
 
 #ifdef USE_KQUEUE_HANDLER
 #include <sys/event.h>

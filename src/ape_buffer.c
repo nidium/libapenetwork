@@ -10,7 +10,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
-#include "common.h"
+#include "ape_common.h"
 
 #define ZBUF_BUFSIZE 1024
 

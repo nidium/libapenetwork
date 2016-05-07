@@ -9,7 +9,7 @@
 
 #include "unittest.h"
 
-#include <common.h>
+#include <ape_common.h>
 
 TEST(Common, MinMaxMacro)
 {

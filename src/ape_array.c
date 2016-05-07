@@ -4,7 +4,6 @@
    that can be found in the LICENSE file.
 */
 
-//#include "common.h"
 #include "ape_array.h"
 #include <string.h>
 

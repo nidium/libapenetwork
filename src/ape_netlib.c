@@ -18,7 +18,7 @@
 */
 
 #include "ape_netlib.h"
-#include "common.h"
+#include "ape_common.h"
 #include "ape_dns.h"
 #include "ape_ssl.h"
 
