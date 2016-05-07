@@ -10,7 +10,7 @@
 #include "common.h"
 #include "ape_buffer.h"
 #include "ape_pool.h"
-#include "lz4.h"
+#include "ape_lz4.h"
 
 #ifdef _WIN32
     #define ioctl ioctlsocket

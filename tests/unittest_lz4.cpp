@@ -9,7 +9,7 @@
 
 #include "unittest.h"
 
-#include <lz4.h>
+#include <ape_lz4.h>
 
 TEST(Lz4, Simple)
 {

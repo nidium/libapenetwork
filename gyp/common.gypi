@@ -84,7 +84,7 @@
                     "OTHER_LDFLAGS": [
                         '-fsanitize=address'
                     ],
-                    'OTHER_CFLAGS': [ 
+                    'OTHER_CFLAGS': [
                         '-fsanitize=address'
                     ]
                 }
