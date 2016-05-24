@@ -87,23 +87,6 @@ def gtest():
 
 #####
 
-@CommandLine.option("--cpu-profiling", default=False)
-def profiler(profiler):
-    if profiler:
-        Gyp.set("profiler", 1)
-        Deps.set("gperftools")
-
-        @Konstruct.hook("postBuild")
-        def profilerPostBuild(success):
-            if not success:
-                return
-
-            Log.info("-------------------------------------")
-            Log.info("You have enabled CPU profiling, you must set the following environement variables to enable CPU profiling when running your application : ")
-            Log.info("CPUPROFILE=/tmp/profile.nidium")
-            Log.info("LD_LIBRARY_PATH=" + ROOT + "/build/third-party/${LD_LIBRARY_PATH:+:}${LD_LIBRARY_PATH:-}")
-            Log.info("-------------------------------------")
-
 @CommandLine.option("--debug", default=False)
 def debug(debug):
     if debug:
@@ -119,11 +102,6 @@ def gypConfig(thirdPartyPath):
         # Gyp needs a relative path
         Gyp.set("third_party", os.path.relpath(thirdPartyPath))
         Gyp.setExec(os.path.join(thirdPartyPath, "gyp", "gyp"))
-
-@CommandLine.option("--asan", default=False)
-def asan(asan):
-    if asan:
-        Gyp.set("asan", 1)
 
 @CommandLine.option("--module", default="")
 def module(module):
