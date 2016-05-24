@@ -13,11 +13,11 @@
 
 TEST(Lz4, Simple)
 {
-	int v;
+    int v;
 
-	v = APE_LZ4_versionNumber();
-	
-	EXPECT_EQ(v, 171);
+    v = APE_LZ4_versionNumber();
+    
+    EXPECT_EQ(v, 171);
 }
 /*
 @TODO: ALL

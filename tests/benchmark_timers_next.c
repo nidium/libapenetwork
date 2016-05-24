@@ -16,44 +16,44 @@ ape_global * g_ape;
 
 static int resolve_cb(const char *ip, void * arg, int status)
 {
-	APE_loop_stop();
-	return 1;
+    APE_loop_stop();
+    return 1;
 }
 
 
 static int interval_cb(void *param) {
-	int *p;
+    int *p;
 
-	p = (int*) param;
-	return *p;
+    p = (int*) param;
+    return *p;
 }
 
 int main(const int argc, const char **argv)
 {
-	int minTime, resolve;
+    int minTime, resolve;
 
-	g_ape = APE_init();
+    g_ape = APE_init();
 
-	resolve = 0;
-	if (argc == 1) {
-		minTime = MIN_TIMEOUT;
-	} else if (argc == 2) {
-		minTime = atoi(argv[1]);
-	} else if (argc == 3) {
-		minTime = atoi(argv[1]);
-		resolve = 1;
-	} else {
-		printf("Usage: %s [timeout] [resolve]\n\tdefault timeout: %d\n\tactivate dns socket: %d", argv[0], MIN_TIMEOUT, resolve);
-		exit(1);
-	}
-	printf("starting interval with %d with%s resolving\n", minTime, (resolve)?"":"out");
-	ape_gethostbyname("nidium.com", resolve_cb, NULL, g_ape);
-	if (resolve){
-		APE_timer_create(g_ape, minTime, interval_cb, &minTime);
-	}
-	
-	APE_loop_run(g_ape);
-	APE_destroy(g_ape);
+    resolve = 0;
+    if (argc == 1) {
+        minTime = MIN_TIMEOUT;
+    } else if (argc == 2) {
+        minTime = atoi(argv[1]);
+    } else if (argc == 3) {
+        minTime = atoi(argv[1]);
+        resolve = 1;
+    } else {
+        printf("Usage: %s [timeout] [resolve]\n\tdefault timeout: %d\n\tactivate dns socket: %d", argv[0], MIN_TIMEOUT, resolve);
+        exit(1);
+    }
+    printf("starting interval with %d with%s resolving\n", minTime, (resolve)?"":"out");
+    ape_gethostbyname("nidium.com", resolve_cb, NULL, g_ape);
+    if (resolve){
+        APE_timer_create(g_ape, minTime, interval_cb, &minTime);
+    }
+    
+    APE_loop_run(g_ape);
+    APE_destroy(g_ape);
 
-	return 0;
+    return 0;
 }

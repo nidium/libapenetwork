@@ -17,17 +17,17 @@
 
 int main(const int argc, const char **argv )
 {
-	size_t repeat, size, n;
-	for(repeat = 0; repeat < REPEAT; repeat++) {
-		for(size = 0; size < SIZE_LIMIT; size += SIZE_STEP) {
-			for(n = N_STEP; n < N_LIMIT; n += N_STEP) {
-				printf("%d %d %d\n", size, n, repeat);
-				ape_pool_t * p = ape_new_pool(size, n);
-				ape_destroy_pool(p);
-			}
-		}
-	}
+    size_t repeat, size, n;
+    for(repeat = 0; repeat < REPEAT; repeat++) {
+        for(size = 0; size < SIZE_LIMIT; size += SIZE_STEP) {
+            for(n = N_STEP; n < N_LIMIT; n += N_STEP) {
+                printf("%d %d %d\n", size, n, repeat);
+                ape_pool_t * p = ape_new_pool(size, n);
+                ape_destroy_pool(p);
+            }
+        }
+    }
 
-	return 0;
+    return 0;
 }
 

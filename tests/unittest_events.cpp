@@ -25,14 +25,14 @@
 
 TEST(Events, Init)
 {
-	ape_global * g_ape;
+    ape_global * g_ape;
 
 
-	g_ape = APE_init();
-	EXPECT_TRUE(g_ape->events.basemem > 0);
-	EXPECT_EQ(g_ape->events.nfd, 0);
-	EXPECT_TRUE(g_ape->events.handler != 0);
+    g_ape = APE_init();
+    EXPECT_TRUE(g_ape->events.basemem > 0);
+    EXPECT_EQ(g_ape->events.nfd, 0);
+    EXPECT_TRUE(g_ape->events.handler != 0);
 
-	APE_destroy(g_ape);
+    APE_destroy(g_ape);
 }
 

@@ -17,9 +17,9 @@ static const uint8_t key[KEY_LEN] =  { 0x79, 0x34, 0x77, 0x4c, 0x67, 0xd1, 0x38,
 
 TEST(Blowfish, Init)
 {
-	struct APEBlowfish ctx;
+    struct APEBlowfish ctx;
 
-	APE_blowfish_init(&ctx, key, KEY_LEN);
+    APE_blowfish_init(&ctx, key, KEY_LEN);
 }
 
 #if 0 

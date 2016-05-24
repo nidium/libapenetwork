@@ -39,40 +39,40 @@
 
 TEST(Socket, Simple)
 {
-	ape_global * g_ape;
-	ape_socket * socket;
-	int ret;
-	int proto;
+    ape_global * g_ape;
+    ape_socket * socket;
+    int ret;
+    int proto;
 
-	proto = APE_SOCKET_PT_TCP;
-	g_ape = APE_init();
-	ape_running = g_ape->is_running = 0;
-	socket = NULL;
+    proto = APE_SOCKET_PT_TCP;
+    g_ape = APE_init();
+    ape_running = g_ape->is_running = 0;
+    socket = NULL;
 
-	socket = APE_socket_new(proto, 0, g_ape);
-	EXPECT_TRUE(socket != NULL);
-	EXPECT_EQ(socket->ape, g_ape);
-	EXPECT_TRUE(socket->s.fd != 0);
-	EXPECT_EQ(socket->s.type, APE_EVENT_SOCKET);
-	EXPECT_EQ(socket->states.type, APE_SOCKET_TP_UNKNOWN);
-	EXPECT_EQ(socket->states.state, APE_SOCKET_ST_PENDING);
-	EXPECT_EQ(socket->states.proto, proto);
-	EXPECT_TRUE(socket->ctx == NULL);
-	EXPECT_TRUE(socket->parent == NULL);
-	EXPECT_TRUE(socket->dns_state == NULL);
-	EXPECT_TRUE(socket->callbacks.on_read == NULL);
-	EXPECT_TRUE(socket->callbacks.on_disconnect == NULL);
-	EXPECT_TRUE(socket->callbacks.on_connect == NULL);
-	EXPECT_TRUE(socket->callbacks.on_connected == NULL);
-	EXPECT_TRUE(socket->callbacks.on_message == NULL);
-	EXPECT_TRUE(socket->callbacks.on_drain == NULL);
-	EXPECT_TRUE(socket->callbacks.arg == NULL);
-	EXPECT_EQ(socket->remote_port, 0);
-	EXPECT_EQ(socket->local_port, 0);
-	
-	ret = ape_socket_destroy(socket);
-	EXPECT_EQ(ret, 0);
+    socket = APE_socket_new(proto, 0, g_ape);
+    EXPECT_TRUE(socket != NULL);
+    EXPECT_EQ(socket->ape, g_ape);
+    EXPECT_TRUE(socket->s.fd != 0);
+    EXPECT_EQ(socket->s.type, APE_EVENT_SOCKET);
+    EXPECT_EQ(socket->states.type, APE_SOCKET_TP_UNKNOWN);
+    EXPECT_EQ(socket->states.state, APE_SOCKET_ST_PENDING);
+    EXPECT_EQ(socket->states.proto, proto);
+    EXPECT_TRUE(socket->ctx == NULL);
+    EXPECT_TRUE(socket->parent == NULL);
+    EXPECT_TRUE(socket->dns_state == NULL);
+    EXPECT_TRUE(socket->callbacks.on_read == NULL);
+    EXPECT_TRUE(socket->callbacks.on_disconnect == NULL);
+    EXPECT_TRUE(socket->callbacks.on_connect == NULL);
+    EXPECT_TRUE(socket->callbacks.on_connected == NULL);
+    EXPECT_TRUE(socket->callbacks.on_message == NULL);
+    EXPECT_TRUE(socket->callbacks.on_drain == NULL);
+    EXPECT_TRUE(socket->callbacks.arg == NULL);
+    EXPECT_EQ(socket->remote_port, 0);
+    EXPECT_EQ(socket->local_port, 0);
+    
+    ret = ape_socket_destroy(socket);
+    EXPECT_EQ(ret, 0);
 
-	APE_destroy(g_ape);
+    APE_destroy(g_ape);
 }
 
