@@ -5,11 +5,6 @@
 {
     'target_defaults': {
         'default_configuration': 'Release',
-        'conditions': [
-            ['target_os=="android"', {
-                'defines': ['__ANDROID__', 'ANDROID'],
-            }],
-        ],
         'cflags': [
            #'-fvisibility=hidden',
             '-Wall',
@@ -72,33 +67,5 @@
                 },
             }
         },
-        'conditions': [
-            ['asan==1', {
-                'cflags': [
-                    '-fsanitize=address'
-                ],
-                'ldflags': [
-                    '-fsanitize=address'
-                ],
-                'xcode_settings': {
-                    "OTHER_LDFLAGS": [
-                        '-fsanitize=address'
-                    ],
-                    'OTHER_CFLAGS': [
-                        '-fsanitize=address'
-                    ]
-                }
-            }],
-            ['profiler==1', {
-                'ldflags': [
-                    '-lprofiler'
-                ],
-                'xcode_settings': {
-                    "OTHER_LDFLAGS": [
-                        '-fsanitize=address'
-                    ],
-                }
-            }]
-        ],
     },
 }
