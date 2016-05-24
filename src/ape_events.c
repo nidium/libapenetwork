@@ -137,9 +137,9 @@ int events_init(ape_global *ape)
         case EVENT_KQUEUE:
             return event_kqueue_init(&ape->events);
             break;
-		case EVENT_SELECT:
+        case EVENT_SELECT:
             return event_select_init(&ape->events);
-			break;
+            break;
         case EVENT_UNKNOWN:
         case EVENT_DEVPOLL:
         case EVENT_POLL:

@@ -15,17 +15,17 @@ typedef struct _ape_timer_t ape_timer_t;
 typedef struct _ape_timer_async_t ape_timer_async_t;
 
 enum {
-	APE_TIMER_IS_PROTECTED = 1 << 0,
-	APE_TIMER_IS_CLEARED   = 1 << 1
+    APE_TIMER_IS_PROTECTED = 1 << 0,
+    APE_TIMER_IS_CLEARED   = 1 << 1
 };
 
 
 typedef struct _ape_timers
 {
-	ape_timer_t *head;
+    ape_timer_t *head;
     ape_timer_async_t *head_async;
 
-	uint64_t last_identifier;
+    uint64_t last_identifier;
     int run_in_low_resolution;
 } ape_timers;
 

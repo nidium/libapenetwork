@@ -39,8 +39,8 @@ typedef const char sockopt_t;
 #define EINVAL           WSAEINVAL
 #undef  EWOULDBLOCK      /* override definition in errno.h */
 #define EWOULDBLOCK      WSAEWOULDBLOCK
-#undef  EAGAIN			 /* override definition in errno.h */
-#define EAGAIN			 WSAEWOULDBLOCK
+#undef  EAGAIN           /* override definition in errno.h */
+#define EAGAIN           WSAEWOULDBLOCK
 #undef  EINPROGRESS      /* override definition in errno.h */
 #define EINPROGRESS      WSAEINPROGRESS
 #undef  EALREADY         /* override definition in errno.h */

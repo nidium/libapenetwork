@@ -79,7 +79,7 @@ struct _fdevent {
     struct epoll_event *events;
     int epoll_fd;
 #elif defined USE_SELECT_HANDLER
-	struct select_fdinfo_t **events;       /* Pointers into fds */
+    struct select_fdinfo_t **events;       /* Pointers into fds */
     ape_htable_t *fdhash;
 #endif
     int basemem;                /* Number of elements in events */
