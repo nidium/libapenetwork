@@ -138,6 +138,11 @@ def testNetwork(unitTests, autoTests):
 def assumeYes(assumeYes):
     Utils.promptAssumeYes(assumeYes)
 
+@CommandLine.option("--asan", default=False)
+def asan(asan):
+    if asan:
+        Gyp.set("asan", 1)
+
 #####
 
 Deps.set("gyp", "c-ares", "openssl", "zlib")
