@@ -9,8 +9,11 @@
            #'-fvisibility=hidden',
             '-Wall',
         ],
+        'cflags_cc': [
+            '-std=c++11'
+        ],
         'ldflags': [
-            '-L<(nidium_output_third_party)',
+            '-L<(libapenetwork_output_third_party_path)',
         ],
         'target_conditions': [
             ['_type=="static_library"', {
@@ -22,13 +25,19 @@
             'VCLinkerTool': {
                 'LinkTimeCodeGeneration': 1,
                 'SubSystem': '1',  # console app
-                "AdditionalLibraryDirectories": ["<(nidium_output_third_party)"]
+                "AdditionalLibraryDirectories": ["<(libapenetwork_output_third_party_path)"]
             }
         },
         'xcode_settings': {
             "OTHER_LDFLAGS": [
-                '-L<(nidium_output_third_party)',
-                '-F<(nidium_output_third_party)',
+                '-stdlib=libc++',
+                '-L<(libapenetwork_output_third_party_path)',
+                '-F<(libapenetwork_output_third_party_path)',
+            ],
+            "SYMROOT": "<(libapenetwork_output_path)",
+            'OTHER_CPLUSPLUSFLAGS': [ 
+                '-std=c++11',
+                '-stdlib=libc++'
             ],
             'ARCHS': [
                 'x86_64',

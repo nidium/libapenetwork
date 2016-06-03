@@ -49,6 +49,7 @@
                 ['OS=="mac"', {
                     "link_settings": {
                         'libraries': [
+                            'libcares.a',
                             'libssl.a',
                             'libcrypto.a',
                             'libz.a'

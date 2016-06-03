@@ -4,9 +4,7 @@
 
 {
     'variables' : {
-        'nidium_output%': '../out/',
-        'nidium_output_third_party%': '../out/third-party-libs/release/',
-        'nidium_tests_output%': 'tests/',
+        'libapenetwork_output_path': '<(DEPTH)/build/',
 
         # Hack to workaround two gyp issues : 
         # - Variables defined in command line are not relativized (at all)
@@ -15,9 +13,13 @@
         # - Variables named with a "%" at the end are not relativized
         #   https://code.google.com/p/gyp/issues/detail?id=444
         'variables': {
-            'third_party%': 'third-party'
+            'third_party%': 'third-party',
+            'libapenetwork_output_third_party_path': '<(libapenetwork_output_path)/third-party/',
+            'libapenetwork_tests_output_path': '<(libapenetwork_output_path)/tests/',
         },
         'third_party_path': '<(DEPTH)/<(third_party)',
+        'libapenetwork_tests_output_path': '<(libapenetwork_tests_output_path)',
+        'libapenetwork_output_third_party_path': '<(libapenetwork_output_third_party_path)',
 
         'target_os%': '<(OS)',
         'mac_deployment_target': '10.7',

@@ -36,7 +36,7 @@
     {
         'target_name': 'network-unittests',
         'type': 'executable',
-        'product_dir': '<(nidium_tests_output)',
+        'product_dir': '<(libapenetwork_tests_output_path)',
         'dependencies': [
             'network-unittests.gyp:unittests-settings',
             'network.gyp:*',
@@ -63,7 +63,7 @@
     {
         'target_name': 'network_benchmark_new_pool',
         'type': 'executable',
-        'product_dir': '<(nidium_tests_output)',
+        'product_dir': '<(libapenetwork_tests_output_path)',
         'dependencies': [
             'network-unittests.gyp:unittests-settings',
             'network.gyp:*',
@@ -75,7 +75,7 @@
     {
         'target_name': 'network_benchmark_timers_next',
         'type': 'executable',
-        'product_dir': '<(nidium_tests_output)',
+        'product_dir': '<(libapenetwork_tests_output_path)',
         'dependencies': [
             'network-unittests.gyp:unittests-settings',
             'network.gyp:*',

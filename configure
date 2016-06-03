@@ -79,9 +79,14 @@ def gperftools():
 
 @Deps.register("gtest")
 def gtest():
+    flags = ""
+
+    if Platform.system == "Darwin":
+        flags = "-DCMAKE_CXX_FLAGS='-std=c++11 -stdlib=libc++'"
+
     return {
         "location": Deps.GitRepo("https://github.com/google/googletest.git", revision="d225acc90bc3a8c420a9bcd1f033033c1ccd7fe0"),
-        "build": ["cmake .", "make"],
+        "build": ["cmake %s ." % flags, "make"],
         "outputs": ["googlemock/libgmock.a", "googlemock/libgmock_main.a", "googlemock/gtest/libgtest.a", "googlemock/gtest/libgtest_main.a"]
     }
 
@@ -119,10 +124,9 @@ def testNetwork(unitTests, autoTests):
     head, tail = os.path.split(os.getcwd())
     cwd = os.path.dirname(os.path.realpath(__file__))
 
-    #TODO: once the unit tests are more stable' activate this once more:
     #Builder.Gyp.set("asan", 1)
 
-    if unitTests and ("network" in unitTests or "all" in unitTests):
+    if unitTests:
         Gyp.set("unit_test", 1)
         Deps.set("gtest")
 
@@ -180,10 +184,6 @@ if Platform.system == "Darwin":
     if sdk is None:
        Utils.exit("No macos SDK detected. Make sure Xcode is correctly installed and configured")
     Gyp.set("mac_sdk_version", sdk)
-
-# Temporary fix to make deps.py & Konstructor works
-Gyp.set("nidium_output", "../build/")
-Gyp.set("nidium_output_third_party", "../build/third-party/")
 
 if __name__ == '__main__':
     Gyp.setArgs("--depth ./ --include=gyp/config.gypi --include=gyp/common.gypi")
