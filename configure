@@ -23,8 +23,8 @@ Gyp = Builder.Gyp
 DEPEDENCY_REPO = "http://deps.nidium.com"
 
 Platform.setEnviron(
-    "CC=clang",
-    "CXX=clang++",
+    "CC=%s" % (os.environ.get("CC", "clang")),
+    "CXX=%s" % (os.environ.get("CXX", "clang++")),
     "LDFLAGS=%s" % (os.environ.get("LDFLAGS", "")),
     "MACOSX_DEPLOYMENT_TARGET=10.7"
 )
@@ -116,9 +116,8 @@ def module(module):
     Deps.set(Deps.Konstruct(module, module + "/configure"))
 
 @CommandLine.option("--unit-tests", nargs="?", const="all", default=None)
-@CommandLine.option("--auto-tests", nargs="?", const="all", default=None)
-def testNetwork(unitTests, autoTests):
-    if not unitTests and not autoTests:
+def testNetwork(unitTests):
+    if not unitTests:
         return
 
     head, tail = os.path.split(os.getcwd())
