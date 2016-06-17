@@ -43,7 +43,7 @@
             ['OS=="mac"', {
                 'product_dir': '<(libapenetwork_tests_output_path)',
             }, {
-                'product_dir': '../build/',
+                'product_dir': '../build/tests/',
             }]
         ],
         'dependencies': [
