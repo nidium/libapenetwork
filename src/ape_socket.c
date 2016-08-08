@@ -702,7 +702,6 @@ int APE_socket_write(ape_socket *socket, void *data,
     if ((socket->states.flags & APE_SOCKET_WOULD_BLOCK) ||
             (socket->jobs.head->flags & APE_SOCKET_JOB_ACTIVE)) {
         ape_socket_queue_data(socket, data, len, 0, data_type);
-        //printf("Would block %d\n", len);
         return len;
     }
 #ifdef _HAVE_SSL_SUPPORT
@@ -921,11 +920,13 @@ int ape_socket_do_jobs(ape_socket *socket)
 
                 }                
             } else {
-#endif            
+#endif          
+chunk:
                 for (i = 0; packet != NULL && i < max_chunks; i++) {
                     if (packet->pool.ptr.data == NULL) {
                         break;
                     }
+
                     chunks[i].iov_base = (char *)packet->pool.ptr.data + packet->offset;
                     chunks[i].iov_len  = packet->len - packet->offset;
 
@@ -933,7 +934,7 @@ int ape_socket_do_jobs(ape_socket *socket)
 
                 }
 
-                rewrite:
+rewrite:
                 if ((n = writev(socket->s.fd, chunks, i)) == -1) {
                     if (errno == EAGAIN) {
                         socket->states.flags |= APE_SOCKET_WOULD_BLOCK;
@@ -946,7 +947,6 @@ int ape_socket_do_jobs(ape_socket *socket)
                         return -1;
                     }
                 }
-
                 socket->ape->total_memory_buffered -= n;
                 socket->current_buffer_memory_bytes -= n;
 
@@ -972,8 +972,7 @@ int ape_socket_do_jobs(ape_socket *socket)
 
                 /* job not finished */
                 if (packet->pool.ptr.data != NULL) {
-                    socket->states.flags |= APE_SOCKET_WOULD_BLOCK;
-                    return 0;
+                    goto chunk;
                 }
 #ifdef _HAVE_SSL_SUPPORT
             }
