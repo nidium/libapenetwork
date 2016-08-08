@@ -18,7 +18,7 @@ static int shutdown_loop_on_timer(void *param)
 {
     int *val;
 
-    val = (int*)param;
+    val = (int *)param;
     if (*val == 200) {
         counter--;
     }
@@ -35,7 +35,7 @@ static int shutdown_loop_on_timeout(void *param)
 {
     int *val;
 
-    val = (int*)param;
+    val = (int *)param;
     if (*val == 199) {
         counter--;
     }
@@ -48,7 +48,7 @@ static int shutdown_loop_on_timeout(void *param)
 
 TEST(TimersNg, Timer)
 {
-    ape_global * g_ape;
+    ape_global *g_ape;
     ape_timer_t *timer1, *timer2, *dummy;
     int val1, val2, *dv;
 
@@ -66,17 +66,19 @@ TEST(TimersNg, Timer)
     EXPECT_TRUE(dummy == NULL);
 
     // let's add a timer
-    timer1 = APE_timer_create(g_ape, val1, shutdown_loop_on_timer, (void*)&val1);
+    timer1
+        = APE_timer_create(g_ape, val1, shutdown_loop_on_timer, (void *)&val1);
     EXPECT_EQ(APE_timer_getid(timer1), 1);
     dummy = APE_timer_getbyid(g_ape, 1);
-    dv = (int*)APE_timer_getarg(dummy);
+    dv = (int *)APE_timer_getarg(dummy);
     EXPECT_EQ(*dv, val1);
-    
-    // let's add a another timer 
-    timer2 = APE_timer_create(g_ape, val2, shutdown_loop_on_timer, (void*)&val2);
+
+    // let's add a another timer
+    timer2
+        = APE_timer_create(g_ape, val2, shutdown_loop_on_timer, (void *)&val2);
     EXPECT_EQ(APE_timer_getid(timer2), 2);
     dummy = APE_timer_getbyid(g_ape, 2);
-    dv = (int*)APE_timer_getarg(dummy);
+    dv = (int *)APE_timer_getarg(dummy);
     EXPECT_EQ(*dv, val2);
 
     // can we still find the correct one?
@@ -88,21 +90,24 @@ TEST(TimersNg, Timer)
     dummy = APE_timer_getbyid(g_ape, 2);
     EXPECT_TRUE(dummy == NULL);
 
-    //let's add it again
-    timer2 = APE_timer_create(g_ape, val2, shutdown_loop_on_timer, (void*)&val2);
+    // let's add it again
+    timer2
+        = APE_timer_create(g_ape, val2, shutdown_loop_on_timer, (void *)&val2);
     EXPECT_EQ(APE_timer_getid(timer2), 3);
 
     ape_running = g_ape->is_running = 0;
     APE_loop_run(g_ape);
 
-    //all timers should be clear
+    // all timers should be clear
     dummy = APE_timer_getbyid(g_ape, 2);
     EXPECT_TRUE(dummy == NULL);
 
-    //Add one and clear it
-    timer2 = APE_timer_create(g_ape, val2, shutdown_loop_on_timer, (void*)&val2);
+    // Add one and clear it
+    timer2
+        = APE_timer_create(g_ape, val2, shutdown_loop_on_timer, (void *)&val2);
     EXPECT_EQ(APE_timer_getid(timer2), 4);
-    timer1 = APE_timer_create(g_ape, val2, shutdown_loop_on_timer, (void*)&val2);
+    timer1
+        = APE_timer_create(g_ape, val2, shutdown_loop_on_timer, (void *)&val2);
     EXPECT_EQ(APE_timer_getid(timer1), 5);
     APE_timer_clearbyid(g_ape, APE_timer_getid(timer2), 4);
 
@@ -110,31 +115,28 @@ TEST(TimersNg, Timer)
     EXPECT_TRUE(dummy == timer1);
 
     APE_destroy(g_ape);
-
 }
 
 TEST(TimersNg, Interval)
 {
-    ape_global * g_ape;
+    ape_global *g_ape;
     ape_timer_t *interval, *dummy;
     int val;
 
-    val = 199;
+    val   = 199;
     g_ape = APE_init();
 
     // let's add a timeout
     interval = APE_timer_create(g_ape, 1, shutdown_loop_on_timeout, &val);
     EXPECT_EQ(APE_timer_getid(interval), 1);
-    
-    counter = 200;
+
+    counter     = 200;
     ape_running = 1;
     APE_loop_run(g_ape);
 
-    //all timers should be clear
+    // all timers should be clear
     dummy = APE_timer_getbyid(g_ape, 2);
     EXPECT_TRUE(dummy == NULL);
-    
+
     APE_destroy(g_ape);
-
 }
-

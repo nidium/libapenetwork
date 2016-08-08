@@ -19,14 +19,14 @@
 TEST(SHA1, Simple)
 {
     sha1_context cx;
-    char * org, pd[29];
+    char *org, pd[29];
     uchar digest[21];
 
     sha1_starts(&cx);
     org = strdup(ORG);
-    sha1_update(&cx, (uchar*)org, strlen(org));
+    sha1_update(&cx, (uchar *)org, strlen(org));
     sha1_finish(&cx, digest);
-    base64_encode_b( digest, pd, 20);
+    base64_encode_b(digest, pd, 20);
     EXPECT_TRUE(strcmp(pd, GRO) == 0);
 
     free(org);
@@ -34,12 +34,12 @@ TEST(SHA1, Simple)
 
 TEST(SHA1, Checksum)
 {
-    char * org, pd[29];
+    char *org, pd[29];
     uchar digest[21];
 
     org = strdup(ORG);
-    sha1_csum( (uchar*)org, strlen(org), digest);
-    base64_encode_b( digest, pd, 20);
+    sha1_csum((uchar *)org, strlen(org), digest);
+    base64_encode_b(digest, pd, 20);
     EXPECT_TRUE(strcmp(pd, GRO) == 0);
 
     free(org);
@@ -62,13 +62,13 @@ TEST(SHA1, File)
 
 TEST(SHA1, Hmac)
 {
-    char * org, *key, pd[29];
+    char *org, *key, pd[29];
     uchar digest[21];
 
     org = strdup(ORG);
     key = strdup("secret");
-    sha1_hmac( (uchar*) key, strlen(key), (uchar*)org, strlen(org), digest);
-    base64_encode_b( digest, pd, 20);
+    sha1_hmac((uchar *)key, strlen(key), (uchar *)org, strlen(org), digest);
+    base64_encode_b(digest, pd, 20);
     EXPECT_TRUE(strcmp(pd, GRO_MAC) == 0);
 
     free(key);
@@ -78,4 +78,3 @@ TEST(SHA1, Hmac)
 #undef ORG
 #undef GRO
 #undef GRO_MAC
-

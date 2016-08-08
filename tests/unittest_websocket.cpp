@@ -26,4 +26,3 @@ TEST(Websocket, Simple)
 //@TODO: ape_ws_write
 //@TODO: void ape_ws_ping(websocket_state *state)
 */
-

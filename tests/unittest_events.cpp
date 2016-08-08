@@ -14,7 +14,8 @@
 //@TODO: int events_add(ape_event_descriptor *evd, int bitadd, ape_global *ape);
 //@TODO: int events_mod(ape_event_descriptor *evd, int bitadd, ape_global *ape);
 //@TODO: int events_del(int fd, ape_global *ape);
-//@TODO: ape_event_descriptor *events_get_current_evd(struct _fdevent *ev, int i);
+//@TODO: ape_event_descriptor *events_get_current_evd(struct _fdevent *ev, int
+//i);
 //@TODO: int events_poll(struct _fdevent *ev, int timeout_ms);
 //@TODO: void events_shrink(struct _fdevent *ev);
 //@TODO: void events_setsize(struct _fdevent *ev, int size);
@@ -25,7 +26,7 @@
 
 TEST(Events, Init)
 {
-    ape_global * g_ape;
+    ape_global *g_ape;
 
 
     g_ape = APE_init();
@@ -35,4 +36,3 @@ TEST(Events, Init)
 
     APE_destroy(g_ape);
 }
-
