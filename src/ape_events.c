@@ -86,7 +86,8 @@ void events_shrink(struct _fdevent *ev)
         return;
     }
 
-    events_setsize(ev, ape_max(APE_DEFAULT_EVENTS_SIZE, _nextpoweroftwo(ev->nfd)));
+    events_setsize(ev,
+                   ape_max(APE_DEFAULT_EVENTS_SIZE, _nextpoweroftwo(ev->nfd)));
 }
 
 int events_poll(struct _fdevent *ev, int timeout_ms)
@@ -128,9 +129,9 @@ int events_reload(struct _fdevent *ev)
 int events_init(ape_global *ape)
 {
     ape->events.basemem = APE_DEFAULT_EVENTS_SIZE;
-    ape->events.nfd = 0;
+    ape->events.nfd     = 0;
 
-    switch(ape->events.handler) {
+    switch (ape->events.handler) {
         case EVENT_EPOLL:
             return event_epoll_init(&ape->events);
             break;
@@ -150,17 +151,17 @@ int events_init(ape_global *ape)
     return -1;
 }
 
-void events_destroy(struct _fdevent *ev) {
+void events_destroy(struct _fdevent *ev)
+{
     /* free should be delegated to the corresponding subclass */
     free(ev->events); // @TODO:  del events and close fd's?
 
-    ev->add     = NULL;
-    ev->mod     = NULL;
-    ev->del     = NULL;
-    ev->poll    = NULL;
-    ev->revent  = NULL;
-    ev->reload  = NULL;
-    ev->setsize = NULL;
+    ev->add             = NULL;
+    ev->mod             = NULL;
+    ev->del             = NULL;
+    ev->poll            = NULL;
+    ev->revent          = NULL;
+    ev->reload          = NULL;
+    ev->setsize         = NULL;
     ev->get_current_evd = NULL;
 }
-

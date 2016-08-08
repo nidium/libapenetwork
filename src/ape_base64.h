@@ -11,16 +11,15 @@
 extern "C" {
 #endif
 
-int base64_decode(unsigned char * out, const char *in, int out_length);
+int base64_decode(unsigned char *out, const char *in, int out_length);
 
-void base64_encode_b(unsigned char * src, char *dst, int len);
-void base64_encode_b_safe(unsigned char * src, char *dst, int len, int safe);
-char *base64_encode(unsigned char * src, int len);
-char *base64_encode_safe(unsigned char * src, int len);
+void base64_encode_b(unsigned char *src, char *dst, int len);
+void base64_encode_b_safe(unsigned char *src, char *dst, int len, int safe);
+char *base64_encode(unsigned char *src, int len);
+char *base64_encode_safe(unsigned char *src, int len);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
-

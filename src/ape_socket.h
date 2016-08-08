@@ -13,17 +13,17 @@
 #include "ape_lz4.h"
 
 #ifdef _WIN32
-    #define ioctl ioctlsocket
-    #define hstrerror(x) ""
-    #include "port/windows.h"
+#define ioctl ioctlsocket
+#define hstrerror(x) ""
+#include "port/windows.h"
 #else
-    #include <sys/socket.h>
-    #include <sys/ioctl.h>
-    #include <netinet/in.h>
-    #include <netinet/tcp.h>
-    #include <sys/un.h>
-    #include <arpa/inet.h>
-    #include <netdb.h>
+#include <sys/socket.h>
+#include <sys/ioctl.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <sys/un.h>
+#include <arpa/inet.h>
+#include <netdb.h>
 #endif
 
 #define APE_SOCKET_BACKLOG 511
@@ -32,17 +32,16 @@
 #define APE_EVENT_SOCKET_PTR(attach) ((ape_socket *)attach)
 
 
-#ifdef _HAVE_SSL_SUPPORT  
-  #define APE_SOCKET_ISSECURE(socket) socket->SSL.issecure
+#ifdef _HAVE_SSL_SUPPORT
+#define APE_SOCKET_ISSECURE(socket) socket->SSL.issecure
 #else
-  #define APE_SOCKET_ISSECURE(socket) 0
+#define APE_SOCKET_ISSECURE(socket) 0
 #endif
 
 #ifdef __WIN32
-struct iovec
-{
-  unsigned long iov_len;
-  char*         iov_base;
+struct iovec {
+    unsigned long iov_len;
+    char *iov_base;
 };
 
 #endif
@@ -50,26 +49,26 @@ struct iovec
 /* TODO: TCP_NOPUSH  */
 
 #ifdef TCP_CORK
-    #define PACK_TCP(fd) \
-    do { \
-        int __state = 1; \
-        setsockopt(fd, IPPROTO_TCP, TCP_CORK, &__state, sizeof(__state)); \
-    } while(0)
+#define PACK_TCP(fd)                                                           \
+    do {                                                                       \
+        int __state = 1;                                                       \
+        setsockopt(fd, IPPROTO_TCP, TCP_CORK, &__state, sizeof(__state));      \
+    } while (0)
 
-    #define FLUSH_TCP(fd) \
-    do { \
-        int __state = 0; \
-        setsockopt(fd, IPPROTO_TCP, TCP_CORK, &__state, sizeof(__state)); \
-    } while(0)
+#define FLUSH_TCP(fd)                                                          \
+    do {                                                                       \
+        int __state = 0;                                                       \
+        setsockopt(fd, IPPROTO_TCP, TCP_CORK, &__state, sizeof(__state));      \
+    } while (0)
 #else
-    #define PACK_TCP(fd) ((void)fd);
-    #define FLUSH_TCP(fd) ((void)fd);
+#define PACK_TCP(fd) ((void)fd);
+#define FLUSH_TCP(fd) ((void)fd);
 #endif
 
 
 enum ape_socket_flags {
-    APE_SOCKET_WOULD_BLOCK  = (1 << 0),
-    APE_SOCKET_CORK         = (1 << 1)
+    APE_SOCKET_WOULD_BLOCK = (1 << 0),
+    APE_SOCKET_CORK        = (1 << 1)
 };
 
 enum ape_socket_proto {
@@ -104,13 +103,14 @@ typedef enum _ape_socket_data_autorelease {
 typedef struct _ape_socket ape_socket;
 
 typedef struct {
-    void (*on_read)         (ape_socket *, const uint8_t *data, size_t len, ape_global *, void *arg);
-    void (*on_disconnect)   (ape_socket *, ape_global *, void *arg);
-    void (*on_connect)      (ape_socket *, ape_socket *, ape_global *, void *arg);
-    void (*on_connected)    (ape_socket *, ape_global *, void *arg);
-    void (*on_message)      (ape_socket *, ape_global *, const unsigned char *packet,
-        size_t len, struct sockaddr_in *addr, void *arg);
-    void (*on_drain)        (ape_socket *, ape_global *, void *arg);
+    void (*on_read)(ape_socket *, const uint8_t *data, size_t len, ape_global *,
+                    void *arg);
+    void (*on_disconnect)(ape_socket *, ape_global *, void *arg);
+    void (*on_connect)(ape_socket *, ape_socket *, ape_global *, void *arg);
+    void (*on_connected)(ape_socket *, ape_global *, void *arg);
+    void (*on_message)(ape_socket *, ape_global *, const unsigned char *packet,
+                       size_t len, struct sockaddr_in *addr, void *arg);
+    void (*on_drain)(ape_socket *, ape_global *, void *arg);
     void *arg;
 } ape_socket_callbacks;
 
@@ -119,11 +119,11 @@ typedef struct {
 
 /* Jobs pool */
 /* (1 << 0) is reserved */
-#define APE_SOCKET_JOB_WRITEV   (1 << 1)
+#define APE_SOCKET_JOB_WRITEV (1 << 1)
 #define APE_SOCKET_JOB_SENDFILE (1 << 2)
 #define APE_SOCKET_JOB_SHUTDOWN (1 << 3)
-#define APE_SOCKET_JOB_ACTIVE   (1 << 4)
-#define APE_SOCKET_JOB_IOV      (1 << 5)
+#define APE_SOCKET_JOB_ACTIVE (1 << 4)
+#define APE_SOCKET_JOB_IOV (1 << 5)
 
 typedef struct _ape_socket_jobs_t {
     ape_pool_t pool;
@@ -134,7 +134,7 @@ typedef struct _ape_socket_jobs_t {
 struct _ape_socket {
     ape_event_descriptor s;
     buffer data_in;
-    
+
     ape_pool_list_t jobs;
 
     struct sockaddr_in sockaddr;
@@ -186,10 +186,10 @@ struct _ape_socket {
         uint8_t issecure;
     } SSL;
 #endif
-    uint16_t    remote_port;
-    uint16_t    local_port;
-    size_t      max_buffer_memory_mb;
-    size_t      current_buffer_memory_bytes;
+    uint16_t remote_port;
+    uint16_t local_port;
+    size_t max_buffer_memory_mb;
+    size_t current_buffer_memory_bytes;
 };
 
 #define APE_SOCKET_FD(socket) socket->s.fd
@@ -198,7 +198,8 @@ struct _ape_socket {
 #define APE_SOCKET_PACKET_FREE (1 << 1)
 
 typedef struct _ape_socket_packet {
-    /* inherit from ape_pool_t (same first sizeof(ape_pool_t) bytes memory-print) */
+    /* inherit from ape_pool_t (same first sizeof(ape_pool_t) bytes
+     * memory-print) */
     ape_pool_t pool;
     size_t len;
     size_t offset;
@@ -218,12 +219,12 @@ void APE_socket_shutdown_now(ape_socket *socket);
 void APE_socket_remove_callbacks(ape_socket *socket);
 
 int APE_socket_setTimeout(ape_socket *socket, sockopt_t secs);
-int APE_socket_listen(ape_socket *socket, uint16_t port,
-        const char *local_ip, int defer_accept, int reuse_port);
+int APE_socket_listen(ape_socket *socket, uint16_t port, const char *local_ip,
+                      int defer_accept, int reuse_port);
 int APE_socket_connect(ape_socket *socket, uint16_t port,
-        const char *remote_ip_host, uint16_t localport);
-int APE_socket_write(ape_socket *socket, void *data,
-    size_t len, ape_socket_data_autorelease data_type);
+                       const char *remote_ip_host, uint16_t localport);
+int APE_socket_write(ape_socket *socket, void *data, size_t len,
+                     ape_socket_data_autorelease data_type);
 int APE_socket_writev(ape_socket *socket, const struct iovec *iov, int iovcnt);
 int APE_sendfile(ape_socket *socket, const char *file);
 int APE_socket_is_online(ape_socket *socket);
@@ -236,8 +237,8 @@ int ape_socket_accept(ape_socket *socket);
 int ape_socket_read(ape_socket *socket);
 int ape_socket_read_udp(ape_socket *socket);
 int ape_socket_connected(void *arf);
-int ape_socket_write_udp(ape_socket *from, const char *data,
-    size_t len, const char *ip, uint16_t port);
+int ape_socket_write_udp(ape_socket *from, const char *data, size_t len,
+                         const char *ip, uint16_t port);
 
 #ifdef __cplusplus
 }
@@ -247,4 +248,3 @@ int ape_socket_write_udp(ape_socket *from, const char *data,
         ape_global *ape);
 */
 #endif
-

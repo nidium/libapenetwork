@@ -14,14 +14,10 @@ typedef int (*APE_timer_callback_t)(void *arg);
 typedef struct _ape_timer_t ape_timer_t;
 typedef struct _ape_timer_async_t ape_timer_async_t;
 
-enum {
-    APE_TIMER_IS_PROTECTED = 1 << 0,
-    APE_TIMER_IS_CLEARED   = 1 << 1
-};
+enum { APE_TIMER_IS_PROTECTED = 1 << 0, APE_TIMER_IS_CLEARED = 1 << 1 };
 
 
-typedef struct _ape_timers
-{
+typedef struct _ape_timers {
     ape_timer_t *head;
     ape_timer_async_t *head_async;
 
@@ -34,7 +30,8 @@ extern "C" {
 #endif
 
 
-ape_timer_t *APE_timer_create(ape_global *ape_ctx, int ms, APE_timer_callback_t cb, void *arg);
+ape_timer_t *APE_timer_create(ape_global *ape_ctx, int ms,
+                              APE_timer_callback_t cb, void *arg);
 ape_timer_t *APE_timer_getbyid(ape_global *ape_ctx, uint64_t identifier);
 
 uint64_t APE_timer_getid(ape_timer_t *timer);
@@ -45,13 +42,14 @@ void APE_timers_destroy_all(ape_global *ape_ctx);
 void APE_timer_clearbyid(ape_global *ape_ctx, uint64_t identifier, int force);
 void APE_timer_setlowresolution(ape_global *ape_ctx, int low);
 void APE_timer_setflags(ape_timer_t *timer, int flags);
-int  APE_timer_getflags(ape_timer_t *timer);
+int APE_timer_getflags(ape_timer_t *timer);
 void APE_timer_unprotect(ape_timer_t *timer);
 void APE_timer_setclearfunc(ape_timer_t *timer, APE_timer_callback_t cb);
 
 void *APE_timer_getarg(ape_timer_t *timer);
 
-ape_timer_async_t *APE_async(ape_global *ape_ctx, APE_timer_callback_t cb, void *arg);
+ape_timer_async_t *APE_async(ape_global *ape_ctx, APE_timer_callback_t cb,
+                             void *arg);
 void APE_async_setclearfunc(ape_timer_async_t *async, APE_timer_callback_t cb);
 
 int ape_timers_process(ape_global *ape_ctx);
@@ -62,9 +60,10 @@ void ape_timers_stats_print(ape_global *ape_ctx);
 }
 #endif
 
-#define timer_dispatch_async(callback, params) APE_timer_create(ape, 0, callback, params)
-#define timer_dispatch_async_unprotected(callback, params) APE_timer_unprotect(APE_timer_create(ape, 0, callback, params))
+#define timer_dispatch_async(callback, params)                                 \
+    APE_timer_create(ape, 0, callback, params)
+#define timer_dispatch_async_unprotected(callback, params)                     \
+    APE_timer_unprotect(APE_timer_create(ape, 0, callback, params))
 
 
 #endif
-

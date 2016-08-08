@@ -45,26 +45,26 @@ ape_global *APE_init()
 #endif
 
     if ((ape = malloc(sizeof(*ape))) == NULL) return NULL;
-    fdev = &ape->events;
+    fdev          = &ape->events;
     fdev->handler = EVENT_UNKNOWN;
-    #ifdef USE_EPOLL_HANDLER
+#ifdef USE_EPOLL_HANDLER
     fdev->handler = EVENT_EPOLL;
-    #endif
-    #ifdef USE_KQUEUE_HANDLER
+#endif
+#ifdef USE_KQUEUE_HANDLER
     fdev->handler = EVENT_KQUEUE;
-    #endif
-    #ifdef USE_SELECT_HANDLER
+#endif
+#ifdef USE_SELECT_HANDLER
     fdev->handler = EVENT_SELECT;
-    #endif
+#endif
 
     ape->is_running = 1;
 
     ape->timersng.run_in_low_resolution = 0;
-    ape->timersng.head = NULL;
-    ape->timersng.head_async = NULL;
-    ape->timersng.last_identifier = 0;
+    ape->timersng.head                  = NULL;
+    ape->timersng.head_async            = NULL;
+    ape->timersng.last_identifier       = 0;
 
-    ape->ctx = NULL;
+    ape->ctx          = NULL;
     ape->kill_handler = NULL;
 
     ape_dns_init(ape);
@@ -89,7 +89,7 @@ ape_global *APE_init()
     return ape;
 }
 
-void APE_destroy(ape_global * ape)
+void APE_destroy(ape_global *ape)
 {
     //  destroying dns
     struct _ares_sockets *as;
@@ -98,7 +98,7 @@ void APE_destroy(ape_global * ape)
     ares_cancel(ape->dns.channel);
     as = ape->dns.sockets.list;
 
-    for(i = 0 ; i < ape->dns.sockets.size; i++) {
+    for (i = 0; i < ape->dns.sockets.size; i++) {
         events_del(as->s.fd, ape);
         as++;
     }
@@ -125,4 +125,3 @@ void APE_destroy(ape_global * ape)
     //  destroying rest
     free(ape);
 }
-

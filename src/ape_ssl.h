@@ -17,7 +17,7 @@ extern "C" {
 
 typedef struct _ape_ssl {
     SSL_CTX *ctx;
-    SSL     *con;
+    SSL *con;
 } ape_ssl_t;
 
 void ape_ssl_library_init();
@@ -37,4 +37,3 @@ void ape_ssl_destroy(ape_ssl_t *ssl);
 #endif
 
 #endif
-

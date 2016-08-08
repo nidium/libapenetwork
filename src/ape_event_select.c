@@ -29,20 +29,19 @@ enum {
     kWatchForWrite_Event = 1 << 1,
     kWatchForError_Event = 1 << 2,
 
-    kReadyForRead_Event   = 1 << 3,
-    kReadyForWrite_Event  = 1 << 4,
-    kIsReady_Event        = (kReadyForRead_Event | kReadyForWrite_Event)
+    kReadyForRead_Event  = 1 << 3,
+    kReadyForWrite_Event = 1 << 4,
+    kIsReady_Event       = (kReadyForRead_Event | kReadyForWrite_Event)
 };
 
-typedef struct select_fdinfo_t
-{
+typedef struct select_fdinfo_t {
     void *ptr;
     int fd;
-    char watchfor:8;
+    char watchfor : 8;
 } select_fdinfo_t;
 
-static int event_select_add(struct _fdevent *ev,
-    ape_event_descriptor *evd, int bitadd)
+static int event_select_add(struct _fdevent *ev, ape_event_descriptor *evd,
+                            int bitadd)
 {
     int fd = evd->fd;
 
@@ -52,10 +51,10 @@ static int event_select_add(struct _fdevent *ev,
     }
 
     select_fdinfo_t *fdinfo = malloc(sizeof(select_fdinfo_t));
-    fdinfo->fd = fd;
-    fdinfo->ptr = evd;
-    fdinfo->watchfor = 0;
-  
+    fdinfo->fd              = fd;
+    fdinfo->ptr             = evd;
+    fdinfo->watchfor        = 0;
+
     if (bitadd & EVENT_READ) {
         fdinfo->watchfor |= kWatchForRead_Event;
     }
@@ -78,8 +77,8 @@ static int event_select_del(struct _fdevent *ev, int fd)
     return 1;
 }
 
-static int event_select_mod(struct _fdevent *ev,
-    ape_event_descriptor *evd, int bitadd)
+static int event_select_mod(struct _fdevent *ev, ape_event_descriptor *evd,
+                            int bitadd)
 {
     select_fdinfo_t *fdinfo;
 
@@ -91,7 +90,7 @@ static int event_select_mod(struct _fdevent *ev,
     }
 
     fdinfo->watchfor = 0;
-  
+
     if (bitadd & EVENT_READ) {
         fdinfo->watchfor |= kWatchForRead_Event;
     }
@@ -106,22 +105,23 @@ static int event_select_mod(struct _fdevent *ev,
 static int event_select_poll(struct _fdevent *ev, int timeout_ms)
 {
     ape_htable_item_t *item;
-    struct timeval        tv;
-    int                   fd, i, numfds;
-    fd_set                rfds, wfds;
+    struct timeval tv;
+    int fd, i, numfds;
+    fd_set rfds, wfds;
     int maxfd = 0, tmpfd = 0;
 
     if (timeout_ms < MIN_TIMEOUT_MS) {
         timeout_ms = MIN_TIMEOUT_MS;
     }
 
-    tv.tv_sec = timeout_ms / 1000;
+    tv.tv_sec  = timeout_ms / 1000;
     tv.tv_usec = (timeout_ms % 1000) * 1000;
 
     FD_ZERO(&rfds);
     FD_ZERO(&wfds);
 
-    for (item = ev->fdhash->first; item != NULL; item = item->lnext, tmpfd = 0) {
+    for (item = ev->fdhash->first; item != NULL;
+         item = item->lnext, tmpfd = 0) {
         select_fdinfo_t *fdinfo = (select_fdinfo_t *)item->content.addrs;
 
         fdinfo->watchfor &= ~kIsReady_Event;
@@ -146,10 +146,10 @@ static int event_select_poll(struct _fdevent *ev, int timeout_ms)
     } else {
         numfds = select(maxfd + 1, &rfds, &wfds, NULL, &tv);
     }
-    switch(numfds)
-    {
+    switch (numfds) {
         case -1:
-            fprintf(stderr, "Error calling select: %s, %d, %d, %d\n", strerror(SOCKERRNO), maxfd, numfds, SOCKERRNO);
+            fprintf(stderr, "Error calling select: %s, %d, %d, %d\n",
+                    strerror(SOCKERRNO), maxfd, numfds, SOCKERRNO);
             exit(1);
         case 0:
             return numfds;
@@ -162,10 +162,11 @@ static int event_select_poll(struct _fdevent *ev, int timeout_ms)
         if (FD_ISSET(fd, &rfds)) {
             fdinfo = hashtbl_seek64(ev->fdhash, fd);
             if (!fdinfo) {
-                printf("assert failed, select() returned an unknow fd (read)\n");
+                printf(
+                    "assert failed, select() returned an unknow fd (read)\n");
                 continue;
             }
-            
+
             fdinfo->watchfor |= kReadyForRead_Event;
         }
 
@@ -173,17 +174,18 @@ static int event_select_poll(struct _fdevent *ev, int timeout_ms)
             if (!fdinfo) {
                 fdinfo = hashtbl_seek64(ev->fdhash, fd);
                 if (!fdinfo) {
-                    printf("assert failed, select() returned an unknow fd (write)\n");
+                    printf(
+                        "assert failed, select() returned an unknow fd "
+                        "(write)\n");
                     continue;
-                }               
+                }
             }
             fdinfo->watchfor |= kReadyForWrite_Event;
         }
     }
 
     /* Create the events array for event_select_revent et al */
-    for (fd = 0, i = 0; fd <= maxfd; fd++)
-    {
+    for (fd = 0, i = 0; fd <= maxfd; fd++) {
         if (FD_ISSET(fd, &rfds) || FD_ISSET(fd, &wfds)) {
             ev->events[i++] = (select_fdinfo_t *)hashtbl_seek64(ev->fdhash, fd);
         }
@@ -218,7 +220,7 @@ static int event_select_revent(struct _fdevent *ev, int i)
 
 
 static int event_select_reload(struct _fdevent *ev)
-{   
+{
     /* Do nothing (?) */
 
     return 1;
@@ -228,7 +230,9 @@ static void event_select_setsize(struct _fdevent *ev, int size)
 {
     ev->basemem = FD_SETSIZE;
     if (size > FD_SETSIZE) {
-        printf("[Socket error] event_select_setsize requested a size > FD_SETSIZE (%d > %d)\n",
+        printf(
+            "[Socket error] event_select_setsize requested a size > FD_SETSIZE "
+            "(%d > %d)\n",
             size, FD_SETSIZE);
     }
     /* Do nothing */
@@ -248,17 +252,17 @@ int event_select_init(struct _fdevent *ev)
 
     ev->events = malloc(sizeof(*ev->events) * (ev->basemem));
 
-    ev->fdhash            = hashtbl_init(APE_HASH_INT);
+    ev->fdhash = hashtbl_init(APE_HASH_INT);
     hashtbl_set_cleaner(ev->fdhash, event_select_clean_fd);
 
-    ev->add               = event_select_add;
-    ev->del               = event_select_del;
-    ev->poll              = event_select_poll;
-    ev->get_current_evd   = event_select_get_evd;
-    ev->revent            = event_select_revent;
-    ev->reload            = event_select_reload;
-    ev->setsize           = event_select_setsize;
-    ev->mod               = event_select_mod;
+    ev->add             = event_select_add;
+    ev->del             = event_select_del;
+    ev->poll            = event_select_poll;
+    ev->get_current_evd = event_select_get_evd;
+    ev->revent          = event_select_revent;
+    ev->reload          = event_select_reload;
+    ev->setsize         = event_select_setsize;
+    ev->mod             = event_select_mod;
 
     printf("select() started with %i slots\n", ev->basemem);
 
@@ -271,4 +275,3 @@ int event_select_init(struct _fdevent *ev)
     return 0;
 }
 #endif
-
