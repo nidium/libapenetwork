@@ -14,6 +14,7 @@ from konstructor import Platform
 from konstructor import Variables
 from konstructor import Konstruct
 from konstructor import Utils
+from konstructor import assumeYes
 from konstructor import Tests
 from konstructor import Log
 from konstructor import ROOT
@@ -137,10 +138,6 @@ def testNetwork(unitTests, autoTests):
     @Konstruct.hook("postBuild")
     def runNetworkTest(success):
         Tests.runTest(success)
-
-@CommandLine.option("--assume-yes", default=False)
-def assumeYes(assumeYes):
-    Utils.promptAssumeYes(assumeYes)
 
 @CommandLine.option("--asan", default=False)
 def asan(asan):
