@@ -38,18 +38,18 @@ static uint32_t ape_random32(ape_global *ape)
 
 void ape_ws_init(websocket_state *state, int isclient)
 {
-    state->socket = NULL;
-    state->step    = WS_STEP_START;
-    state->data    = NULL;
-    state->error   = 0;
-    state->key.pos = 0;
+    state->socket     = NULL;
+    state->step       = WS_STEP_START;
+    state->data       = NULL;
+    state->error      = 0;
+    state->key.pos    = 0;
     state->close_sent = 0;
-    state->is_client = isclient;
+    state->is_client  = isclient;
 
-    state->frame_payload.start  = 0;
+    state->frame_payload.start           = 0;
     state->frame_payload.extended_length = 0;
-    state->frame_pos = 0;
-    state->data_inkey = 0;
+    state->frame_pos                     = 0;
+    state->data_inkey                    = 0;
 }
 
 char *ape_ws_compute_key(const char *key, unsigned int key_len)
@@ -57,71 +57,72 @@ char *ape_ws_compute_key(const char *key, unsigned int key_len)
     unsigned char digest[20];
     char out[128];
     char *b64;
-    
+
     if (key_len > 32) {
         return NULL;
     }
-    
+
     memcpy(out, key, key_len);
-    memcpy(out+key_len, WS_GUID, sizeof(WS_GUID)-1);
-    
-    sha1_csum((unsigned char *)out, (sizeof(WS_GUID)-1)+key_len, digest);
-    
+    memcpy(out + key_len, WS_GUID, sizeof(WS_GUID) - 1);
+
+    sha1_csum((unsigned char *)out, (sizeof(WS_GUID) - 1) + key_len, digest);
+
     b64 = base64_encode(digest, 20);
-    
+
     return b64; /* must be released */
 }
 
-void ape_ws_write(websocket_state *state, unsigned char *data,
-    size_t len, int binary, ape_socket_data_autorelease data_type)
+void ape_ws_write(websocket_state *state, unsigned char *data, size_t len,
+                  int binary, ape_socket_data_autorelease data_type)
 {
     unsigned char payload_head[32] = { 0x80 | (binary ? 0x02 : 0x01) };
-    size_t payload_length = 0;
-    ape_socket *socket_client = state->socket;
+    size_t payload_length          = 0;
+    ape_socket *socket_client      = state->socket;
 
     if (len <= 125) {
         payload_head[1] = (unsigned char)len & 0x7F;
-        
+
         payload_length = 2;
     } else if (len <= 65535) {
         unsigned short int s = htons(len);
         payload_head[1] = 126;
         memcpy(&payload_head[2], &s, 2);
-        
+
         payload_length = 4;
-        
+
     } else if (len <= 0xFFFFFFFF) {
-        unsigned int s = htonl(len);
+        unsigned int s  = htonl(len);
         payload_head[1] = 127;
         payload_head[2] = 0;
         payload_head[3] = 0;
         payload_head[4] = 0;
         payload_head[5] = 0;
-        
+
         memcpy(&payload_head[6], &s, 4);
-        
+
         payload_length = 10;
     }
 
     if (state->is_client) {
-         /* MASK bit */
+        /* MASK bit */
         payload_head[1] |= 0x80;
     }
 
     PACK_TCP(socket_client->s.fd);
-        APE_socket_write(socket_client, payload_head,
-            payload_length, APE_DATA_COPY);
+    APE_socket_write(socket_client, payload_head, payload_length,
+                     APE_DATA_COPY);
 
-        if (state->is_client /* Masking */) {
-            uint32_t cipherKey = ape_random32(socket_client->ape);
-            /* in-place ciphering */
-            for (int i = 0; i < len; i++) {
-                data[i] ^= ((uint8_t *)&cipherKey)[i%4];
-            }
-
-            APE_socket_write(socket_client, &cipherKey, sizeof(uint32_t), APE_DATA_COPY);
+    if (state->is_client /* Masking */) {
+        uint32_t cipherKey = ape_random32(socket_client->ape);
+        /* in-place ciphering */
+        for (int i = 0; i < len; i++) {
+            data[i] ^= ((uint8_t *)&cipherKey)[i % 4];
         }
-        APE_socket_write(socket_client, data, len, data_type);
+
+        APE_socket_write(socket_client, &cipherKey, sizeof(uint32_t),
+                         APE_DATA_COPY);
+    }
+    APE_socket_write(socket_client, data, len, data_type);
     FLUSH_TCP(socket_client->s.fd);
 }
 
@@ -162,7 +163,8 @@ static void ape_ws_send_frame(websocket_state *state, int opcode)
     if (state->is_client /* Masking */) {
         uint32_t cipherKey = ape_random32(state->socket->ape);
 
-        APE_socket_write(state->socket, &cipherKey, sizeof(uint32_t), APE_DATA_COPY);
+        APE_socket_write(state->socket, &cipherKey, sizeof(uint32_t),
+                         APE_DATA_COPY);
     }
 }
 
@@ -182,7 +184,7 @@ static void ape_ws_reset_frame_state(websocket_state *websocket)
 static int ape_ws_process_end_message(websocket_state *websocket)
 {
     unsigned char opcode = websocket->frame_payload.start & 0x0F;
-    int retval = 1;
+    int retval           = 1;
 
     switch (opcode) {
         case 0x8: /* Close frame */
@@ -195,12 +197,12 @@ static int ape_ws_process_end_message(websocket_state *websocket)
         case 0xA: /* Pong frame */
             break;
         case 0x1: /* ASCII frame */
-             websocket->on_frame(websocket, websocket->data,
-                websocket->data_inkey, 0);           
+            websocket->on_frame(websocket, websocket->data,
+                                websocket->data_inkey, 0);
             break;
         case 0x2: /* Binary frame */
             websocket->on_frame(websocket, websocket->data,
-                websocket->data_inkey, 1);
+                                websocket->data_inkey, 1);
             break;
         default:
             printf("Got an unknown frame with opcode %.2x\n", opcode);
@@ -212,7 +214,8 @@ static int ape_ws_process_end_message(websocket_state *websocket)
     return retval;
 }
 
-void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t len)
+void ape_ws_process_frame(websocket_state *websocket, const char *buf,
+                          size_t len)
 {
     const buffer *buffer = &websocket->socket->data_in;
     unsigned char *pData;
@@ -220,16 +223,17 @@ void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t le
 
     for (pData = buffer->data, pos = 0; pos < buffer->used; pos++, pData++) {
 
-        switch(websocket->step) {
+        switch (websocket->step) {
             case WS_STEP_KEY:
                 /* Copy the xor key (32 bits) */
                 websocket->key.val[websocket->key.pos] = *pData;
 
                 if (++websocket->key.pos == 4) {
-                    websocket->step = WS_STEP_DATA;
+                    websocket->step       = WS_STEP_DATA;
                     websocket->data_inkey = 0;
 
-                    if (!websocket->frame_payload.extended_length) { /* "no application data" */
+                    if (!websocket->frame_payload
+                             .extended_length) { /* "no application data" */
 
                         if (!ape_ws_process_end_message(websocket)) {
                             return;
@@ -242,14 +246,14 @@ void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t le
             case WS_STEP_START:
                 /* Contain fragmentation infos & opcode (+ reserved bits) */
                 websocket->frame_payload.start = *pData;
-                websocket->step = WS_STEP_LENGTH;
-                websocket->data_inkey = 0;
+                websocket->step                = WS_STEP_LENGTH;
+                websocket->data_inkey          = 0;
 
                 break;
             case WS_STEP_LENGTH:
                 /* Check for MASK bit */
                 websocket->mask = (*pData & 0x80);
-                    
+
                 switch (*pData & 0x7F) { /* 7bit length */
                     case 126:
                         /* Following 16bit are length */
@@ -261,11 +265,14 @@ void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t le
                         break;
                     default:
                         /* We have the actual length */
-                        websocket->frame_payload.extended_length = *pData & 0x7F;
-                        websocket->step = websocket->mask ? WS_STEP_KEY : WS_STEP_DATA;
+                        websocket->frame_payload.extended_length
+                            = *pData & 0x7F;
+                        websocket->step
+                            = websocket->mask ? WS_STEP_KEY : WS_STEP_DATA;
 
-                         /* "no application data" */
-                        if (!websocket->mask && !websocket->frame_payload.extended_length) {
+                        /* "no application data" */
+                        if (!websocket->mask
+                            && !websocket->frame_payload.extended_length) {
 
                             if (!ape_ws_process_end_message(websocket)) {
                                 return;
@@ -278,41 +285,48 @@ void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t le
                 }
                 break;
             case WS_STEP_SHORT_LENGTH:
-                memcpy(((char *)&websocket->frame_payload)+(websocket->frame_pos), 
-                        pData, 1);
+                memcpy(((char *)&websocket->frame_payload)
+                           + (websocket->frame_pos),
+                       pData, 1);
 
                 if (websocket->frame_pos == 3) {
 
-                    websocket->frame_payload.extended_length =
-                        ntohs(websocket->frame_payload.short_length);
+                    websocket->frame_payload.extended_length
+                        = ntohs(websocket->frame_payload.short_length);
 
-                    websocket->step = websocket->mask ? WS_STEP_KEY : WS_STEP_DATA;
+                    websocket->step
+                        = websocket->mask ? WS_STEP_KEY : WS_STEP_DATA;
                 }
                 break;
             case WS_STEP_EXTENDED_LENGTH:
-                memcpy(((char *)&websocket->frame_payload)+(websocket->frame_pos),
-                        pData, 1);
+                memcpy(((char *)&websocket->frame_payload)
+                           + (websocket->frame_pos),
+                       pData, 1);
 
                 if (websocket->frame_pos == 9) {
 
-                    websocket->frame_payload.extended_length =
-                        ntohl(websocket->frame_payload.extended_length >> 32);
+                    websocket->frame_payload.extended_length
+                        = ntohl(websocket->frame_payload.extended_length >> 32);
 
-                    websocket->step = websocket->mask ? WS_STEP_KEY : WS_STEP_DATA;
+                    websocket->step
+                        = websocket->mask ? WS_STEP_KEY : WS_STEP_DATA;
                 }
                 break;
             case WS_STEP_DATA:
                 if (websocket->data == NULL) {
-                    websocket->data = (unsigned char *)malloc(sizeof(char) *
-                        websocket->frame_payload.extended_length + 1);
+                    websocket->data = (unsigned char *)malloc(
+                        sizeof(char) * websocket->frame_payload.extended_length
+                        + 1);
                 }
-                
-                websocket->data[websocket->data_inkey] = websocket->mask ?
-                            *pData ^ websocket->key.val[websocket->data_inkey % 4] :
-                            *pData;
+
+                websocket->data[websocket->data_inkey]
+                    = websocket->mask
+                          ? *pData
+                                ^ websocket->key.val[websocket->data_inkey % 4]
+                          : *pData;
 
                 websocket->data_inkey++;
-                
+
                 if (--websocket->frame_payload.extended_length == 0) {
                     websocket->data[websocket->data_inkey] = '\0';
 
@@ -321,14 +335,11 @@ void ape_ws_process_frame(websocket_state *websocket, const char *buf, size_t le
                     }
 
                     websocket->frame_pos = -1;
-
                 }
                 break;
             default:
                 break;
         }
         websocket->frame_pos++;
-
     }
 }
-

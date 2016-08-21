@@ -22,7 +22,7 @@ typedef struct {
     unsigned char *buf;
     size_t buf_size;
     size_t pending_size;
-    int flush:1;
+    int flush : 1;
 } zbuffer;
 #endif
 
@@ -31,7 +31,7 @@ typedef struct {
 
     size_t size;
     size_t used;
-    
+
     uint32_t pos;
 #if APE_USE_ZLIB
     zbuffer *zbuf;
@@ -61,7 +61,7 @@ void buffer_destroy(buffer *b);
 void buffer_prepare(buffer *b, size_t size);
 void buffer_append_data(buffer *b, const unsigned char *data, size_t size);
 void buffer_append_data_tolower(buffer *b, const unsigned char *data,
-    size_t size);
+                                size_t size);
 void buffer_append_char(buffer *b, const unsigned char data);
 void buffer_append_string(buffer *b, const char *string);
 void buffer_append_string_n(buffer *b, const char *string, size_t length);
@@ -75,4 +75,3 @@ void buffer_camelify(buffer *b);
 #endif
 
 #endif
-

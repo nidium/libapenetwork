@@ -36,7 +36,16 @@
     {
         'target_name': 'network-unittests',
         'type': 'executable',
-        'product_dir': '<(libapenetwork_tests_output_path)',
+        # When built from a different directory the current 
+        # working directory of gyp is different between 
+        # OSX and Linux. Workaround that.
+        'conditions': [
+            ['OS=="mac"', {
+                'product_dir': '<(libapenetwork_tests_output_path)',
+            }, {
+                'product_dir': '../build/tests/',
+            }]
+        ],
         'dependencies': [
             'network-unittests.gyp:unittests-settings',
             'network.gyp:*',

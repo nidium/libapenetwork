@@ -17,8 +17,8 @@
 
 #if APE_USE_ZLIB
 struct gztrailer {
-    uint32_t  crc32;
-    uint32_t  zlen;
+    uint32_t crc32;
+    uint32_t zlen;
 };
 
 static void *zbuffer_allocate(void *opaque, uint items, uint size)
@@ -30,7 +30,7 @@ static void *zbuffer_allocate(void *opaque, uint items, uint size)
 static void zbuffer_adjust_outbuf(buffer *b)
 {
     b->zbuf->zstream.avail_out = b->size - b->used;
-    b->zbuf->zstream.next_out = b->data + b->used;
+    b->zbuf->zstream.next_out  = b->data + b->used;
 }
 
 static void zbuffer_prepapre_buf(buffer *b, size_t input_size)
@@ -85,11 +85,11 @@ void buffer_set_gzip(buffer *b)
 
     zbuffer *zbuf = b->zbuf;
 
-    zbuf->zstream.zalloc = zbuffer_allocate;
+    zbuf->zstream.zalloc  = zbuffer_allocate;
     zbuf->zstream.next_in = NULL;
 
-    int rc = deflateInit2(&zbuf->zstream, Z_DEFAULT_COMPRESSION,
-        Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY);
+    int rc = deflateInit2(&zbuf->zstream, Z_DEFAULT_COMPRESSION, Z_DEFLATED,
+                          -15, 8, Z_DEFAULT_STRATEGY);
 
     if (rc != Z_OK) {
         printf("Failed to init zlib\n");
@@ -108,7 +108,7 @@ static void buffer_gzip_reset(buffer *b)
     deflateReset(&b->zbuf->zstream);
     if (b->zbuf->buf) {
         free(b->zbuf->buf);
-        b->zbuf->buf = NULL;
+        b->zbuf->buf      = NULL;
         b->zbuf->buf_size = 0;
     }
     b->zbuf->crc32 = 0;
@@ -151,7 +151,7 @@ unsigned char *buffer_data(buffer *b, int *len)
     }
 
     int ret = Z_OK;
-    *len = 0;
+    *len    = 0;
 
     if (b->zbuf->zstream.next_out == NULL) {
         return NULL;
@@ -254,7 +254,8 @@ void buffer_append_data(buffer *b, const unsigned char *data, size_t size)
     }
 #if APE_USE_ZLIB
     if (b->zbuf) {
-        buffer_prepare(b, deflateBound(&b->zbuf->zstream, b->zbuf->zstream.avail_in+size));
+        buffer_prepare(b, deflateBound(&b->zbuf->zstream,
+                                       b->zbuf->zstream.avail_in + size));
 
         zbuffer_prepapre_buf(b, size);
         int flush = b->zbuf->flush ? Z_FINISH : Z_NO_FLUSH;
@@ -268,7 +269,7 @@ void buffer_append_data(buffer *b, const unsigned char *data, size_t size)
         }
 
         int consumed = b->zbuf->zstream.avail_in + size;
-        int outsize = b->zbuf->zstream.avail_out;
+        int outsize  = b->zbuf->zstream.avail_out;
 
         b->zbuf->zstream.avail_in += size;
         b->zbuf->crc32 = crc32(b->zbuf->crc32, data, size);
@@ -299,26 +300,27 @@ void buffer_append_data(buffer *b, const unsigned char *data, size_t size)
 
     } else {
 #endif
-        buffer_prepare(b, size+1);
+        buffer_prepare(b, size + 1);
         memcpy(b->data + b->used, data, size);
-        b->data[b->used+size] = '\0';
+        b->data[b->used + size] = '\0';
         b->used += size;
 #if APE_USE_ZLIB
     }
 #endif
 }
 
-void buffer_append_data_tolower(buffer *b, const unsigned char *data, size_t size)
+void buffer_append_data_tolower(buffer *b, const unsigned char *data,
+                                size_t size)
 {
-    buffer_prepare(b, size+1);
+    buffer_prepare(b, size + 1);
     unsigned i;
 
     for (i = 0; i < size; i++) {
-        b->data[b->used+i] = tolower(data[i]);
+        b->data[b->used + i] = tolower(data[i]);
     }
-    
-    b->data[b->used+size] = '\0';
-    b->used += size;   
+
+    b->data[b->used + size] = '\0';
+    b->used += size;
 }
 
 void buffer_append_char(buffer *b, const unsigned char data)
@@ -357,7 +359,7 @@ void buffer_camelify(buffer *b)
 /* taken from PHP 5.3 */
 buffer *buffer_to_buffer_utf8(buffer *b)
 {
-    int pos = b->used;
+    int pos          = b->used;
     unsigned char *s = b->data;
     unsigned int c;
 
@@ -386,8 +388,8 @@ buffer *buffer_to_buffer_utf8(buffer *b)
     }
     newb->data[newb->used] = '\0';
 
-    if (newb->size > newb->used+1) {
-        newb->size = newb->used+1;
+    if (newb->size > newb->used + 1) {
+        newb->size = newb->used + 1;
         newb->data = realloc(newb->data, newb->size);
     }
 
@@ -397,7 +399,7 @@ buffer *buffer_to_buffer_utf8(buffer *b)
 /* taken from PHP 5.3 (sry) */
 buffer *buffer_utf8_to_buffer(buffer *b)
 {
-    int pos = b->used;
+    int pos          = b->used;
     unsigned char *s = b->data;
     unsigned int c;
 
@@ -407,25 +409,25 @@ buffer *buffer_utf8_to_buffer(buffer *b)
         c = (unsigned char)(*s);
 
         if (c >= 0xf0) { /* four bytes encoded, 21 bits */
-            if (pos-4 >= 0) {
-                c = ((s[0]&7)<<18) | ((s[1]&63)<<12) | ((s[2]&63)<<6) |
-                    (s[3]&63);
+            if (pos - 4 >= 0) {
+                c = ((s[0] & 7) << 18) | ((s[1] & 63) << 12)
+                    | ((s[2] & 63) << 6) | (s[3] & 63);
             } else {
                 c = '?';
             }
             s += 4;
             pos -= 4;
         } else if (c >= 0xe0) { /* three bytes encoded, 16 bits */
-            if (pos-3 >= 0) {
-                c = ((s[0]&63)<<12) | ((s[1]&63)<<6) | (s[2]&63);
+            if (pos - 3 >= 0) {
+                c = ((s[0] & 63) << 12) | ((s[1] & 63) << 6) | (s[2] & 63);
             } else {
                 c = '?';
             }
             s += 3;
             pos -= 3;
         } else if (c >= 0xc0) { /* two bytes encoded, 11 bits */
-            if (pos-2 >= 0) {
-                c = ((s[0]&63)<<6) | (s[1]&63);
+            if (pos - 2 >= 0) {
+                c = ((s[0] & 63) << 6) | (s[1] & 63);
             } else {
                 c = '?';
             }
@@ -440,11 +442,10 @@ buffer *buffer_utf8_to_buffer(buffer *b)
 
     newb->data[newb->used] = '\0';
 
-    if (newb->size > newb->used+1) {
-        newb->size = newb->used+1;
+    if (newb->size > newb->used + 1) {
+        newb->size = newb->used + 1;
         newb->data = realloc(newb->data, newb->size);
     }
 
     return newb;
 }
-

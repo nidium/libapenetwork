@@ -44,7 +44,8 @@ extern "C" {
  * @param key a key
  * @param key_len length of the key
  */
-void APE_blowfish_init(struct APEBlowfish *ctx, const uint8_t *key, int key_len);
+void APE_blowfish_init(struct APEBlowfish *ctx, const uint8_t *key,
+                       int key_len);
 
 /**
  * Encrypt or decrypt a buffer using a previously initialized context.
@@ -55,7 +56,7 @@ void APE_blowfish_init(struct APEBlowfish *ctx, const uint8_t *key, int key_len)
  * @param decrypt 0 for encryption, 1 for decryption
  */
 void APE_blowfish_crypt_ecb(struct APEBlowfish *ctx, uint32_t *xl, uint32_t *xr,
-                           int decrypt);
+                            int decrypt);
 
 
 #ifdef __cplusplus

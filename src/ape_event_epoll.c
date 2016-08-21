@@ -20,13 +20,13 @@
 
 #ifdef USE_EPOLL_HANDLER
 
-static int event_epoll_add(struct _fdevent *ev,
-    ape_event_descriptor *evd, int bitadd)
+static int event_epoll_add(struct _fdevent *ev, ape_event_descriptor *evd,
+                           int bitadd)
 {
     struct epoll_event kev;
 
     kev.data.u64 = 0;
-    kev.events = ((bitadd & EVENT_LEVEL ? 0 : EPOLLET)) | EPOLLPRI;
+    kev.events   = ((bitadd & EVENT_LEVEL ? 0 : EPOLLET)) | EPOLLPRI;
 
     if (bitadd & EVENT_READ) {
         kev.events |= EPOLLIN;
@@ -45,13 +45,13 @@ static int event_epoll_add(struct _fdevent *ev,
     return 1;
 }
 
-static int event_epoll_mod(struct _fdevent *ev,
-    ape_event_descriptor *evd, int bitadd)
+static int event_epoll_mod(struct _fdevent *ev, ape_event_descriptor *evd,
+                           int bitadd)
 {
     struct epoll_event kev;
 
     kev.data.u64 = 0;
-    kev.events = ((bitadd & EVENT_LEVEL ? 0 : EPOLLET)) | EPOLLPRI;
+    kev.events   = ((bitadd & EVENT_LEVEL ? 0 : EPOLLET)) | EPOLLPRI;
 
     if (bitadd & EVENT_READ) {
         kev.events |= EPOLLIN;
@@ -73,8 +73,8 @@ static int event_epoll_poll(struct _fdevent *ev, int timeout_ms)
 {
     int nfds;
 
-    if ((nfds = epoll_wait(ev->epoll_fd, ev->events, ev->basemem,
-                    timeout_ms)) == -1) {
+    if ((nfds = epoll_wait(ev->epoll_fd, ev->events, ev->basemem, timeout_ms))
+        == -1) {
         return -1;
     }
 
@@ -89,8 +89,7 @@ static ape_event_descriptor *event_epoll_get_evd(struct _fdevent *ev, int i)
 
 static void event_epoll_setsize(struct _fdevent *ev, int size)
 {
-    ev->events = realloc(ev->events,
-            sizeof(struct epoll_event) * (size));
+    ev->events = realloc(ev->events, sizeof(struct epoll_event) * (size));
 }
 
 static int event_epoll_revent(struct _fdevent *ev, int i)
@@ -150,4 +149,3 @@ int event_epoll_init(struct _fdevent *ev)
     return 0;
 }
 #endif
-

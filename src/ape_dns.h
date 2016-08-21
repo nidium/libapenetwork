@@ -16,7 +16,7 @@ extern "C" {
 #endif
 
 typedef int (*ape_gethostbyname_callback)(const char *ip, void *arg,
-        int status);
+                                          int status);
 
 
 struct _ares_sockets {
@@ -28,20 +28,19 @@ typedef struct _ape_dns_cb_argv {
     ape_gethostbyname_callback callback;
     const char *origin;
     void *arg;
-    int invalidate:4;
-    int done:4;
+    int invalidate : 4;
+    int done : 4;
 } ape_dns_state;
 
 void ape_dns_invalidate(ape_dns_state *state);
 int ape_dns_init(ape_global *ape);
 
-ape_dns_state *ape_gethostbyname(const char *host, ape_gethostbyname_callback callback,
-        void *arg, ape_global *ape);
+ape_dns_state *ape_gethostbyname(const char *host,
+                                 ape_gethostbyname_callback callback, void *arg,
+                                 ape_global *ape);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
-
-

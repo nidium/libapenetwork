@@ -20,6 +20,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#define HACH_TABLE_MAX 8209
+
 extern unsigned long _ape_seed;
 
 #if 0
@@ -45,15 +47,14 @@ ape_htable_t *hashtbl_init_with_size(ape_hash_type type, int table_size)
 
     htbl = malloc(sizeof(*htbl));
 
-    htbl_item = (ape_htable_item_t **)
-                    malloc(sizeof(*htbl_item) * (table_size));
+    htbl_item = (ape_htable_item_t **)malloc(sizeof(*htbl_item) * (table_size));
 
     memset(htbl_item, 0, sizeof(*htbl_item) * (table_size));
 
-    htbl->size = table_size;
-    htbl->first = NULL;
-    htbl->table = htbl_item;
-    htbl->type  = type;
+    htbl->size    = table_size;
+    htbl->first   = NULL;
+    htbl->table   = htbl_item;
+    htbl->type    = type;
     htbl->cleaner = NULL;
 
     return htbl;
@@ -79,7 +80,7 @@ void hashtbl_free(ape_htable_t *htbl)
         hTmp = htbl->table[i];
         while (hTmp != 0) {
             hNext = hTmp->next;
-            
+
             if (htbl->cleaner) {
                 htbl->cleaner(hTmp);
             }
@@ -106,7 +107,7 @@ void hashtbl_append64(ape_htable_t *htbl, uint64_t key, void *structaddr)
 
     hTmp = (ape_htable_item_t *)malloc(sizeof(*hTmp));
 
-    hTmp->next = NULL;
+    hTmp->next  = NULL;
     hTmp->lnext = htbl->first;
     hTmp->lprev = NULL;
 
@@ -149,7 +150,7 @@ void hashtbl_erase64(ape_htable_t *htbl, uint64_t key)
 
     key_hash = key % htbl->size;
 
-    hTmp = htbl->table[key_hash];
+    hTmp  = htbl->table[key_hash];
     hPrev = NULL;
 
     while (hTmp != NULL) {
@@ -157,7 +158,7 @@ void hashtbl_erase64(ape_htable_t *htbl, uint64_t key)
 
             if (htbl->cleaner) {
                 htbl->cleaner(hTmp);
-            }            
+            }
 
             if (hPrev != NULL) {
                 hPrev->next = hTmp->next;
@@ -175,12 +176,12 @@ void hashtbl_erase64(ape_htable_t *htbl, uint64_t key)
             }
 
             hTmp->key.integer = 0;
-            
+
             free(hTmp);
             return;
         }
         hPrev = hTmp;
-        hTmp = hTmp->next;
+        hTmp  = hTmp->next;
     }
 }
 
@@ -203,8 +204,8 @@ void *hashtbl_seek64(ape_htable_t *htbl, uint64_t key)
     return NULL;
 }
 
-void hashtbl_append_val32(ape_htable_t *htbl, const char *key,
-        int key_len, uint32_t val)
+void hashtbl_append_val32(ape_htable_t *htbl, const char *key, int key_len,
+                          uint32_t val)
 {
     unsigned int key_hash;
     ape_htable_item_t *hTmp, *hDbl;
@@ -217,15 +218,15 @@ void hashtbl_append_val32(ape_htable_t *htbl, const char *key,
 
     hTmp = (ape_htable_item_t *)malloc(sizeof(*hTmp));
 
-    hTmp->next = NULL;
+    hTmp->next  = NULL;
     hTmp->lnext = htbl->first;
     hTmp->lprev = NULL;
 
-    hTmp->key.str = malloc(sizeof(char) * (key_len+1));
+    hTmp->key.str = malloc(sizeof(char) * (key_len + 1));
 
     hTmp->content.scalar = val;
 
-    memcpy(hTmp->key.str, key, key_len+1);
+    memcpy(hTmp->key.str, key, key_len + 1);
 
     if (htbl->table[key_hash] != NULL) {
         hDbl = htbl->table[key_hash];
@@ -249,11 +250,11 @@ void hashtbl_append_val32(ape_htable_t *htbl, const char *key,
 
     htbl->first = hTmp;
 
-    htbl->table[key_hash] = hTmp;    
+    htbl->table[key_hash] = hTmp;
 }
 
-void hashtbl_append(ape_htable_t *htbl, const char *key,
-        int key_len, void *structaddr)
+void hashtbl_append(ape_htable_t *htbl, const char *key, int key_len,
+                    void *structaddr)
 {
     unsigned int key_hash;
     ape_htable_item_t *hTmp, *hDbl;
@@ -266,15 +267,15 @@ void hashtbl_append(ape_htable_t *htbl, const char *key,
 
     hTmp = (ape_htable_item_t *)malloc(sizeof(*hTmp));
 
-    hTmp->next = NULL;
+    hTmp->next  = NULL;
     hTmp->lnext = htbl->first;
     hTmp->lprev = NULL;
 
-    hTmp->key.str = malloc(sizeof(char) * (key_len+1));
+    hTmp->key.str = malloc(sizeof(char) * (key_len + 1));
 
     hTmp->content.addrs = (void *)structaddr;
 
-    memcpy(hTmp->key.str, key, key_len+1);
+    memcpy(hTmp->key.str, key, key_len + 1);
 
     if (htbl->table[key_hash] != NULL) {
         hDbl = htbl->table[key_hash];
@@ -294,7 +295,7 @@ void hashtbl_append(ape_htable_t *htbl, const char *key,
         }
         hTmp->next = htbl->table[key_hash];
     }
-    
+
     if (htbl->first != NULL) {
         htbl->first->lprev = hTmp;
     }
@@ -316,7 +317,7 @@ void hashtbl_erase(ape_htable_t *htbl, const char *key, int key_len)
 
     key_hash = ape_hash_str(key, key_len, htbl->size);
 
-    hTmp = htbl->table[key_hash];
+    hTmp  = htbl->table[key_hash];
     hPrev = NULL;
 
     while (hTmp != NULL) {
@@ -344,7 +345,7 @@ void hashtbl_erase(ape_htable_t *htbl, const char *key, int key_len)
             return;
         }
         hPrev = hTmp;
-        hTmp = hTmp->next;
+        hTmp  = hTmp->next;
     }
 }
 
@@ -397,13 +398,13 @@ uint32_t hashtbl_seek_val32(ape_htable_t *htbl, const char *key, int key_len)
 //-----------------------------------------------------------------------------
 // MurmurHash2, by Austin Appleby
 
-unsigned int MurmurHash2 ( const void * key, int len, unsigned int seed )
+unsigned int MurmurHash2(const void *key, int len, unsigned int seed)
 {
     // 'm' and 'r' are mixing constants generated offline.
     // They're not really 'magic', they just happen to work well.
 
     const unsigned int m = 0x5bd1e995;
-    const int r = 24;
+    const int r          = 24;
 
     // Initialize the hash to a 'random' value
 
@@ -411,10 +412,9 @@ unsigned int MurmurHash2 ( const void * key, int len, unsigned int seed )
 
     // Mix 4 bytes at a time into the hash
 
-    const unsigned char * data = (const unsigned char *)key;
+    const unsigned char *data = (const unsigned char *)key;
 
-    while(len >= 4)
-    {
+    while (len >= 4) {
         unsigned int k = *(unsigned int *)data;
 
         k *= m;
@@ -430,14 +430,16 @@ unsigned int MurmurHash2 ( const void * key, int len, unsigned int seed )
 
     // Handle the last few bytes of the input array
 
-    switch(len)
-    {
-    case 3: h ^= data[2] << 16;
-    case 2: h ^= data[1] << 8;
-    case 1: h ^= data[0];
+    switch (len) {
+        case 3:
+            h ^= data[2] << 16;
+        case 2:
+            h ^= data[1] << 8;
+        case 1:
+            h ^= data[0];
             h *= m;
             break;
-    default:
+        default:
             break;
     };
 
@@ -450,4 +452,3 @@ unsigned int MurmurHash2 ( const void * key, int len, unsigned int seed )
 
     return h;
 }
-

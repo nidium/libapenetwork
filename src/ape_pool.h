@@ -48,27 +48,31 @@ void ape_pool_rewind(ape_pool_list_t *list);
 void ape_init_pool_list(ape_pool_list_t *list, size_t size, size_t n);
 void ape_destroy_pool(ape_pool_t *pool);
 void ape_destroy_pool_with_cleaner(ape_pool_t *pool,
-    ape_pool_clean_callback cleaner, void *ctx);
-void ape_destroy_pool_ordered(ape_pool_t *pool,
-    ape_pool_clean_callback cleaner, void *ctx);
+                                   ape_pool_clean_callback cleaner, void *ctx);
+void ape_destroy_pool_ordered(ape_pool_t *pool, ape_pool_clean_callback cleaner,
+                              void *ctx);
 void ape_destroy_pool_list(ape_pool_list_t *list);
 void ape_destroy_pool_list_ordered(ape_pool_list_t *list,
-    ape_pool_clean_callback cleaner, void *ctx);
+                                   ape_pool_clean_callback cleaner, void *ctx);
 void ape_destroy_pool_list_with_cleaner(ape_pool_list_t *list,
-    ape_pool_clean_callback cleaner, void *ctx);
+                                        ape_pool_clean_callback cleaner,
+                                        void *ctx);
 #ifdef __cplusplus
 }
 #endif
 
-#define APE_P_FOREACH(_list, _val) \
-        ape_pool_t *__pool_item = NULL; \
-        for (__pool_item = _list->head; __pool_item != NULL && (_val = __pool_item->ptr.data) != NULL; __pool_item = __pool_item->next)
+#define APE_P_FOREACH(_list, _val)                                             \
+    ape_pool_t *__pool_item = NULL;                                            \
+    for (__pool_item = _list->head;                                            \
+         __pool_item != NULL && (_val = __pool_item->ptr.data) != NULL;        \
+         __pool_item = __pool_item->next)
 
-#define APE_P_FOREACH_REVERSE(_list, _val) \
-        ape_pool_t *__pool_item = NULL; \
-        _val = NULL; \
-        if (_list->current) \
-            for (__pool_item = _list->current->prev; __pool_item != NULL && (_val = __pool_item->ptr.data) != NULL; __pool_item = __pool_item->prev)
+#define APE_P_FOREACH_REVERSE(_list, _val)                                     \
+    ape_pool_t *__pool_item = NULL;                                            \
+    _val = NULL;                                                               \
+    if (_list->current)                                                        \
+        for (__pool_item = _list->current->prev;                               \
+             __pool_item != NULL && (_val = __pool_item->ptr.data) != NULL;    \
+             __pool_item = __pool_item->prev)
 
 #endif
-
