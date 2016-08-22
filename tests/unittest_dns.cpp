@@ -54,12 +54,12 @@ TEST(DNS, Resolve)
 
     ape_running = g_ape->is_running = 1;
     dns_state = ape_gethostbyname("nidium.com", shutdown_loop_on_resolve,
-                                  (void *)"195.154.184.149", g_ape);
+                                  (void *)"212.83.162.183", g_ape);
     APE_loop_run(g_ape);
 
     ape_running = g_ape->is_running = 1;
-    dns_state = ape_gethostbyname("195.154.184.149", shutdown_loop_on_resolve,
-                                  (void *)"195.154.184.149", g_ape);
+    dns_state = ape_gethostbyname("212.83.162.183", shutdown_loop_on_resolve,
+                                  (void *)"212.83.162.183", g_ape);
     APE_loop_run(g_ape);
 
     APE_destroy(g_ape);
