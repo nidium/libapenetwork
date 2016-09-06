@@ -1302,7 +1302,6 @@ static int ape_shutdown(ape_socket *socket, int rw)
 
 static int ape_socket_read_lz4_stream(ape_socket *socket)
 {
-    int io_error      = 0;
     const char *pData = (char *)socket->data_in.data;
     ssize_t pLen      = socket->data_in.used;
     char tmpBuf[APE_LZ4_BLOCK_SIZE];
@@ -1353,9 +1352,6 @@ static int ape_socket_read_lz4_stream(ape_socket *socket)
         if (pLen > buffer_pos
             && socket->lz4.rx.current_block_size <= APE_LZ4_BLOCK_COMP_SIZE
             && pLen - buffer_pos >= socket->lz4.rx.current_block_size) {
-
-            char *pDecomp = socket->lz4.rx.dict_buffer.data
-                            + socket->lz4.rx.dict_buffer.pos;
 
             int rc = APE_LZ4_decompress_safe_continue(
                 socket->lz4.rx.ctx,
