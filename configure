@@ -58,7 +58,7 @@ def openssl():
 
     return {
         "location": "https://github.com/openssl/openssl/archive/OpenSSL_1_0_1t.tar.gz",
-        "build": [configure, "make depend", "make build_crypto", "make build_ssl"],
+        "build": [configure + "||make depend", "make build_crypto", "make build_ssl"],
         "outputs": ["libssl(.a|.lib)", "libcrypto(.a|.lib)"]
     }
 
