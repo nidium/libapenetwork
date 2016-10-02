@@ -44,18 +44,23 @@ def gyp():
 
 @Deps.register("c-ares")
 def cares():
+    makefile = ''
+    if Platform.system == 'Windows':
+        makefile = " -f Makefile.m32"
     return {
         "location": "http://c-ares.haxx.se/download/c-ares-1.12.0.tar.gz",
-        "build": ["./configure", "make"],
+        "build": ["./configure", "make" + makefile],
         "outputs": [".libs/libcares.a"]
     }
 
 @Deps.register("openssl")
 def openssl():
-    configure = "./config -fPIC"
-    if Platform.system == "Darwin":
+    if Platform.system == 'Windows':
+	configure = "./Configure mingw -fPIC"
+    elif Platform.system == "Darwin":
         configure = "./Configure darwin64-x86_64-cc -no-shared"
-
+    else:
+        configure = "./config -fPIC"
     return {
         "location": "https://github.com/openssl/openssl/archive/OpenSSL_1_0_1t.tar.gz",
         "build": [configure + "||make depend", "make build_crypto", "make build_ssl"],
@@ -64,9 +69,13 @@ def openssl():
 
 @Deps.register("zlib")
 def zlip():
+    if Platform.system == 'Windows':
+        build = ["make -f ./win32/Makefile.gcc"]
+    else:
+        build = ["./configure --static", "make"],
     return {
         "location": "http://zlib.net/zlib-1.2.8.tar.gz",
-        "build": ["./configure --static", "make"],
+        "build": build,
         "outputs": ["libz.a"]
     }
 
@@ -145,7 +154,7 @@ def asan(asan):
 
 #####
 
-Deps.set("gyp", "c-ares", "openssl", "zlib")
+#Deps.set("gyp", "c-ares", "openssl", "zlib")
 Variables.set("depsRepo", DEPEDENCY_REPO)
 
 @CommandLine.option("--mac-sdk-version", default="")
