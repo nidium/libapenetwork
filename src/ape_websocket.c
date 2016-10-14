@@ -129,6 +129,16 @@ void ape_ws_write(websocket_state *state, unsigned char *data, size_t len,
 void ape_ws_close(websocket_state *state)
 {
     ape_ws_send_frame(state, WS_CTRL_FRAME_CLOSE);
+
+    /*
+        We delay the shutdown to avoid an
+        active close (leading to TIME_WAIT state) and give a chance
+        to the other end to close first.
+
+        Since we want a server to have fewer
+        TIME_WAIT socket, we're closing later.
+    */
+    APE_socket_shutdown_delay(state->socket, state->is_client ? 500 : 2000);
 }
 
 void ape_ws_ping(websocket_state *state)

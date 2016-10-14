@@ -173,6 +173,8 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
     ret->states.type  = APE_SOCKET_TP_UNKNOWN;
     ret->states.state = APE_SOCKET_ST_PENDING;
 
+    ret->delay_timer = NULL;
+
 #ifdef _HAVE_SSL_SUPPORT
     ret->SSL.issecure   = (pt == APE_SOCKET_PT_SSL);
     ret->SSL.need_write = 0;
@@ -494,6 +496,25 @@ void APE_socket_shutdown(ape_socket *socket)
     ape_shutdown(socket, SHUT_RDWR);
 }
 
+int ape_socket_shutdown_delay_cb(void *socket)
+{
+    APE_socket_shutdown((ape_socket *)socket);
+
+    ((ape_socket *)socket)->delay_timer = NULL;
+
+    return 0;
+}
+
+void APE_socket_shutdown_delay(ape_socket *socket, int ms)
+{
+    if (socket->delay_timer) {
+        return;
+    }
+    
+    socket->delay_timer =
+        APE_timer_create(socket->ape, ms, ape_socket_shutdown_delay_cb, socket);
+}
+
 
 /*
     Shutdown the socket without pushing the action to the job list
@@ -594,6 +615,11 @@ static int ape_socket_free(void *arg)
                                   ape_socket_job_pool_cleaner, socket);
 
     ape_socket_free_lz4(socket);
+
+    if (socket->delay_timer) {
+        APE_timer_destroy(socket->ape, socket->delay_timer);
+    }
+
     free(socket);
 
     return 0;
@@ -913,7 +939,7 @@ int ape_socket_do_jobs(ape_socket *socket)
     const size_t max_chunks = MAX_IOVEC;
 #elif defined(UIO_MAXIOV)
     const size_t max_chunks = UIO_MAXIOV;
-#elif(defined(__FreeBSD__) && __FreeBSD_version < 500000)                      \
+#elif(defined(__FreeBSD__) && __FreeBSD_version < 500000) \
     || defined(__DragonFly__) || defined(__APPLE__)
     const size_t max_chunks = 1024;
 #elif defined(_SC_IOV_MAX)
