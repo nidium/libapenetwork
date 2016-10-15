@@ -227,11 +227,10 @@ static int ape_ws_process_end_message(websocket_state *websocket)
 void ape_ws_process_frame(websocket_state *websocket, const char *buf,
                           size_t len)
 {
-    const buffer *buffer = &websocket->socket->data_in;
     unsigned char *pData;
-    int pos;
+    size_t pos;
 
-    for (pData = buffer->data, pos = 0; pos < buffer->used; pos++, pData++) {
+    for (pData = (unsigned char *)buf, pos = 0; pos < len; pos++, pData++) {
 
         switch (websocket->step) {
             case WS_STEP_KEY:
