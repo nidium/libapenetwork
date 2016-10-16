@@ -72,7 +72,7 @@ def zlip():
     if Platform.system == 'Windows':
         build = ["make -f ./win32/Makefile.gcc"]
     else:
-        build = ["./configure --static", "make"],
+        build = ["./configure --static", "make"]
     return {
         "location": "http://zlib.net/zlib-1.2.8.tar.gz",
         "build": build,
