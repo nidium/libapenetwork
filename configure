@@ -154,7 +154,7 @@ def asan(asan):
 
 #####
 
-#Deps.set("gyp", "c-ares", "openssl", "zlib")
+Deps.set("gyp", "c-ares", "openssl", "zlib")
 Variables.set("depsRepo", DEPEDENCY_REPO)
 
 @CommandLine.option("--mac-sdk-version", default="")
