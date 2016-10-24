@@ -507,7 +507,7 @@ int ape_socket_shutdown_delay_cb(void *socket)
 
 void APE_socket_shutdown_delay(ape_socket *socket, int ms)
 {
-    if (socket->delay_timer) {
+    if (!socket || socket->delay_timer) {
         return;
     }
     
