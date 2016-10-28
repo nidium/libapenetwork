@@ -19,6 +19,7 @@
                             '-lgtest',
                             '-ldl',
                             '-lpthread',
+                            '-lrt'
                         ]
                     }
                 }],
