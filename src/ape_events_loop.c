@@ -148,6 +148,7 @@ event_loop:
         ape_running = 1;
         goto event_loop;
     }
-
+#ifdef DEBUG
     fprintf(stdout, "[libapenetwork] exiting event loop...\n");
+#endif
 }

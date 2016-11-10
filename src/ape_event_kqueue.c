@@ -147,7 +147,9 @@ int event_kqueue_init(struct _fdevent *ev)
     ev->del             = NULL;
     ev->mod             = event_kqueue_mod;
 
-    // printf("Event loop started using kqueue()\n");
+#ifdef DEBUG
+    printf("Event loop started using kqueue()\n");
+#endif
 
     return 1;
 }

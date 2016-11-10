@@ -138,8 +138,9 @@ int event_epoll_init(struct _fdevent *ev)
     ev->reload          = event_epoll_reload;
     ev->mod             = event_epoll_mod;
 
+#ifdef DEBUG
     printf("Event loop started using epoll()\n");
-
+#endif
     return 1;
 }
 
