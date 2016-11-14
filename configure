@@ -145,7 +145,8 @@ def testNetwork(unitTests):
 
     @Konstruct.hook("postBuild")
     def runNetworkTest(success):
-        Tests.runTest(success)
+        exitCode = 0 if Tests.runTest(success) else 4
+        Utils.exit(code=exitCode)
 
 @CommandLine.option("--asan", default=False)
 def asan(asan):
