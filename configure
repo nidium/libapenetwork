@@ -84,7 +84,7 @@ def gperftools():
     return {
         "location": "https://github.com/gperftools/gperftools/releases/download/gperftools-2.5/gperftools-2.5.tar.gz",
         "build": ["autoconf", "chmod +x ./configure", "./configure --enable-static --enable-shared", "make"],
-        "outputs": [[".libs/libprofiler.so.0$", "libprofiler.so"], {"src": "src/pprof", "dst": "../../tools/pprof"}]
+        "outputs": [[".libs/libprofiler.so.0$", "libprofiler.so"], {"src": "src/pprof", "dst": "../../../tools/pprof"}]
     }
 
 @Deps.register("gtest")
