@@ -10,9 +10,11 @@
 
 void ape_ssl_library_init()
 {
-    SSL_library_init();
-    SSL_load_error_strings();
-    OpenSSL_add_all_algorithms();
+     OPENSSL_init_ssl(OPENSSL_INIT_LOAD_SSL_STRINGS
+                          | OPENSSL_INIT_LOAD_CRYPTO_STRINGS
+                          | OPENSSL_INIT_ADD_ALL_CIPHERS
+                          | OPENSSL_INIT_ADD_ALL_DIGESTS,
+                      NULL);
 }
 
 void ape_ssl_library_destroy()

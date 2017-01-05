@@ -15,7 +15,7 @@
             ],
 
             'conditions': [
-                ['OS=="win"', {
+                ['target_os=="win"', {
                     'include_dirs': [
                         '<(third_party_path)/openssl/inc32/',
                     ]
@@ -24,6 +24,7 @@
 
             'defines': [
                 '_HAVE_SSL_SUPPORT',
+                'OPENSSL_API_COMPAT=0x10100000L',
                 'CARES_STATICLIB',
                 'FD_SETSIZE=2048'
 #                'USE_SPECIFIC_HANDLER',
@@ -35,7 +36,7 @@
         'type': 'none',
         'direct_dependent_settings': {
             'conditions': [
-                ['OS=="linux"', {
+                ['target_os=="linux" or target_os=="android"', {
                     "link_settings": {
                         'libraries': [
                             '-lcares',
@@ -47,7 +48,7 @@
                         ]
                     }
                 }],
-                ['OS=="mac"', {
+                ['target_os=="mac"', {
                     "link_settings": {
                         'libraries': [
                             'libcares.a',
@@ -57,7 +58,7 @@
                         ]
                     }
                 }],
-                ['OS=="win"', {
+                ['target_os=="win"', {
                     "link_settings": {
                         'libraries': [
                             '-llibcares',
