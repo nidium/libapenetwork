@@ -89,9 +89,10 @@ def gperftools():
 
 @Deps.register("pprof")
 def pprof():
+    from konstructor import ConfigCache
     return {
-        "location": Deps.Command("GOPATH=%s go get github.com/google/pprof" % (os.path.join(ROOT, "third-party", "pprof"))),
-        "outputs": [{"src": "bin/pprof", "dst": os.path.join(ROOT, "tools")}]
+        "location": Deps.Command("GOPATH=%s go get github.com/google/pprof" % (os.path.join(Deps.getDir(), "." + ConfigCache.getConfigStr(), "pprof"))),
+        "outputs": [{"src": "bin/pprof", "dst": os.path.join(Deps.getDir(), "pprof", "tools")}]
     }
 
 @Deps.register("gtest")
