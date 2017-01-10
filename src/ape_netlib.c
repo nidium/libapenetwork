@@ -85,6 +85,7 @@ ape_global *APE_init()
         fprintf(stderr, "Cannot open /dev/urandom\n");
         NULL;
     }
+    memset(&ape->logger, 0, sizeof(ape->logger));
 
     return ape;
 }
@@ -122,6 +123,10 @@ void APE_destroy(ape_global *ape)
     ape_ssl_library_destroy();
 #endif
     close(ape->urandom_fd);
+    if( ape->logger.clear) {
+        ape->logger.clear(ape->logger.cb_args);
+    }
     //  destroying rest
     free(ape);
 }
+
