@@ -123,7 +123,7 @@ void APE_destroy(ape_global *ape)
     ape_ssl_library_destroy();
 #endif
     close(ape->urandom_fd);
-    if( ape->logger.clear) {
+    if(ape->logger.clear) {
         ape->logger.clear(ape->logger.cb_args);
     }
     //  destroying rest
