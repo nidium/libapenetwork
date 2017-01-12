@@ -74,7 +74,7 @@ def zlip():
     else:
         build = ["./configure --static", "make"]
     return {
-        "location": "http://zlib.net/zlib-1.2.8.tar.gz",
+        "location": "http://zlib.net/zlib-1.2.10.tar.gz",
         "build": build,
         "outputs": ["libz.a"]
     }
