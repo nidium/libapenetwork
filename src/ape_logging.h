@@ -14,10 +14,10 @@ extern "C" {
 #endif
 
 typedef enum _ape_log_lvl_t {
-    APE_Log_debug   = 0x01,
-    APE_Log_warn    = 0x02,
-    APE_Log_error   = 0x04,
-    APE_Log_info    = 0x08
+    APE_LOG_DEBUG   = 0x01,
+    APE_LOG_WARN    = 0x02,
+    APE_LOG_ERROR   = 0x04,
+    APE_LOG_INFO    = 0x08
 } ape_log_lvl_t;
 
 typedef void (*ape_log_init_cbt) (void * args);

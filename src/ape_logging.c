@@ -42,16 +42,16 @@ int APE_Log(const ape_logger_t * logger, const ape_log_lvl_t lvl, \
             const char* lvl_label;
 
             switch (lvl) {
-                case APE_Log_info:
+                case APE_LOG_INFO:
                     lvl_label = ape_log_levellabels[3];
                     break;
-                case APE_Log_error:
+                case APE_LOG_ERROR:
                     lvl_label = ape_log_levellabels[2];
                     break;
-                case APE_Log_warn:
+                case APE_LOG_WARN:
                     lvl_label = ape_log_levellabels[1];
                     break;
-                case APE_Log_debug: //ft
+                case APE_LOG_DEBUG: //ft
                 default:
                     lvl_label = ape_log_levellabels[0];
                     break;
