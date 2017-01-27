@@ -39,6 +39,10 @@ void APE_SetLogger(ape_logger_t * logger, const ape_log_lvl_t lvl, \
 int APE_Log(const ape_logger_t * logger, const ape_log_lvl_t lvl, \
     const char * tag, const char * fmt, ...);
 
+#define APE_DEBUG(tag, fmt, ...) APE_Log(logger, APE_LOG_DEBUG, tag, fmt, __VA_ARGS__);
+#define APE_WARN(tag, fmt, ...) APE_Log(logger, APE_LOG_WARN, tag, fmt, __VA_ARGS__);
+#define APE_ERROR(tag, fmt, ...) APE_Log(logger, APE_LOG_ERROR, tag, fmt, __VA_ARGS__);
+#define APE_INFO(tag, fmt, ...) APE_Log(logger, APE_LOG_INFO, tag, fmt, __VA_ARGS__);
 
 #ifdef __cplusplus
 }
