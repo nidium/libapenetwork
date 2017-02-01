@@ -13,38 +13,43 @@
 extern "C" {
 #endif
 
+static const char * ape_log_levellabels[] = {"DEBUG", "WARN", "ERROR", "INFO"};
+
 typedef enum _ape_log_lvl_t {
-    APE_LOG_DEBUG   = 0x01,
-    APE_LOG_WARN    = 0x02,
-    APE_LOG_ERROR   = 0x04,
-    APE_LOG_INFO    = 0x08
+    APE_LOG_DEBUG = 0,
+    APE_LOG_WARN,
+    APE_LOG_ERROR,
+    APE_LOG_INFO
 } ape_log_lvl_t;
 
-typedef void (*ape_log_init_cbt) (void * args);
-typedef void (*ape_log_log_cbt) (void* cb_args, ape_log_lvl_t lvl, \
+typedef void (*ape_log_init_callback_t) (void * args);
+typedef void (*ape_log_log_callback_t) (void* cb_args, ape_log_lvl_t lvl, \
     const char * lvl_label, const char * tag, const char * fmt, va_list args);
-typedef void (*ape_log_clear_cbt) (void * args);
+typedef void (*ape_log_clear_callback_t) (void * args);
 
 typedef struct _ape_logger_t {
-    ape_log_lvl_t       lvl;
-    ape_log_init_cbt    init;
-    ape_log_log_cbt     log;
-    ape_log_clear_cbt   clear;
-    void *              cb_args;
+    ape_log_lvl_t            lvl;
+    ape_log_init_callback_t  init;
+    ape_log_log_callback_t   log;
+    ape_log_clear_callback_t clear;
+    void *                   cb_args;
 } ape_logger_t;
 
 void APE_SetLogger(ape_logger_t * logger, const ape_log_lvl_t lvl, \
-    const ape_log_init_cbt init, const ape_log_log_cbt log, \
-    const ape_log_clear_cbt clear, void * cb_args);
-int APE_Log(const ape_logger_t * logger, const ape_log_lvl_t lvl, \
+    const ape_log_init_callback_t init, const ape_log_log_callback_t log, \
+    const ape_log_clear_callback_t clear, void * cb_args);
+int APE_Logf(const ape_logger_t * logger, const ape_log_lvl_t lvl, \
     const char * tag, const char * fmt, ...);
+int APE_log(const ape_logger_t * logger, const ape_log_lvl_t lvl, \
+    const char * tag, const char *buffer);
 
-#define APE_DEBUG(tag, fmt, ...) APE_Log(logger, APE_LOG_DEBUG, tag, fmt, __VA_ARGS__);
-#define APE_WARN(tag, fmt, ...) APE_Log(logger, APE_LOG_WARN, tag, fmt, __VA_ARGS__);
-#define APE_ERROR(tag, fmt, ...) APE_Log(logger, APE_LOG_ERROR, tag, fmt, __VA_ARGS__);
-#define APE_INFO(tag, fmt, ...) APE_Log(logger, APE_LOG_INFO, tag, fmt, __VA_ARGS__);
+#define APE_DEBUG(tag, fmt, ...) APE_Logf(logger, APE_LOG_DEBUG, tag, fmt, __VA_ARGS__);
+#define APE_WARN(tag, fmt, ...) APE_Logf(logger, APE_LOG_WARN, tag, fmt, __VA_ARGS__);
+#define APE_ERROR(tag, fmt, ...) APE_Logf(logger, APE_LOG_ERROR, tag, fmt, __VA_ARGS__);
+#define APE_INFO(tag, fmt, ...) APE_Logf(logger, APE_LOG_INFO, tag, fmt, __VA_ARGS__);
 
 #ifdef __cplusplus
 }
 #endif
 #endif /* ape_logging.h */
+

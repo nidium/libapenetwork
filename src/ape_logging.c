@@ -6,61 +6,62 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "ape_logging.h"
 
-
 void APE_SetLogger(ape_logger_t * logger, const ape_log_lvl_t lvl, \
-    const ape_log_init_cbt init, const ape_log_log_cbt log,
-    const ape_log_clear_cbt clear, void * cb_args)
+    const ape_log_init_callback_t init, const ape_log_log_callback_t log,
+    const ape_log_clear_callback_t clear, void * cb_args)
 {
-        if (logger->clear) {
-            logger->clear(logger->cb_args);
-            logger->cb_args = NULL;
-        }
-        logger->lvl = lvl;
-        logger->init = init;
-        logger->log = log;
-        logger->clear = clear;
-        logger->cb_args = cb_args;
-        if (logger->init) {
-            logger->init(logger->cb_args);
-        }
+    if (logger->clear) {
+        logger->clear(logger->cb_args);
+        logger->cb_args = NULL;
+    }
+    logger->lvl = lvl;
+    logger->init = init;
+    logger->log = log;
+    logger->clear = clear;
+    logger->cb_args = cb_args;
+    if (logger->init) {
+        logger->init(logger->cb_args);
+    }
 }
 
+int APE_log(const ape_logger_t * logger, const ape_log_lvl_t lvl, \
+    const char * tag, const char *buffer)
+{
+    const char* lvl_label;
+    if (logger->log && logger->lvl >= lvl) {
+        lvl_label = ape_log_levellabels[lvl];
+        logger->log(logger->cb_args, lvl, lvl_label, tag, buffer, NULL);
 
-// keep these in sync wit ape_logging.h: _ape_log_lvl_t
-static const char * ape_log_levellabels[] = {"DEBUG", "WARN", "ERROR", "INFO"};
+        return 1;
+    }
 
-int APE_Log(const ape_logger_t * logger, const ape_log_lvl_t lvl, \
+    return 0;
+}
+
+int APE_Logf(const ape_logger_t * logger, const ape_log_lvl_t lvl, \
     const char * tag, const char * fmt, ...)
 {
-        int fwd = 0;
+    if (logger->log && logger->lvl >= lvl) {
+        const char* lvl_label;
+        va_list args;
+        char* buff;
 
-        if (logger->log && logger->lvl >= lvl) {
-            va_list args;
-            const char* lvl_label;
+        va_start(args, fmt);
+        vasprintf(&buff, fmt, args);
 
-            switch (lvl) {
-                case APE_LOG_INFO:
-                    lvl_label = ape_log_levellabels[3];
-                    break;
-                case APE_LOG_ERROR:
-                    lvl_label = ape_log_levellabels[2];
-                    break;
-                case APE_LOG_WARN:
-                    lvl_label = ape_log_levellabels[1];
-                    break;
-                case APE_LOG_DEBUG: //ft
-                default:
-                    lvl_label = ape_log_levellabels[0];
-                    break;
-            }
-            va_start(args, fmt);
-            logger->log(logger->cb_args, lvl, lvl_label, tag, fmt, args);
-            va_end(args);
-            fwd = 1;
-        }
-    return fwd;
+        lvl_label = ape_log_levellabels[lvl];
+        logger->log(logger->cb_args, lvl, lvl_label, tag, fmt, args);
+
+        free(buff);
+        va_end(args);
+
+        return 1;
+    }
+
+    return 0;
 }
 

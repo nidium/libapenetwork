@@ -78,7 +78,7 @@ struct _ape_global {
 
     int urandom_fd;
     ape_logger_t logger;
-
 };
 
 #endif
+

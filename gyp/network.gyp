@@ -25,7 +25,8 @@
             'defines': [
                 '_HAVE_SSL_SUPPORT',
                 'CARES_STATICLIB',
-                'FD_SETSIZE=2048'
+                'FD_SETSIZE=2048',
+                '_GNU_SOURCE'
 #                'USE_SPECIFIC_HANDLER',
 #                'USE_SELECT_HANDLER'
             ],
