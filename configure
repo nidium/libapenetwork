@@ -102,7 +102,7 @@ def zlip():
     else:
         build = ["./configure --static", "make"]
     return {
-        "location": "http://zlib.net/zlib-1.2.10.tar.gz",
+        "location": "%s/zlib-1.2.11.tar.gz" % (DEPEDENCY_REPO),
         "build": build,
         "env": env,
         "outputs": ["libz.a"]
