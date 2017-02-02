@@ -26,8 +26,10 @@ Platform.setEnviron(
     "CC=%s" % (os.environ.get("CC", "clang")),
     "CXX=%s" % (os.environ.get("CXX", "clang++")),
     "LDFLAGS=%s" % (os.environ.get("LDFLAGS", "")),
-    "MACOSX_DEPLOYMENT_TARGET=10.7"
 )
+
+if Platform.system == "Darwin":
+    Platform.setEnviron("MACOSX_DEPLOYMENT_TARGET=10.7")
 
 # We explicitely set "python2.7 gyp_main.py" because "gyp" executable force
 # the use of "python" which could be 2.7 or 3 and gyp does not work with python3
@@ -73,7 +75,6 @@ def openssl():
         env.update({
             "CROSS_COMPILE": "arm-linux-androideabi-",
             "MACHINE": Vars.get("targetCpu"),
-            "ARCH": Vars.get("targetArch"),
             "ANDROID_DEV": "%s/sysroot/usr/" % (Vars.get("toolchainPath"))
         })
     elif Platform.system == 'Windows':
