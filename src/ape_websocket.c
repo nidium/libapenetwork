@@ -215,7 +215,7 @@ static int ape_ws_process_end_message(websocket_state *websocket)
                                 websocket->data_inkey, 1);
             break;
         default:
-            printf("Got an unknown frame with opcode %.2x\n", opcode);
+            APE_ERROR("libapenetwork", "[Websocket] Got an unknown frame with opcode %.2x\n", opcode);
             break;
     }
 

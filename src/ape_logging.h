@@ -42,11 +42,19 @@ int APE_Logf(const ape_logger_t * logger, const ape_log_lvl_t lvl, \
     const char * tag, const char * fmt, ...);
 int APE_Log(const ape_logger_t * logger, const ape_log_lvl_t lvl, \
     const char * tag, const char *buffer);
-
+#if 0
+//tread-local-storage
 #define APE_DEBUG(tag, fmt, ...) APE_Logf(logger, APE_LOG_DEBUG, tag, fmt, __VA_ARGS__);
 #define APE_WARN(tag, fmt, ...) APE_Logf(logger, APE_LOG_WARN, tag, fmt, __VA_ARGS__);
 #define APE_ERROR(tag, fmt, ...) APE_Logf(logger, APE_LOG_ERROR, tag, fmt, __VA_ARGS__);
 #define APE_INFO(tag, fmt, ...) APE_Logf(logger, APE_LOG_INFO, tag, fmt, __VA_ARGS__);
+#else
+#define APE_DEBUG(tag, fmt, ...) /*pass*/
+#define APE_WARN(tag, fmt, ...)  /*pass*/
+#define APE_ERROR(tag, fmt, ...) /*pass*/
+#define APE_INFO(tag, fmt, ...)  /*pass*/
+
+#endif
 
 #ifdef __cplusplus
 }

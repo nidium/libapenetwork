@@ -151,7 +151,7 @@ int ape_timers_process(ape_global *ape_ctx)
 
             ret = cur->callback(cur->arg);
 
-            // printf("Timer returned %lld\n", ret);
+            //APE_DEBUG(libapenetwork", "[Timers] Timer returned %lld\n", ret);
 
             if (ret == -1) {
                 cur->schedule = start + cur->ticks_needs;
@@ -193,7 +193,7 @@ int ape_timers_process(ape_global *ape_ctx)
         lastsample = mach_absolute_time();
     }
 
-    // printf("Next timer in : %lld or %d\n", inums-lastsample,  ape_max(1,
+    // APE_DEBUG("libapenetwork", "[Timers] Next timer in : %lld or %d\n", inums-lastsample,  ape_max(1,
     // (int)((inums-lastsample+500000)/1000000)));
 
     return ape_max((timers->run_in_low_resolution ? 100 : 1),
@@ -363,7 +363,7 @@ void APE_timer_destroy(ape_global *ape_ctx, ape_timer_t *timer)
 
 void ape_timer_stats_print(ape_timer_t *timer)
 {
-    printf("%zd\t\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n", timer->identifier,
+    APE_DEBUG("libapenetwork", "[Timers] %zd\t\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n", timer->identifier,
            timer->stats.nexec, timer->stats.totaltime, timer->stats.max,
            timer->stats.min,
            (timer->stats.nexec == 0
@@ -376,12 +376,10 @@ void ape_timers_stats_print(ape_global *ape_ctx)
     ape_timer_t *cur;
     ape_timers *timers = &ape_ctx->timersng;
 
-    printf("=======================\n");
-    printf("Id\t\ttimes\texec\t\tmax\t\tmin\t\tavg\n");
+    APE_DEBUG("libapenetwork", "[Timers] Id\t\ttimes\texec\t\tmax\t\tmin\t\tavg\n");
     for (cur = timers->head; cur != NULL; cur = cur->next) {
         ape_timer_stats_print(cur);
     }
-    printf("=======================\n");
 }
 
 ape_timer_async_t *APE_async(ape_global *ape_ctx, APE_timer_callback_t cb,
@@ -431,7 +429,7 @@ ape_timer_t *APE_timer_create(ape_global *ape_ctx, int ms,
     }
 
     timers->head = timer;
-    // printf("Timer added %d %p\n", ms, timers->head);
+    APE_DEBUG("libapenetwork", "[Timers] Timer added %d %p\n", ms, timers->head);
     return timer;
 }
 
