@@ -138,7 +138,7 @@ evaluation (stack memory allocation for example).
 APE_LZ4_compressBound(srcSize)
         inputSize  : max supported value is LZ4_MAX_INPUT_SIZE
         return : maximum output size in a "worst case" scenario
-              or 0, if input size is too large (> LZ4_MAX_INPUT_SIZE)
+              or 0, if input size is too large ( > LZ4_MAX_INPUT_SIZE)
 */
 int APE_LZ4_compressBound(int inputSize);
 
@@ -356,7 +356,7 @@ where they were decoded (up to 64 KB)
     - Exactly same size as encoding buffer, with same update rule (block
 boundaries at same positions)
       In which case, the decoding & encoding ring buffer can have any size,
-including very small ones (< 64 KB).
+including very small ones ( < 64 KB).
     - Larger than encoding buffer, by a minimum of maxBlockSize more bytes.
       maxBlockSize is implementation dependent. It's the maximum size you intend
 to compress into a single block.
@@ -463,10 +463,8 @@ LZ4_DEPRECATED("use APE_LZ4_resetStream() instead")  int   APE_LZ4_resetStreamSt
 LZ4_DEPRECATED("use APE_LZ4_saveDict() instead")     char* APE_LZ4_slideInputBuffer (void* state);
 
 /* Obsolete streaming decoding functions */
-LZ4_DEPRECATED("use APE_LZ4_decompress_safe_usingDict() instead") \
-    int APE_LZ4_decompress_safe_withPrefix64k (const char* src, char* dst, int compressedSize, int maxDstSize);
-LZ4_DEPRECATED("use APE_LZ4_decompress_fast_usingDict() instead") \
-    int APE_LZ4_decompress_fast_withPrefix64k (const char* src, char* dst, int originalSize);
+LZ4_DEPRECATED("use APE_LZ4_decompress_safe_usingDict() instead") int APE_LZ4_decompress_safe_withPrefix64k (const char* src, char* dst, int compressedSize, int maxDstSize);
+LZ4_DEPRECATED("use APE_LZ4_decompress_fast_usingDict() instead") int APE_LZ4_decompress_fast_withPrefix64k (const char* src, char* dst, int originalSize);
 
 
 #if defined(__cplusplus)

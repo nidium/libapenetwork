@@ -1275,19 +1275,19 @@ int APE_LZ4_saveDict(APE_LZ4_stream_t *LZ4_dict, char *safeBuffer, int dictSize)
 FORCE_INLINE int
 APE_LZ4_decompress_generic(const char *const source, char *const dest,
                            int inputSize,
-                           int outputSize, /* If endOnInput == endOnInputSize,
+                           int outputSize, /* If endOnInput==endOnInputSize,
                                               this value is the max size of
                                               Output Buffer. */
 
                            int endOnInput, /* endOnOutputSize, endOnInputSize */
                            int partialDecoding,  /* full, partial */
                            int targetOutputSize, /* only used if
-                                                    partialDecoding == partial */
+                                                    partialDecoding==partial */
                            int dict, /* noDict, withPrefix64k, usingExtDict */
                            const BYTE
                                *const lowPrefix, /* == dest if dict == noDict */
                            const BYTE *const
-                               dictStart, /* only if dict == usingExtDict */
+                               dictStart, /* only if dict==usingExtDict */
                            const size_t dictSize /* note : = 0 if noDict */
                            )
 {
