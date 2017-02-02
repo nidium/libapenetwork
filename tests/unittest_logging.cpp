@@ -6,55 +6,49 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "unittest.h"
 
 #include <ape_netlib.h>
 #include <ape_log.h>
 
-struct args {
-    FILE *file_h;
-};
 
-
-static void loglog(void * cb_args, ape_log_lvl_t lvl, const char * lvl_label, const char * tag,
+static void loglog(void *ctx, void *cb_args, ape_log_lvl_t lvl, const char * tag,
     const char * buffer )
 {
-    struct args * args;
-
-    args = (struct args*) cb_args;
-    if (args->file_h) {
+    FILE *file_h = (FILE *)cb_args;
+    if (file_h) {
         int datelen;
         char date[32];
         time_t log_ts;
 
         log_ts = time(NULL);
         datelen = strftime(&date[0], 32, "%Y-%m-%d %H:%M:%S - ", localtime(&log_ts));
-        fprintf(args->file_h, "%s\t%s\n", date, buffer);
+        fprintf(file_h, "%s\t%s\n", date, buffer);
     }
 }
 
-static void loginit(void * cb_args)
+static void *loginit(void *ctx)
 {
     struct args * args;
     const char * tmp_file = "/tmp/test_ape_logging.log";
 
-    args = (struct args*) cb_args;
-    if (! args->file_h) {
-        args->file_h = fopen(tmp_file, "wb");
-    }
-    fprintf(args->file_h, "writing stuff\n");
+    FILE *file_h = fopen(tmp_file, "wb");
+
+    fprintf(file_h, "writing stuff\n");
+
+    return file_h;
 }
 
-static void logclear (void * cb_args)
+static void logclear (void *ctx, void * cb_args)
 {
-    struct args * args;
+    FILE *file_h = (FILE *)cb_args;
 
-    args = (struct args*) cb_args;
-    if (args->file_h) {
-        fprintf(args->file_h, "clearing log\n");
-        fflush(args->file_h);
-        fclose(args->file_h);
+    if (file_h) {
+        fprintf(file_h, "clearing log\n");
+        fflush(file_h);
+        fclose(file_h);
     }
 }
 
@@ -63,12 +57,10 @@ TEST(Logger,  Logger)
     ape_global *g_ape;
     g_ape = APE_init();
     ape_logger_t logger;
-    struct args args;
     int fwd;
 
-    args.file_h = NULL;
     memset(&logger, 0, sizeof(logger));
-    APE_setlogger(&logger, APE_LOG_ERROR, loginit, loglog, logclear, &args);
+    APE_setlogger(&logger, APE_LOG_ERROR, loginit, loglog, logclear, NULL);
 
     EXPECT_TRUE(logger.lvl == APE_LOG_ERROR);
     EXPECT_TRUE(logger.init == loginit);
@@ -85,6 +77,6 @@ TEST(Logger,  Logger)
     fwd = APE_log(&logger, APE_LOG_INFO, "tag", "should not print");
     EXPECT_TRUE(fwd == 0);
 
-    logger.clear(logger.cb_args);
+    logger.cleanup(logger.ctx, logger.cb_args);
 }
 

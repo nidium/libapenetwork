@@ -22,23 +22,25 @@ typedef enum _ape_log_lvl_t {
     APE_LOG_INFO
 } ape_log_lvl_t;
 
-typedef void (*ape_log_init_callback_t)(void *args);
-typedef void (*ape_log_log_callback_t)(void *cb_args, ape_log_lvl_t lvl,
-                                            const char *lvl_label,
+const char *APE_getloglabel(ape_log_lvl_t lvl);
+
+typedef void *(*ape_log_init_callback_t)(void *ctx);
+typedef void (*ape_log_log_callback_t)(void *ctx, void *cb_args, ape_log_lvl_t lvl,
                                             const char *tag, const char *buff);
-typedef void (*ape_log_clear_callback_t)(void * args);
+typedef void (*ape_log_cleanup_callback_t)(void *ctx, void *cb_args);
 
 typedef struct _ape_logger_t {
     ape_log_lvl_t            lvl;
     ape_log_init_callback_t  init;
     ape_log_log_callback_t   log;
-    ape_log_clear_callback_t clear;
+    ape_log_cleanup_callback_t cleanup;
     void *                   cb_args;
+    void *                   ctx;
 } ape_logger_t;
 
 void APE_setlogger(ape_logger_t *logger, const ape_log_lvl_t lvl,
     const ape_log_init_callback_t init, const ape_log_log_callback_t log,
-    const ape_log_clear_callback_t clear, void *cb_args);
+    const ape_log_cleanup_callback_t cleanup, void *ctx);
 int APE_logf(const ape_logger_t *logger, const ape_log_lvl_t lvl,
     const char *tag, const char *fmt, ...);
 int APE_log(const ape_logger_t *logger, const ape_log_lvl_t lvl,

@@ -12,32 +12,33 @@
 
 void APE_setlogger(ape_logger_t *logger, const ape_log_lvl_t lvl,
     const ape_log_init_callback_t init, const ape_log_log_callback_t log,
-    const ape_log_clear_callback_t clear, void *cb_args)
+    const ape_log_cleanup_callback_t cleanup, void *ctx)
 {
-    if (logger->clear) {
-        logger->clear(logger->cb_args);
-        logger->cb_args = NULL;
+    if (logger->cleanup) {
+        logger->cleanup(logger->ctx, logger->cb_args);
     }
 
     logger->lvl = lvl;
     logger->init = init;
     logger->log = log;
-    logger->clear = clear;
-    logger->cb_args = cb_args;
+    logger->cleanup = cleanup;
+    logger->ctx = ctx;
 
     if (logger->init) {
-        logger->init(logger->cb_args);
+        logger->cb_args = logger->init(ctx);
     }
+}
+
+const char *APE_getloglabel(ape_log_lvl_t lvl)
+{
+    return ape_log_levellabels[lvl];
 }
 
 int APE_log(const ape_logger_t *logger, const ape_log_lvl_t lvl,
     const char *tag, const char *buffer)
 {
-    const char *lvl_label;
-
     if (logger->log && logger->lvl >= lvl) {
-        lvl_label = ape_log_levellabels[lvl];
-        logger->log(logger->cb_args, lvl, lvl_label, tag, buffer);
+        logger->log(logger->ctx, logger->cb_args, lvl, tag, buffer);
 
         return 1;
     }
