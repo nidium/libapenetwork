@@ -10,28 +10,31 @@
 
 #include "ape_logging.h"
 
-void APE_setlogger(ape_logger_t * logger, const ape_log_lvl_t lvl, \
+void APE_setlogger(ape_logger_t *logger, const ape_log_lvl_t lvl,
     const ape_log_init_callback_t init, const ape_log_log_callback_t log,
-    const ape_log_clear_callback_t clear, void * cb_args)
+    const ape_log_clear_callback_t clear, void *cb_args)
 {
     if (logger->clear) {
         logger->clear(logger->cb_args);
         logger->cb_args = NULL;
     }
+
     logger->lvl = lvl;
     logger->init = init;
     logger->log = log;
     logger->clear = clear;
     logger->cb_args = cb_args;
+
     if (logger->init) {
         logger->init(logger->cb_args);
     }
 }
 
-int APE_log(const ape_logger_t * logger, const ape_log_lvl_t lvl, \
-    const char * tag, const char *buffer)
+int APE_log(const ape_logger_t *logger, const ape_log_lvl_t lvl,
+    const char *tag, const char *buffer)
 {
-    const char* lvl_label;
+    const char *lvl_label;
+
     if (logger->log && logger->lvl >= lvl) {
         lvl_label = ape_log_levellabels[lvl];
         logger->log(logger->cb_args, lvl, lvl_label, tag, buffer);
@@ -42,8 +45,8 @@ int APE_log(const ape_logger_t * logger, const ape_log_lvl_t lvl, \
     return 0;
 }
 
-int APE_logf(const ape_logger_t * logger, const ape_log_lvl_t lvl, \
-    const char * tag, const char * fmt, ...)
+int APE_logf(const ape_logger_t *logger, const ape_log_lvl_t lvl,
+    const char *tag, const char * fmt, ...)
 {
     int logged;
     va_list args;
@@ -51,12 +54,12 @@ int APE_logf(const ape_logger_t * logger, const ape_log_lvl_t lvl, \
 
     va_start(args, fmt);
     vasprintf(&buff, fmt, args);
+    va_end(args);
 
     logged = APE_log(logger, lvl, tag, buff);
 
     free(buff);
-    va_end(args);
-
+    
     return logged;
 }
 
