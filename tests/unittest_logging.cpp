@@ -10,7 +10,7 @@
 #include "unittest.h"
 
 #include <ape_netlib.h>
-#include <ape_logging.h>
+#include <ape_log.h>
 
 struct args {
     FILE *file_h;

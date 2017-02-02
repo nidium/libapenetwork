@@ -50,7 +50,7 @@ typedef struct _ape_global ape_global;
 #include "ape_ssl.h"
 #endif
 #include "ape_hash.h"
-#include "ape_logging.h"
+#include "ape_log.h"
 
 struct _ape_global {
     void *ctx; /* public */

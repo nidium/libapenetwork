@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "ape_logging.h"
+#include "ape_log.h"
 
 void APE_setlogger(ape_logger_t *logger, const ape_log_lvl_t lvl,
     const ape_log_init_callback_t init, const ape_log_log_callback_t log,

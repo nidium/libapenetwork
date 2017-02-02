@@ -4,8 +4,8 @@
    that can be found in the LICENSE file.
 */
 
-#ifndef _APE_LOGGING_H
-#define _APE_LOGGING_H
+#ifndef _APE_LOG_H
+#define _APE_LOG_H
 
 #include <stdarg.h>
 
@@ -61,5 +61,5 @@ int APE_log(const ape_logger_t *logger, const ape_log_lvl_t lvl,
 #ifdef __cplusplus
 }
 #endif
-#endif /* ape_logging.h */
+#endif /* ape_log.h */
 

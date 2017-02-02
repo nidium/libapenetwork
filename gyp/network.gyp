@@ -104,7 +104,7 @@
             '../src/ape_ssl.c',
             '../src/ape_lz4.c',
             '../src/ape_blowfish.c',
-            '../src/ape_logging.c'
+            '../src/ape_log.c'
         ],
     }],
 }
