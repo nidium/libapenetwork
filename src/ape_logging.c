@@ -10,7 +10,7 @@
 
 #include "ape_logging.h"
 
-void APE_SetLogger(ape_logger_t * logger, const ape_log_lvl_t lvl, \
+void APE_setlogger(ape_logger_t * logger, const ape_log_lvl_t lvl, \
     const ape_log_init_callback_t init, const ape_log_log_callback_t log,
     const ape_log_clear_callback_t clear, void * cb_args)
 {
@@ -28,7 +28,7 @@ void APE_SetLogger(ape_logger_t * logger, const ape_log_lvl_t lvl, \
     }
 }
 
-int APE_Log(const ape_logger_t * logger, const ape_log_lvl_t lvl, \
+int APE_log(const ape_logger_t * logger, const ape_log_lvl_t lvl, \
     const char * tag, const char *buffer)
 {
     const char* lvl_label;
@@ -42,7 +42,7 @@ int APE_Log(const ape_logger_t * logger, const ape_log_lvl_t lvl, \
     return 0;
 }
 
-int APE_Logf(const ape_logger_t * logger, const ape_log_lvl_t lvl, \
+int APE_logf(const ape_logger_t * logger, const ape_log_lvl_t lvl, \
     const char * tag, const char * fmt, ...)
 {
     int logged;
@@ -52,7 +52,7 @@ int APE_Logf(const ape_logger_t * logger, const ape_log_lvl_t lvl, \
     va_start(args, fmt);
     vasprintf(&buff, fmt, args);
 
-    logged = APE_Log(logger, lvl, tag, buff);
+    logged = APE_log(logger, lvl, tag, buff);
 
     free(buff);
     va_end(args);

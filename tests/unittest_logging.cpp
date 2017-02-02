@@ -68,7 +68,7 @@ TEST(Logger,  Logger)
 
     args.file_h = NULL;
     memset(&logger, 0, sizeof(logger));
-    APE_SetLogger(&logger, APE_LOG_ERROR, loginit, loglog, logclear, &args);
+    APE_setlogger(&logger, APE_LOG_ERROR, loginit, loglog, logclear, &args);
 
     EXPECT_TRUE(logger.lvl == APE_LOG_ERROR);
     EXPECT_TRUE(logger.init == loginit);
@@ -76,13 +76,13 @@ TEST(Logger,  Logger)
     EXPECT_TRUE(logger.clear == logclear);
     EXPECT_TRUE(logger.cb_args == &args);
 
-    fwd = APE_Logf(&logger, APE_LOG_ERROR, "tag", "should %s print", "indeed");
+    fwd = APE_logf(&logger, APE_LOG_ERROR, "tag", "should %s print", "indeed");
     EXPECT_TRUE(fwd == 1);
-    fwd = APE_Logf(&logger, APE_LOG_INFO, "tag", "should %s print", "not");
+    fwd = APE_logf(&logger, APE_LOG_INFO, "tag", "should %s print", "not");
     EXPECT_TRUE(fwd == 0);
-    fwd = APE_Log(&logger, APE_LOG_ERROR, "tag", "should print");
+    fwd = APE_log(&logger, APE_LOG_ERROR, "tag", "should print");
     EXPECT_TRUE(fwd == 1);
-    fwd = APE_Log(&logger, APE_LOG_INFO, "tag", "should not print");
+    fwd = APE_log(&logger, APE_LOG_INFO, "tag", "should not print");
     EXPECT_TRUE(fwd == 0);
 
     logger.clear(logger.cb_args);
