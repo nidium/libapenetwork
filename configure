@@ -102,7 +102,7 @@ def zlip():
     else:
         build = ["./configure --static", "make"]
     return {
-        "location": "http://zlib.net/zlib-1.2.8.tar.gz",
+        "location": "http://zlib.net/zlib-1.2.10.tar.gz",
         "build": build,
         "env": env,
         "outputs": ["libz.a"]
@@ -118,9 +118,10 @@ def gperftools():
 
 @Deps.register("pprof")
 def pprof():
+    from konstructor import ConfigCache
     return {
-        "location": Deps.Command("GOPATH=%s go get github.com/google/pprof" % (os.path.join(ROOT, "third-party", "pprof"))),
-        "outputs": [{"src": "bin/pprof", "dst": os.path.join(ROOT, "tools")}]
+        "location": Deps.Command("GOPATH=%s go get github.com/google/pprof" % (os.path.join(Deps.getDir(), "." + ConfigCache.getConfigStr(), "pprof"))),
+        "outputs": [{"src": "bin/pprof", "dst": os.path.join(Deps.getDir(), "pprof", "tools")}]
     }
 
 @Deps.register("gtest")
