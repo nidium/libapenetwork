@@ -25,7 +25,8 @@
             'defines': [
                 '_HAVE_SSL_SUPPORT',
                 'CARES_STATICLIB',
-                'FD_SETSIZE=2048'
+                'FD_SETSIZE=2048',
+                '_GNU_SOURCE'
 #                'USE_SPECIFIC_HANDLER',
 #                'USE_SELECT_HANDLER'
             ],
@@ -102,7 +103,8 @@
             '../src/ape_sha1.c',
             '../src/ape_ssl.c',
             '../src/ape_lz4.c',
-            '../src/ape_blowfish.c'
+            '../src/ape_blowfish.c',
+            '../src/ape_logging.c'
         ],
     }],
 }

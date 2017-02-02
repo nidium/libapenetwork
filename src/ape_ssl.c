@@ -1,4 +1,5 @@
 #include "ape_ssl.h"
+#include "ape_logging.h"
 #if _HAVE_SSL_SUPPORT
 #include <openssl/ssl.h>
 #include <openssl/err.h>
@@ -39,7 +40,7 @@ ape_ssl_t *ape_ssl_init_ctx(const char *cert, const char *key)
     SSL_CTX *ctx   = SSL_CTX_new(SSLv23_server_method());
 
     if (ctx == NULL) {
-        printf("Failed to init SSL ctx\n");
+        APE_ERROR("libapenetwork", "[SSL] Failed to init SSL ctx\n");
         return NULL;
     }
 
@@ -57,14 +58,14 @@ ape_ssl_t *ape_ssl_init_ctx(const char *cert, const char *key)
     // SSL_CTX_set_read_ahead(ssl->ctx, 1);
 
     if (SSL_CTX_set_cipher_list(ssl->ctx, CIPHER_LIST) <= 0) {
-        printf("Failed to set cipher\n");
+        APE_ERROR("libapenetwork", "[SSL] Failed to set cipher\n");
         SSL_CTX_free(ctx);
         free(ssl);
         return NULL;
     }
 
     if (SSL_CTX_use_certificate_chain_file(ssl->ctx, cert) == 0) {
-        printf("Failed to load cert\n");
+        APE_ERROR("libapenetwork", "[SSL] Failed to load cert\n");
         SSL_CTX_free(ctx);
         free(ssl);
         return NULL;
@@ -72,20 +73,20 @@ ape_ssl_t *ape_ssl_init_ctx(const char *cert, const char *key)
     if (SSL_CTX_use_PrivateKey_file(ssl->ctx, (key != NULL ? key : cert),
                                     SSL_FILETYPE_PEM)
         == 0) {
-        printf("Failed to load private key\n");
+        APE_ERROR("libapenetwork", "[SSL] Failed to load private key\n");
         SSL_CTX_free(ctx);
         free(ssl);
         return NULL;
     }
 
     if (SSL_CTX_check_private_key(ssl->ctx) == 0) {
-        printf("Private key does not match the certificate public key\n");
+        APE_ERROR("libapenetwork", "[SSL] Private key does not match the certificate public key\n");
         SSL_CTX_free(ctx);
         free(ssl);
         return NULL;
     }
 
-    printf("[SSL] New context\n");
+    APE_ERROR("libapenetwork", "[SSL] New context\n");
 
     return ssl;
 }
@@ -107,7 +108,7 @@ ape_ssl_t *ape_ssl_init_global_client_ctx()
     // SSL_MODE_AUTO_RETRY
 
     if (SSL_CTX_set_cipher_list(ssl->ctx, CIPHER_LIST) <= 0) {
-        printf("Failed to set cipher\n");
+        APE_ERROR("libapenetwork", "[SSL] Failed to set cipher\n");
         SSL_CTX_free(ctx);
         free(ssl);
         return NULL;
@@ -137,7 +138,7 @@ ape_ssl_t *ape_ssl_init_con(ape_ssl_t *parent, int fd, int accept)
     }
 
     if (SSL_set_fd(con, fd) != 1) {
-        printf("Failed to set fd on ssl\n");
+        APE_ERROR("libapenetwork", "[SSL] Failed to set fd on ssl\n");
         SSL_free(con);
         return NULL;
     }
@@ -162,7 +163,7 @@ int ape_ssl_read(ape_ssl_t *ssl, void *buf, int num)
 int ape_ssl_write(ape_ssl_t *ssl, void *buf, int num)
 {
     if (ssl == NULL || ssl->con == NULL) {
-        printf("SSL: Cant write : no ssl ctx\n");
+        APE_ERROR("libapenetwork", "[SSL] Cant write : no ssl ctx\n");
         return 0;
     }
     return SSL_write(ssl->con, buf, num);
@@ -171,7 +172,7 @@ int ape_ssl_write(ape_ssl_t *ssl, void *buf, int num)
 void ape_ssl_shutdown(ape_ssl_t *ssl)
 {
     if (ssl == NULL || ssl->con == NULL) {
-        printf("SSL: Cant read : no ssl ctx\n");
+        APE_ERROR("libapenetwork", "[SSL] Cant read : no ssl ctx\n");
         return;
     }
     SSL_shutdown(ssl->con);
