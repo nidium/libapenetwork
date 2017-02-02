@@ -55,7 +55,7 @@ TEST(SHA1, File)
     filename = strdup("./ape_sha1.h");
     success = sha1_file(filename, digest);
     EXPECT_EQ(success, 0);
-    EXPECT_EQ(strlen((char*)digest), 20 );
+    EXPECT_EQ(strlen((char*)digest), 20);
     free(filename);
 }
 */

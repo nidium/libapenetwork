@@ -16,7 +16,7 @@
 //*local_ip, int defer_accept, int reuse_port);
 //@TODO: int APE_socket_connect(ape_socket *socket, uint16_t port, const char
 //*local_ip, int defer_accept, int reuse_port);
-//@TODO: int APE_socket_write(ape_socket *socket, void *data,const char
+//@TODO: int APE_socket_write(ape_socket *socket, void *data, const char
 //*local_ip, int defer_accept, int reuse_port);
 //@TODO: int APE_socket_writev(ape_socket *socket, const struct iovec *iov, int
 //iovcnt);

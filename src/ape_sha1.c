@@ -317,7 +317,7 @@ void sha1_csum(uchar *buf, uint buflen, uchar digest[20])
 }
 
 /*
- * Output HMAC-SHA-1(key,buf)
+ * Output HMAC-SHA-1(key, buf)
  */
 void sha1_hmac(uchar *key, uint keylen, uchar *buf, uint buflen,
                uchar digest[20])
