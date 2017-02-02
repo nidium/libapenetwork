@@ -28,13 +28,13 @@ void APE_SetLogger(ape_logger_t * logger, const ape_log_lvl_t lvl, \
     }
 }
 
-int APE_log(const ape_logger_t * logger, const ape_log_lvl_t lvl, \
+int APE_Log(const ape_logger_t * logger, const ape_log_lvl_t lvl, \
     const char * tag, const char *buffer)
 {
     const char* lvl_label;
     if (logger->log && logger->lvl >= lvl) {
         lvl_label = ape_log_levellabels[lvl];
-        logger->log(logger->cb_args, lvl, lvl_label, tag, buffer, NULL);
+        logger->log(logger->cb_args, lvl, lvl_label, tag, buffer);
 
         return 1;
     }
@@ -45,23 +45,18 @@ int APE_log(const ape_logger_t * logger, const ape_log_lvl_t lvl, \
 int APE_Logf(const ape_logger_t * logger, const ape_log_lvl_t lvl, \
     const char * tag, const char * fmt, ...)
 {
-    if (logger->log && logger->lvl >= lvl) {
-        const char* lvl_label;
-        va_list args;
-        char* buff;
+    int logged;
+    va_list args;
+    char* buff;
 
-        va_start(args, fmt);
-        vasprintf(&buff, fmt, args);
+    va_start(args, fmt);
+    vasprintf(&buff, fmt, args);
 
-        lvl_label = ape_log_levellabels[lvl];
-        logger->log(logger->cb_args, lvl, lvl_label, tag, fmt, args);
+    logged = APE_Log(logger, lvl, tag, buff);
 
-        free(buff);
-        va_end(args);
+    free(buff);
+    va_end(args);
 
-        return 1;
-    }
-
-    return 0;
+    return logged;
 }
 

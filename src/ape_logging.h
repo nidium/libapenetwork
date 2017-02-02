@@ -24,7 +24,7 @@ typedef enum _ape_log_lvl_t {
 
 typedef void (*ape_log_init_callback_t) (void * args);
 typedef void (*ape_log_log_callback_t) (void* cb_args, ape_log_lvl_t lvl, \
-    const char * lvl_label, const char * tag, const char * fmt, va_list args);
+    const char * lvl_label, const char * tag, const char * buff);
 typedef void (*ape_log_clear_callback_t) (void * args);
 
 typedef struct _ape_logger_t {
@@ -40,7 +40,7 @@ void APE_SetLogger(ape_logger_t * logger, const ape_log_lvl_t lvl, \
     const ape_log_clear_callback_t clear, void * cb_args);
 int APE_Logf(const ape_logger_t * logger, const ape_log_lvl_t lvl, \
     const char * tag, const char * fmt, ...);
-int APE_log(const ape_logger_t * logger, const ape_log_lvl_t lvl, \
+int APE_Log(const ape_logger_t * logger, const ape_log_lvl_t lvl, \
     const char * tag, const char *buffer);
 
 #define APE_DEBUG(tag, fmt, ...) APE_Logf(logger, APE_LOG_DEBUG, tag, fmt, __VA_ARGS__);
