@@ -106,5 +106,5 @@ typedef const char sockopt_t;
 #define ESTALE WSAESTALE
 #define EREMOTE WSAEREMOTE
 
-
 #endif
+

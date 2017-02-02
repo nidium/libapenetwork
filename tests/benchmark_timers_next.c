@@ -51,9 +51,10 @@ int main(const int argc, const char **argv)
     if (resolve){
         APE_timer_create(g_ape, minTime, interval_cb, &minTime);
     }
-    
+
     APE_loop_run(g_ape);
     APE_destroy(g_ape);
 
     return 0;
 }
+

@@ -353,3 +353,4 @@ void sha1_hmac(uchar *key, uint keylen, uchar *buf, uint buflen,
     memset(tmpbuf, 0, 20);
     memset(&ctx, 0, sizeof(sha1_context));
 }
+

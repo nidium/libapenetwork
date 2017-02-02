@@ -510,7 +510,7 @@ void APE_socket_shutdown_delay(ape_socket *socket, int ms)
     if (!socket || socket->delay_timer) {
         return;
     }
-    
+
     socket->delay_timer =
         APE_timer_create(socket->ape, ms, ape_socket_shutdown_delay_cb, socket);
 }
@@ -1598,3 +1598,4 @@ static ape_pool_list_t *ape_socket_new_packet_queue(size_t n)
 {
     return ape_new_pool_list(sizeof(ape_socket_packet_t), n);
 }
+

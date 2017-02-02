@@ -1785,3 +1785,4 @@ int APE_LZ4_decompress_fast_withPrefix64k(const char *source, char *dest,
 }
 
 #endif /* LZ4_COMMONDEFS_ONLY */
+

@@ -78,3 +78,4 @@ TEST(SHA1, Hmac)
 #undef ORG
 #undef GRO
 #undef GRO_MAC
+

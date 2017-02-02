@@ -65,5 +65,5 @@ void ape_timers_stats_print(ape_global *ape_ctx);
 #define timer_dispatch_async_unprotected(callback, params)                     \
     APE_timer_unprotect(APE_timer_create(ape, 0, callback, params))
 
-
 #endif
+
