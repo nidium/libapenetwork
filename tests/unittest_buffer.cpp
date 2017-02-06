@@ -136,3 +136,4 @@ TEST(Buffer, UTF8)
     buffer_destroy(utf8);
     free(copy);
 }
+

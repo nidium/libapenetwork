@@ -439,3 +439,4 @@ void APE_timer_setlowresolution(ape_global *ape_ctx, int low)
 
     timers->run_in_low_resolution = low;
 }
+

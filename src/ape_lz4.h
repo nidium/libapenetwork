@@ -470,3 +470,4 @@ LZ4_DEPRECATED("use APE_LZ4_decompress_fast_usingDict() instead") int APE_LZ4_de
 #if defined(__cplusplus)
 }
 #endif
+

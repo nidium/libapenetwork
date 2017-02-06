@@ -165,3 +165,4 @@ void events_destroy(struct _fdevent *ev)
     ev->setsize         = NULL;
     ev->get_current_evd = NULL;
 }
+

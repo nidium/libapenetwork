@@ -123,3 +123,4 @@ TEST(Base64, EncodeDecodeBinSafe)
 #undef GRO
 #undef GRO_SAFE
 #undef BASE64_BUFFER_SIZE
+

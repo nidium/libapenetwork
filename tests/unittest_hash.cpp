@@ -151,3 +151,4 @@ TEST(Hash, HashTableStr)
 
 #undef KEY1
 #undef KEY2
+
