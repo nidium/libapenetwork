@@ -36,3 +36,4 @@ TEST(Events, Init)
 
     APE_destroy(g_ape);
 }
+

@@ -175,3 +175,4 @@ void ape_dns_invalidate(ape_dns_state *state)
         state->invalidate = 1;
     }
 }
+
