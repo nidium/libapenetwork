@@ -68,7 +68,7 @@
             '../tests/unittest_dns.cpp',
             '../tests/unittest_ssl.cpp',
             '../tests/unittest_websocket.cpp',
-            '../tests/unittest_logging.cpp',
+            '../tests/unittest_log.cpp',
         ],
     },
     {
