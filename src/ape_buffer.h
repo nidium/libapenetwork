@@ -8,11 +8,11 @@
 #define __APE_BUFFER_H_
 
 #include <stdlib.h>
-#include <sys/types.h>
 #include <stdint.h>
+#include <sys/types.h>
 
 #ifndef _WIN32
-#define APE_USE_ZLIB 1
+  #define APE_USE_ZLIB 1
 #include <zlib.h>
 
 typedef struct {

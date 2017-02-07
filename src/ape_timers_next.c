@@ -5,9 +5,11 @@
 */
 
 #include "ape_timers_next.h"
-#include "ape_common.h"
+
 #include <stdlib.h>
-#include <stdio.h>
+#include <time.h>
+
+#include "ape_common.h"
 
 static void process_async(ape_timers *timers);
 static void del_async_all(ape_timers *timers);

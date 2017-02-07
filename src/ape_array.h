@@ -11,7 +11,9 @@
 #include "ape_buffer.h"
 
 #ifdef _WIN32
-#include "port/windows.h"
+  #include "port/windows.h"
+#else
+  #include "port/POSIX.h"
 #endif
 
 typedef ape_pool_list_t ape_array_t;

@@ -5,36 +5,36 @@
 */
 
 #include "ape_socket.h"
-#include "ape_dns.h"
-#include "ape_timers_next.h"
-#include "ape_ssl.h"
-#include <stdint.h>
-#include <stdio.h>
-#ifndef _WIN32
-#include <sys/time.h>
+
+#include <fcntl.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/uio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/time.h>
+
 #include <openssl/err.h>
+
+#ifndef _WIN32
 #else
-#include <io.h>
-#include <malloc.h>
+  #include <io.h>
+  #include <malloc.h>
 #endif
-#include <fcntl.h>
-#include <time.h>
-#include <errno.h>
-#include <stdlib.h>
 
 #ifdef _MSC_VER
-#include <ares.h>
+  #include "port\windows.h"
 #else
-#include "ares.h"
+  #include "port/POSIX.h"
 #endif
 
 #ifdef __linux__
-#include <sys/sendfile.h>
+  #include <sys/sendfile.h>
 #endif
-#include <limits.h>
-#include <string.h>
 
 #define APE_LZ4_BLOCK_SIZE (1024 * 8)
 #define APE_LZ4_BLOCK_COMP_SIZE APE_LZ4_COMPRESSBOUND(APE_LZ4_BLOCK_SIZE)

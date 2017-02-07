@@ -22,7 +22,7 @@
  */
 
 #include "ape_blowfish.h"
-#include <stdlib.h>
+
 #include <string.h>
 
 static const uint32_t orig_p[APE_BF_ROUNDS + 2] = {

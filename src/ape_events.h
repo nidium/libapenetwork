@@ -10,18 +10,19 @@
 #include "ape_common.h"
 
 #ifdef USE_KQUEUE_HANDLER
-#include <sys/event.h>
+  #include <sys/event.h>
 #endif
+
 #ifdef USE_EPOLL_HANDLER
-#include <sys/epoll.h>
+  #include <sys/epoll.h>
 #endif
 #ifdef USE_SELECT_HANDLER
-#ifndef _WIN32
-#include <sys/select.h>
-#endif
-#ifndef FD_SETSIZE
-#error "FD_SETSIZE NOT DEFINED"
-#endif
+  #ifndef _WIN32
+    #include <sys/select.h>
+  #endif
+  #ifndef FD_SETSIZE
+    #error "FD_SETSIZE NOT DEFINED"
+  #endif
 #endif
 
 #include "ape_hash.h"
