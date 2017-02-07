@@ -11,12 +11,9 @@
 
 #ifdef USE_KQUEUE_HANDLER
   #include <sys/event.h>
-#endif
-
-#ifdef USE_EPOLL_HANDLER
+#elif defined USE_EPOLL_HANDLER
   #include <sys/epoll.h>
-#endif
-#ifdef USE_SELECT_HANDLER
+#elif defined USE_SELECT_HANDLER
   #ifndef _WIN32
     #include <sys/select.h>
   #endif
