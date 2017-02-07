@@ -164,7 +164,7 @@ int ape_ssl_read(ape_ssl_t *ssl, void *buf, int num)
 int ape_ssl_write(ape_ssl_t *ssl, void *buf, int num)
 {
     if (ssl == NULL || ssl->con == NULL) {
-        APE_ERROR("libapenetwork", "[SSL] Cant write : no ssl ctx\n");
+        APE_ERROR("libapenetwork", "[SSL] Can not write : no ssl ctx\n");
         return 0;
     }
     return SSL_write(ssl->con, buf, num);
@@ -173,7 +173,7 @@ int ape_ssl_write(ape_ssl_t *ssl, void *buf, int num)
 void ape_ssl_shutdown(ape_ssl_t *ssl)
 {
     if (ssl == NULL || ssl->con == NULL) {
-        APE_ERROR("libapenetwork", "[SSL] Cant read : no ssl ctx\n");
+        APE_ERROR("libapenetwork", "[SSL] Can not read : no ssl ctx\n");
         return;
     }
     SSL_shutdown(ssl->con);

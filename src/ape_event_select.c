@@ -46,7 +46,7 @@ static int event_select_add(struct _fdevent *ev, ape_event_descriptor *evd,
     int fd = evd->fd;
 
     if (fd < 0 || fd > FD_SETSIZE) {
-        APE_ERROR("libapenetwork", "[Event] cant add event %d\n", fd);
+        APE_ERROR("libapenetwork", "[Event] Can not add event %d\n", fd);
         return -1;
     }
 

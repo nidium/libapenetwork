@@ -82,7 +82,7 @@ ape_global *APE_init()
     ape->urandom_fd = open("/dev/urandom", O_RDONLY);
 
     if (!ape->urandom_fd) {
-        APE_WARN("libapenetwork", "[Netlib] Cannot open /dev/urandom\n");
+        APE_WARN("libapenetwork", "[Netlib] Can not open /dev/urandom\n");
     }
     memset(&ape->logger, 0, sizeof(ape->logger));
 
