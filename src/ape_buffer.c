@@ -8,12 +8,12 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 #include <ctype.h>
+#include <unistd.h>
+
 #include "ape_common.h"
 
 #define ZBUF_BUFSIZE 1024
-
 
 #if APE_USE_ZLIB
 struct gztrailer {

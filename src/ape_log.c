@@ -4,11 +4,11 @@
    that can be found in the LICENSE file.
 */
 
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "ape_log.h"
+
+#include <stdio.h>
+#include <stdarg.h>
+#include <stdlib.h>
 
 void APE_setlogger(ape_logger_t *logger, const ape_log_lvl_t lvl,
     const ape_log_init_callback_t init, const ape_log_log_callback_t log,
@@ -60,7 +60,7 @@ int APE_logf(const ape_logger_t *logger, const ape_log_lvl_t lvl,
     logged = APE_log(logger, lvl, tag, buff);
 
     free(buff);
-    
+
     return logged;
 }
 

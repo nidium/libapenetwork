@@ -5,11 +5,8 @@
 */
 
 #include "ape_common.h"
-#include "ape_events.h"
-#include "ape_socket.h"
 
 #include <stdlib.h>
-#include <stdio.h>
 
 #define APE_DEFAULT_EVENTS_SIZE 32
 

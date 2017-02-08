@@ -5,18 +5,13 @@
 */
 
 #include "ape_common.h"
-#include "ape_events.h"
-#ifndef _WIN32
-#include <sys/time.h>
-#include <unistd.h>
-#endif
-#include <time.h>
-#include <string.h>
+
 #include <stdlib.h>
-#include <stdio.h>
+#include <unistd.h>
 
-
-#include "ape_socket.h"
+#ifndef _WIN32
+  #include <sys/time.h>
+#endif
 
 #ifdef USE_EPOLL_HANDLER
 

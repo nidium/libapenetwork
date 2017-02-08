@@ -10,23 +10,23 @@
 #define _APE_COMMON_H_
 
 #ifndef USE_SPECIFIC_HANDLER
-#ifdef __linux__
-#define USE_EPOLL_HANDLER
-#elif defined(__APPLE__)
-#define USE_KQUEUE_HANDLER
-#elif defined(_MSC_VER)
-#define USE_SELECT_HANDLER
-#define __WIN32
-#else
-#error "No suitable IO handler found"
-#endif
+  #ifdef __linux__
+    #define USE_EPOLL_HANDLER
+  #elif defined(__APPLE__)
+    #define USE_KQUEUE_HANDLER
+  #elif defined(_MSC_VER)
+    #define USE_SELECT_HANDLER
+    #define __WIN32
+  #else
+    #error "No suitable IO handler found"
+  #endif
 #endif
 
 #ifdef _WIN32
-#include "port/windows.h"
-#include <winsock2.h>
+  #include "port/windows.h"
+  #include <winsock2.h>
 #else
-#include "port/POSIX.h"
+  #include "port/POSIX.h"
 #endif
 
 #ifndef APE_TIMER_RESOLUTION
