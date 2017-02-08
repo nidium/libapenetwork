@@ -62,12 +62,6 @@ TEST(Logger,  Logger)
     memset(&logger, 0, sizeof(logger));
     APE_setlogger(&logger, APE_LOG_ERROR, loginit, loglog, logclear, NULL);
 
-    EXPECT_TRUE(logger.lvl == APE_LOG_ERROR);
-    EXPECT_TRUE(logger.init == loginit);
-    EXPECT_TRUE(logger.log == loglog);
-    EXPECT_TRUE(logger.clear == logclear);
-    EXPECT_TRUE(logger.cb_args == &args);
-
     fwd = APE_logf(&logger, APE_LOG_ERROR, "tag", "should %s print", "indeed");
     EXPECT_TRUE(fwd == 1);
     fwd = APE_logf(&logger, APE_LOG_INFO, "tag", "should %s print", "not");
