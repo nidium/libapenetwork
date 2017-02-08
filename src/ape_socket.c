@@ -156,7 +156,7 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
                 == -1)
         || setnonblocking(sock) == -1) {
 
-        APE_ERROR("libapenetwork", "[Socket] Cant create socket(%d) : %s\n", SOCKERRNO,
+        APE_ERROR("libapenetwork", "[Socket] Can not create socket(%d) : %s\n", SOCKERRNO,
                strerror(SOCKERRNO));
         return NULL;
     }
@@ -1597,3 +1597,4 @@ static ape_pool_list_t *ape_socket_new_packet_queue(size_t n)
 {
     return ape_new_pool_list(sizeof(ape_socket_packet_t), n);
 }
+

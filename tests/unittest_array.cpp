@@ -109,7 +109,7 @@ TEST(Array, cstr)
                                   strlen(ARRAY_TEST_KEY_1));
     EXPECT_TRUE(strcmp((char *)value->data, ARRAY_TEST_TEXT_1) == 0);
 
-#if 0 
+#if 0
     //should not find it if it is not there anymore
     ape_array_delete(array, ARRAY_TEST_KEY_1, strlen(ARRAY_TEST_KEY_1));
     value = ape_array_lookup_cstr(array, (char*)item->key->data, strlen(ARRAY_TEST_KEY_1));
@@ -177,3 +177,4 @@ APE_A_FOREACH
 #undef ARRAY_TEST_TEXT_2
 #undef ARRAY_TEST_KEY_1
 #undef ARRAY_TEST_KEY_2
+

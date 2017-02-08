@@ -31,7 +31,6 @@ static void loglog(void *ctx, void *cb_args, ape_log_lvl_t lvl, const char * tag
 
 static void *loginit(void *ctx)
 {
-    struct args * args;
     const char * tmp_file = "/tmp/test_ape_logging.log";
 
     FILE *file_h = fopen(tmp_file, "wb");
@@ -41,7 +40,7 @@ static void *loginit(void *ctx)
     return file_h;
 }
 
-static void logclear (void *ctx, void * cb_args)
+static void logcleanup (void *ctx, void * cb_args)
 {
     FILE *file_h = (FILE *)cb_args;
 
@@ -60,7 +59,14 @@ TEST(Logger,  Logger)
     int fwd;
 
     memset(&logger, 0, sizeof(logger));
-    APE_setlogger(&logger, APE_LOG_ERROR, loginit, loglog, logclear, NULL);
+    APE_setlogger(&logger, APE_LOG_ERROR, loginit, loglog, logcleanup, NULL);
+
+    EXPECT_TRUE(logger.lvl == APE_LOG_ERROR);
+    EXPECT_TRUE(logger.init == loginit);
+    EXPECT_TRUE(logger.log == loglog);
+    EXPECT_TRUE(logger.cleanup == logcleanup);
+    EXPECT_TRUE(logger.ctx == NULL);
+    EXPECT_TRUE(logger.cb_args != NULL);
 
     fwd = APE_logf(&logger, APE_LOG_ERROR, "tag", "should %s print", "indeed");
     EXPECT_TRUE(fwd == 1);

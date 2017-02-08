@@ -449,3 +449,4 @@ buffer *buffer_utf8_to_buffer(buffer *b)
 
     return newb;
 }
+

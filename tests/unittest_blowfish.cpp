@@ -25,7 +25,7 @@ TEST(Blowfish, Init)
     APE_blowfish_init(&ctx, key, KEY_LEN);
 }
 
-#if 0 
+#if 0
 //no clue what i am supposed to do here. I even don't understand why this is in libapenetwork
 TEST(Blowfish, Simple)
 {
@@ -77,3 +77,4 @@ TEST(Blowfish, Simple)
 
 #undef KEY_LEN
 #undef ORG
+
