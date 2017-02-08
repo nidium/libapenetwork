@@ -64,3 +64,4 @@ void APE_blowfish_crypt_ecb(struct APEBlowfish *ctx, uint32_t *xl, uint32_t *xr,
 #endif
 
 #endif /* __APE_BLOWFISH_H */
+

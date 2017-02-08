@@ -140,3 +140,4 @@ TEST(TimersNg, Interval)
 
     APE_destroy(g_ape);
 }
+

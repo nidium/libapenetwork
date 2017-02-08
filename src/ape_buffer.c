@@ -23,7 +23,7 @@ struct gztrailer {
 
 static void *zbuffer_allocate(void *opaque, uint items, uint size)
 {
-    printf("Allocate memory from zlib %d\n", items * size);
+    APE_DEBUG("libapenetwork", "[Buffer] Allocate memory from zlib %d\n", items * size);
     return malloc(items * size);
 }
 
@@ -56,16 +56,16 @@ static void zbuffer_prepapre_buf(buffer *b, size_t input_size)
         bufsize <<= 1;
     }
 
-    printf("zbuf prepared for size %ld\n", bufsize);
+    APE_DEBUG("libapenetwork", "[Buffer] zbuf prepared for size %ld\n", bufsize);
 
     b->zbuf->buf_size = bufsize;
 
     if (b->zbuf->buf) {
         b->zbuf->buf = realloc(b->zbuf->buf, bufsize);
-        printf("Realloc input buffer for size %ld\n", bufsize);
+        APE_DEBUG("libapenetwork", "[Buffer] Realloc input buffer for size %ld\n", bufsize);
     } else {
         b->zbuf->buf = malloc(bufsize);
-        printf("Alloc input buffer for size %ld\n", bufsize);
+        APE_DEBUG("libapenetwork", "[Buffer] Alloc input buffer for size %ld\n", bufsize);
     }
 
     b->zbuf->zstream.avail_out = bufsize - b->zbuf->zstream.avail_in;
@@ -92,7 +92,7 @@ void buffer_set_gzip(buffer *b)
                           -15, 8, Z_DEFAULT_STRATEGY);
 
     if (rc != Z_OK) {
-        printf("Failed to init zlib\n");
+        APE_ERROR("libapenetwork", "[Buffer] Failed to init zlib\n");
         return;
     }
 
@@ -169,7 +169,7 @@ unsigned char *buffer_data(buffer *b, int *len)
             b->used = b->zbuf->zstream.total_out;
             buffer_prepare(b, ZBUF_BUFSIZE);
         } else if (ret == Z_STREAM_ERROR) {
-            printf("Gzip stream error\n");
+            APE_ERROR("libapenetwork", "[Buffer] Gzip stream error\n");
 
             return NULL;
         }
@@ -291,7 +291,7 @@ void buffer_append_data(buffer *b, const unsigned char *data, size_t size)
             b->zbuf->zstream.next_in = b->zbuf->buf;
 
         } else if (ret == Z_STREAM_ERROR || ret == Z_BUF_ERROR) {
-            printf("Got an error.%d\n", ret);
+            APE_ERROR("libapenetwork", "[Buffer] Got an error.%d\n", ret);
         } else {
             if (ret == Z_STREAM_END) {
                 deflateReset(&b->zbuf->zstream);
@@ -449,3 +449,4 @@ buffer *buffer_utf8_to_buffer(buffer *b)
 
     return newb;
 }
+

@@ -15,7 +15,7 @@
 
 #define REPEAT 2048
 
-int main(const int argc, const char **argv )
+int main(const int argc, const char **argv)
 {
     size_t repeat, size, n;
     for(repeat = 0; repeat < REPEAT; repeat++) {

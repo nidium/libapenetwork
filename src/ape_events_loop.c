@@ -94,7 +94,7 @@ event_loop:
                                     If the job list is done (returns 1), call
                                    drain callback.
                                 */
-                                // printf("Do job...%d\n",
+                                // APE_DEBUG("libapenetwork", "[Loop] Do job...%d\n",
                                 // (cursocket->states.events_flags &
                                 // EVENT_WRITE));
                                 if (ape_socket_do_jobs(cursocket) == 1
@@ -149,6 +149,7 @@ event_loop:
         goto event_loop;
     }
 #ifdef DEBUG
-    fprintf(stdout, "[libapenetwork] exiting event loop...\n");
+    APE_DEBUG("libapenetwork", "[Loop] exiting event loop...\n");
 #endif
 }
+

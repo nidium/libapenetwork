@@ -39,7 +39,7 @@ ape_global *APE_init()
 
     err = WSAStartup(wVersionRequested, &wsaData);
     if (err != 0) {
-        printf("WSA failed\n");
+        APE_ERROR("libapenetwork", "[Netlib] WSA failed\n");
         return NULL;
     }
 #endif
@@ -71,7 +71,7 @@ ape_global *APE_init()
 #ifdef _HAVE_SSL_SUPPORT
     ape_ssl_library_init();
     if ((ape->ssl_global_ctx = ape_ssl_init_global_client_ctx()) == NULL) {
-        printf("SSL: failed to init global CTX\n");
+        APE_ERROR("libapenetwork", "[Netlib] SSL: failed to init global CTX\n");
     }
 #endif
     events_init(ape);
@@ -82,9 +82,9 @@ ape_global *APE_init()
     ape->urandom_fd = open("/dev/urandom", O_RDONLY);
 
     if (!ape->urandom_fd) {
-        fprintf(stderr, "Cannot open /dev/urandom\n");
-        NULL;
+        APE_WARN("libapenetwork", "[Netlib] Can not open /dev/urandom\n");
     }
+    memset(&ape->logger, 0, sizeof(ape->logger));
 
     return ape;
 }
@@ -122,6 +122,10 @@ void APE_destroy(ape_global *ape)
     ape_ssl_library_destroy();
 #endif
     close(ape->urandom_fd);
+    if (ape->logger.cleanup) {
+        ape->logger.cleanup(ape->logger.ctx, ape->logger.cb_args);
+    }
     //  destroying rest
     free(ape);
 }
+

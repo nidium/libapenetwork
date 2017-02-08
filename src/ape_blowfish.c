@@ -276,3 +276,4 @@ void APE_blowfish_crypt_ecb(APEBlowfish *ctx, uint32_t *xl, uint32_t *xr,
     *xl = Xr;
     *xr = Xl;
 }
+

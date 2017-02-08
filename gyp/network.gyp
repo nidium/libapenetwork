@@ -26,7 +26,8 @@
                 '_HAVE_SSL_SUPPORT',
                 'OPENSSL_API_COMPAT=0x10100000L',
                 'CARES_STATICLIB',
-                'FD_SETSIZE=2048'
+                'FD_SETSIZE=2048',
+                '_GNU_SOURCE'
 #                'USE_SPECIFIC_HANDLER',
 #                'USE_SELECT_HANDLER'
             ],
@@ -103,7 +104,8 @@
             '../src/ape_sha1.c',
             '../src/ape_ssl.c',
             '../src/ape_lz4.c',
-            '../src/ape_blowfish.c'
+            '../src/ape_blowfish.c',
+            '../src/ape_log.c'
         ],
     }],
 }

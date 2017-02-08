@@ -46,7 +46,7 @@ static int event_select_add(struct _fdevent *ev, ape_event_descriptor *evd,
     int fd = evd->fd;
 
     if (fd < 0 || fd > FD_SETSIZE) {
-        printf("cant add event %d\n", fd);
+        APE_ERROR("libapenetwork", "[Event] Can not add event %d\n", fd);
         return -1;
     }
 
@@ -65,7 +65,7 @@ static int event_select_add(struct _fdevent *ev, ape_event_descriptor *evd,
 
     hashtbl_append64(ev->fdhash, fd, fdinfo);
 
-    printf("[++++] added fd %d\n", fd);
+    APE_DEBUG("libapenetwork", "[Event] ++++ added fd %d\n", fd);
 
     return 1;
 }
@@ -85,7 +85,7 @@ static int event_select_mod(struct _fdevent *ev, ape_event_descriptor *evd,
     fdinfo = hashtbl_seek64(ev->fdhash, evd->fd);
 
     if (!fdinfo) {
-        printf("event_select_mod() : failed to find current fd\n");
+        APE_ERROR("libapenetwork", "[Event] event_select_mod() : failed to find current fd\n");
         return 0;
     }
 
@@ -148,7 +148,7 @@ static int event_select_poll(struct _fdevent *ev, int timeout_ms)
     }
     switch (numfds) {
         case -1:
-            fprintf(stderr, "Error calling select: %s, %d, %d, %d\n",
+            APE_ERROR("libapenetwork", "[Event] Error calling select: %s, %d, %d, %d\n",
                     strerror(SOCKERRNO), maxfd, numfds, SOCKERRNO);
             exit(1);
         case 0:
@@ -162,8 +162,8 @@ static int event_select_poll(struct _fdevent *ev, int timeout_ms)
         if (FD_ISSET(fd, &rfds)) {
             fdinfo = hashtbl_seek64(ev->fdhash, fd);
             if (!fdinfo) {
-                printf(
-                    "assert failed, select() returned an unknow fd (read)\n");
+                APE_ERROR("libapenetwork",
+                    "[Event] assert failed, select() returned an unknow fd (read)\n");
                 continue;
             }
 
@@ -174,8 +174,8 @@ static int event_select_poll(struct _fdevent *ev, int timeout_ms)
             if (!fdinfo) {
                 fdinfo = hashtbl_seek64(ev->fdhash, fd);
                 if (!fdinfo) {
-                    printf(
-                        "assert failed, select() returned an unknow fd "
+                    APE_ERROR("libapenetwork",
+                        "[Event] assert failed, select() returned an unknow fd "
                         "(write)\n");
                     continue;
                 }
@@ -230,8 +230,8 @@ static void event_select_setsize(struct _fdevent *ev, int size)
 {
     ev->basemem = FD_SETSIZE;
     if (size > FD_SETSIZE) {
-        printf(
-            "[Socket error] event_select_setsize requested a size > FD_SETSIZE "
+        APE_ERROR("libapenetwork",
+            "[Socket] event_select_setsize requested a size > FD_SETSIZE "
             "(%d > %d)\n",
             size, FD_SETSIZE);
     }
@@ -264,7 +264,7 @@ int event_select_init(struct _fdevent *ev)
     ev->setsize         = event_select_setsize;
     ev->mod             = event_select_mod;
 
-    printf("select() started with %i slots\n", ev->basemem);
+    APE_INFO("libapenetwork", "[Event] select() started with %i slots\n", ev->basemem);
 
     return 1;
 }
@@ -275,3 +275,4 @@ int event_select_init(struct _fdevent *ev)
     return 0;
 }
 #endif
+

@@ -64,3 +64,4 @@ TEST(DNS, Resolve)
 
     APE_destroy(g_ape);
 }
+

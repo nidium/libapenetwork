@@ -950,7 +950,7 @@ static int APE_LZ4_compress_destSize_generic(
                 /* Match description too long : reduce it */
                 matchLength = (15 - 1) + (oMaxMatch - op) * 255;
             }
-            // printf("offset %5i, matchLength%5i \n", (int)(ip-match),
+            // APE_DEBUG("libapenetwork", "[LZ4] offset %5i, matchLength%5i \n", (int)(ip-match),
             // matchLength + MINMATCH);
             ip += MINMATCH + matchLength;
 
@@ -1785,3 +1785,4 @@ int APE_LZ4_decompress_fast_withPrefix64k(const char *source, char *dest,
 }
 
 #endif /* LZ4_COMMONDEFS_ONLY */
+
