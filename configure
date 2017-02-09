@@ -28,9 +28,6 @@ Platform.setEnviron(
     "LDFLAGS=%s" % (os.environ.get("LDFLAGS", "")),
 )
 
-if Platform.system == "Darwin":
-    Platform.setEnviron("MACOSX_DEPLOYMENT_TARGET=10.7")
-
 # We explicitely set "python2.7 gyp_main.py" because "gyp" executable force
 # the use of "python" which could be 2.7 or 3 and gyp does not work with python3
 Gyp.setExec("python2.7 third-party/gyp/gyp_main.py")
@@ -52,6 +49,9 @@ def cares():
     if Konstruct.config("android"):
         env.update(Vars.get("androidEnvClang"))
         env.append("CFLAGS", "-Wno-invalid-source-encoding")
+        configure += " --host=%s " % (Vars.get("targetTriplet"))
+    elif Konstruct.config("ios"):
+        env.update(Vars.get("iosEnv"))
         configure += " --host=%s " % (Vars.get("targetTriplet"))
     elif Platform.system == 'Windows':
         makefile = " -f Makefile.m32"
@@ -77,8 +77,11 @@ def openssl():
             "MACHINE": Vars.get("targetCpu"),
             "ANDROID_DEV": "%s/sysroot/usr/" % (Vars.get("toolchainPath"))
         })
+    elif Konstruct.config("ios"):
+        configure[0] = "./Configure iphoneos-cross"
+        env.update(Vars.get("iosEnv"))
     elif Platform.system == 'Windows':
-	configure[0] = "./Configure mingw -fPIC"
+	    configure[0] = "./Configure mingw -fPIC"
     elif Platform.system == "Darwin":
         configure[0] = "./Configure darwin64-x86_64-cc -no-shared"
     else:
@@ -276,6 +279,38 @@ def asan(asan):
     if asan:
         Gyp.set("asan", 1)
 
+@CommandLine.option("--ios", default=False)
+def ios(ios):
+    if not ios:
+        return
+
+    if Platform.system != "Darwin":
+        Utils.exit("Building nidium for iOS is only supported on OSX")
+
+    def xcrun(arg):
+        return Utils.run("xcrun -sdk iphoneos %s" % (arg), failExit=True, returnOutput=True)[1].strip()
+
+    Konstruct.setConfigs(["ios"])
+
+    targetCpu = "arm64"
+    Vars.set("targetCpu", targetCpu)
+    Gyp.set("target_os", "ios");
+    Vars.set("targetTriplet", "%s-apple-darwin" % ("aarch64" if targetCpu == "arm64" else targetCpu))
+
+    sysroot = xcrun("-show-sdk-path")
+    env = Utils.Env({
+        "CC": xcrun("-find clang"),
+        "CXX": xcrun("-find clang++"),
+        "AR": xcrun("-find ar"),
+        "RANLIB": xcrun("-find ranlib"),
+        "LD": xcrun("-find ld"),
+        "CXXFLAGS": "-isysroot %s -arch %s" % (sysroot, targetCpu),
+        "CFLAGS": "-isysroot %s -arch %s" % (sysroot, targetCpu),
+        "CPPFLAGS": "-isysroot %s -arch %s" % (sysroot, targetCpu)
+    })
+
+    Vars.set("iosEnv", env)
+
 @CommandLine.option("--android", default=False)
 def android(android):
     if not android:
@@ -310,11 +345,6 @@ def android(android):
 Deps.set("gyp", "c-ares", "openssl", "zlib")
 Vars.set("depsRepo", DEPEDENCY_REPO)
 
-@CommandLine.option("--mac-sdk-version", default="")
-def macSdkVersion(version):
-    if version:
-        Gyp.set("mac_sdk_version", version)
-
 def findAppleSDK(type='macosx'):
     import re
     type = type.lower()
@@ -337,8 +367,15 @@ def findAppleSDK(type='macosx'):
 
     return sdks[len(sdks) - 1]
 
-if Platform.system == "Darwin":
-    sdk = findAppleSDK()
+@Konstruct.hook("start")
+def start():
+    if Platform.system != "Darwin":
+        return
+
+    if not Konstruct.config("ios"):
+        Platform.setEnviron("MACOSX_DEPLOYMENT_TARGET=10.7")
+
+    sdk = findAppleSDK("iphoneos" if Konstruct.config("ios") else "macosx")
     if sdk is None:
        Utils.exit("No macos SDK detected. Make sure Xcode is correctly installed and configured")
     Gyp.set("mac_sdk_version", sdk)
