@@ -175,7 +175,7 @@ def setupAndroidSDK():
 
 @Deps.register("android-sdk")
 def androidNDK():
-    NDKAPIVersion = 24
+    NDKAPIVersion = 21
     SDKAPIVersion = 25
 
     toolchainPath = ROOT + "/tools/android-toolchain/"
