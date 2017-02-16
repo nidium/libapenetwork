@@ -44,43 +44,62 @@ def gyp():
 
 @Deps.register("c-ares")
 def cares():
-    makefile = ''
-    if Platform.system == 'Windows':
-        makefile = " -f Makefile.m32"
-    return {
-        "location": "http://c-ares.haxx.se/download/c-ares-1.12.0.tar.gz",
-        "build": ["./configure", "make" + makefile],
-        "outputs": [".libs/libcares.a"]
-    }
+    makefile = ""
+    if Platform.system == "Windows":
+        return {
+                "location" : Deps.GitRepo("https://github.com/c-ares/c-ares.git", tag="cares-1_12_0"),
+                "build" : [ "buildconf.bat", "nmake -f Makefile.msvc"],
+                "outputs": ["./msvc140/cares/lib-release/libcares.lib"]
+        }
+    else:
+        return {
+                "location": "http://c-ares.haxx.se/download/c-ares-1.12.0.tar.gz",
+                "build": ["./configure", "make"], 
+                "outputs": [".libs/libcares.a"]
+        }
 
 @Deps.register("openssl")
 def openssl():
-    if Platform.system == 'Windows':
-	configure = "./Configure mingw -fPIC"
+    location = "https://github.com/openssl/openssl/archive/OpenSSL_1_0_1t.tar.gz"
+    if Platform.system == "Windows":
+            return {
+                "location": location,
+                "build" : ["perl Configure VC-WIN32",
+                           #"perl Configure VC-WIN64A",
+                           r"ms\do_ms", r"nmake -f ms\nt.mak"],
+                "outputs": ["out32/libeay32.lib", "out32/ssleay32.lib"]
+            }
     elif Platform.system == "Darwin":
-        configure = "./Configure darwin64-x86_64-cc -no-shared"
+        build = ["./Configure darwin64-x86_64-cc -no-shared||make depend", 
+                 "make build_crypto", "make build_ssl"],
     else:
-        configure = "./config -fPIC"
+        build = ["./config -fPIC||make depend", 
+                "make build_crypto", "make build_ssl"]
     return {
-        "location": "https://github.com/openssl/openssl/archive/OpenSSL_1_0_1t.tar.gz",
-        "build": [configure + "||make depend", "make build_crypto", "make build_ssl"],
+        "location": location,
+        "build"   : build,
         "outputs": ["libssl(.a|.lib)", "libcrypto(.a|.lib)"]
     }
 
 @Deps.register("zlib")
 def zlip():
     if Platform.system == 'Windows':
-        build = ["make -f ./win32/Makefile.gcc"]
+        build = ["nmake -f ./win32/Makefile.msc"]
+        output = 'zlib.lib'
     else:
         build = ["./configure --static", "make"]
+        output = 'libz.a'
     return {
         "location": "%s/zlib-1.2.11.tar.gz" % (DEPEDENCY_REPO),
         "build": build,
-        "outputs": ["libz.a"]
+        "outputs": [output]
     }
 
 @Deps.register("gperftools")
 def gperftools():
+    if Platform.system == "Windows":
+        Log.error("Can not do gperftools on windows (yet).")
+        exit()
     return {
         "location": "https://github.com/gperftools/gperftools/releases/download/gperftools-2.5/gperftools-2.5.tar.gz",
         "build": ["autoconf", "chmod +x ./configure", "./configure --enable-static --enable-shared", "make"],
@@ -90,6 +109,9 @@ def gperftools():
 @Deps.register("pprof")
 def pprof():
     from konstructor import ConfigCache
+    if Platform.system == "Windows":
+        Log.error("Can not do pprof on windows (yet).")
+        exit()
     return {
         "location": Deps.Command("GOPATH=%s go get github.com/google/pprof" % (os.path.join(Deps.getDir(), "." + ConfigCache.getConfigStr(), "pprof"))),
         "outputs": [{"src": "bin/pprof", "dst": os.path.join(Deps.getDir(), "pprof", "tools")}]
@@ -98,10 +120,8 @@ def pprof():
 @Deps.register("gtest")
 def gtest():
     flags = ""
-
     if Platform.system == "Darwin":
         flags = "-DCMAKE_CXX_FLAGS='-std=c++11 -stdlib=libc++'"
-
     return {
         "location": Deps.GitRepo("https://github.com/google/googletest.git", revision="d225acc90bc3a8c420a9bcd1f033033c1ccd7fe0"),
         "build": ["cmake %s ." % flags, "make"],
@@ -159,6 +179,9 @@ def testNetwork(unitTests):
 @CommandLine.option("--asan", default=False)
 def asan(asan):
     if asan:
+        if Platform.system == "Windows":
+            Log.error("Can not do --asan on Visual Studio.")
+            exit()
         Gyp.set("asan", 1)
 
 #####
