@@ -157,3 +157,10 @@ $RECYCLE.BIN/
 
 # Mac desktop service store files
 .DS_Store
+
+# gyp stuff
+gyp/network-includes.vcxproj
+gyp/network-link.vcxproj
+gyp/network.sln
+gyp/network.vcxproj
+gyp/network.vcxproj.filters
