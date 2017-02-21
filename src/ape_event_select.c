@@ -6,13 +6,15 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <sys/time.h>
 
-#ifndef _WIN32
-  #include "port/POSIX.h"
-#else
+#ifdef _WIN32
+  #include <stdint.h>
   #include "port\windows.h"
+#else
+  #include <sys/time.h>
+  #include <unistd.h>
+
+  #include "port/POSIX.h"
 #endif
 
 #ifdef USE_SELECT_HANDLER

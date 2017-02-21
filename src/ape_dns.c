@@ -8,12 +8,12 @@
 
 #include <stdlib.h>
 #include <fcntl.h>
-#include <unistd.h>
 
 #ifdef _WIN32
   #include <io.h>
   #include <winsock2.h>
 #else
+  #include <unistd.h>
   #include <netdb.h>
   #include <unistd.h>
   #include <arpa/inet.h>

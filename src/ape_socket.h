@@ -17,12 +17,6 @@
 #ifdef _WIN32
   //#include <winsock2.h>
   //#pragma comment(lib, "ws2_32.lib")
-  #if 0
-    #define ECONNRESET WSAECONNRESET
-    #define EINPROGRESS WSAEINPROGRESS
-    #define EALREADY WSAEALREADY
-    #define ECONNABORTED WSAECONNABORTED
-  #endif
   #define ioctl ioctlsocket
   #define hstrerror(x) ""
 #else

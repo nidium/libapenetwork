@@ -9,12 +9,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
 
 #include "ape_sha1.h"
 #include "ape_base64.h"
+
+#ifndef __WIN32
+  #include <unistd.h>
+  #include <arpa/inet.h>
+  #include <netinet/in.h>
+#endif
 
 #define WS_GUID "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 

@@ -8,14 +8,14 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <strings.h>
-#include <unistd.h>
-#include <sys/time.h>
 
-#ifndef _WIN32
-  #include "port/POSIX.h"
-#else
+#ifdef _WIN32
   #include "port/windows.h"
+#else
+  #include <strings.h>
+  #include <unistd.h>
+  #include <sys/time.h>
+  #include "port/POSIX.h"
 #endif
 
 extern unsigned long _ape_seed;

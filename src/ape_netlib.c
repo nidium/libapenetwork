@@ -10,12 +10,13 @@
 #include <signal.h>
 #include <fcntl.h>
 #include <string.h>
-#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
 #ifdef _WIN32
-  #include <WinSock2.h>
+#include <WinSock2.h>
+#else
+#include <unistd.h>
 #endif
 
 #include "ape_dns.h"

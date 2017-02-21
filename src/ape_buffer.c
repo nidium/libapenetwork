@@ -9,7 +9,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+
+#ifdef _WIN32
+#else
 #include <unistd.h>
+#endif
 
 #include "ape_common.h"
 

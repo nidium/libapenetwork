@@ -8,10 +8,10 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include <unistd.h>
 
 #ifndef _WIN32
   #include <sys/time.h>
+  #include <unistd.h>
 #endif
 
 #ifdef USE_KQUEUE_HANDLER

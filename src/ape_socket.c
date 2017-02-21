@@ -9,21 +9,21 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <sys/uio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <sys/time.h>
 
 #include <openssl/err.h>
 
-#ifndef _WIN32
-#else
+#ifdef _WIN32
   #include <io.h>
   #include <malloc.h>
+#else
+  #include <sys/socket.h>
+  #include <arpa/inet.h>
+  #include <netinet/in.h>
+  #include <sys/time.h>
+  #include <sys/uio.h>
+  #include <unistd.h>
 #endif
 
 #ifdef _MSC_VER

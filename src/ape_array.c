@@ -7,7 +7,10 @@
 #include "ape_array.h"
 
 #include <string.h>
+
+#ifndef _WIN32
 #include <strings.h>
+#endif
 
 static void ape_array_clean_cb(ape_pool_t *item, void *ctx);
 

@@ -7,10 +7,10 @@
 #include "ape_common.h"
 
 #include <stdlib.h>
-#include <unistd.h>
 
 #ifndef _WIN32
-  #include <sys/time.h>
+#include <unistd.h>
+#include <sys/time.h>
 #endif
 
 #ifdef USE_EPOLL_HANDLER
