@@ -4,21 +4,16 @@
    that can be found in the LICENSE file.
 */
 
-#include "ape_common.h"
-#include "ape_events.h"
-#ifndef __WIN32
-#include <sys/time.h>
-#include <unistd.h>
-#else
-#include "port\windows.h"
-#endif
-#include <time.h>
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
+#include <unistd.h>
+#include <sys/time.h>
 
-
-#include "ape_socket.h"
+#ifndef _WIN32
+  #include "port/POSIX.h"
+#else
+  #include "port\windows.h"
+#endif
 
 #ifdef USE_SELECT_HANDLER
 

@@ -5,8 +5,9 @@
 */
 
 #include "ape_array.h"
-#include <string.h>
 
+#include <string.h>
+#include <strings.h>
 
 static void ape_array_clean_cb(ape_pool_t *item, void *ctx);
 

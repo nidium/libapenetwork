@@ -5,21 +5,20 @@
 */
 
 #include "ape_netlib.h"
-#include "ape_common.h"
-#include "ape_dns.h"
-#include "ape_ssl.h"
 
 #include <stdlib.h>
 #include <signal.h>
-#include <time.h>
+#include <fcntl.h>
+#include <string.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>
-#include <ares.h>
 
 #ifdef _WIN32
-#include <WinSock2.h>
+  #include <WinSock2.h>
 #endif
+
+#include "ape_dns.h"
 
 int ape_running = 1;
 

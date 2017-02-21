@@ -4,23 +4,19 @@
    that can be found in the LICENSE file.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#ifndef _WIN32
-#include <unistd.h>
-#else
-#include "port/windows.h"
-#endif
-
 #include "ape_hash.h"
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+#include <stdlib.h>
+#include <string.h>
+#include <strings.h>
+#include <unistd.h>
+#include <sys/time.h>
 
-#define HACH_TABLE_MAX 8209
+#ifndef _WIN32
+  #include "port/POSIX.h"
+#else
+  #include "port/windows.h"
+#endif
 
 extern unsigned long _ape_seed;
 

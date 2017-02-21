@@ -17,10 +17,10 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *  MA  02110-1301  USA
  */
+#include "ape_sha1.h"
+
 #include <string.h>
 #include <stdio.h>
-
-#include "ape_sha1.h"
 /*
  *  The SHA-1 standard was published by NIST in 1993.
  *

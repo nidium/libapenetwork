@@ -4,17 +4,13 @@
    that can be found in the LICENSE file.
 */
 
-#include "ape_common.h"
-#include "ape_events.h"
-#include "ape_socket.h"
-#include "ape_timers_next.h"
 #include "ape_events_loop.h"
 
-#ifndef __WIN32
-#include <sys/time.h>
+#ifndef _WIN32
+  #include <sys/time.h>
 #endif
-#include <stdio.h>
-#include <stddef.h>
+
+#include "ape_socket.h"
 
 extern int ape_running;
 

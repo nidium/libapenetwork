@@ -4,27 +4,21 @@
    that can be found in the LICENSE file.
 */
 
-#ifdef _WIN32
-#include <ares.h>
-#include <io.h>
-#include <winsock2.h>
-#else
-#include "ares.h"
-#include <netdb.h>
-#include <unistd.h>
-#include <arpa/inet.h>
-#endif
+#include "ape_dns.h"
 
 #include <stdlib.h>
-#include "ape_common.h"
-#include "ape_dns.h"
-#include "ape_events.h"
-
-#include <stdio.h>
-
 #include <fcntl.h>
+#include <unistd.h>
 
-/* gcc *.c -I../deps/ ../deps/c-ares/.libs/libcares.a -lrt */
+#ifdef _WIN32
+  #include <io.h>
+  #include <winsock2.h>
+#else
+  #include <netdb.h>
+  #include <unistd.h>
+  #include <arpa/inet.h>
+  #include <netinet/in.h>
+#endif
 
 #ifdef FIONBIO
 static __inline int setnonblocking(int fd)
