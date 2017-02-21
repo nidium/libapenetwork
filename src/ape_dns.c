@@ -47,7 +47,7 @@ static void ares_io(int fd, int ev, void *data, ape_global *ape)
                     (ev & EVENT_WRITE ? fd : ARES_SOCKET_BAD));
 }
 
-static void ares_socket_cb(void *data, int s, int read, int write)
+static void ares_socket_cb(void *data, ares_socket_t s, int read, int write)
 {
     ape_global *ape = data;
     unsigned i, f   = 0u;
