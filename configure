@@ -136,7 +136,7 @@ def gtest():
 def debug(debug):
     if debug:
         Variables.set("debug", True)
-        Gyp.setConfiguration("Debug");
+        Gyp.setConfiguration("Debug")
         Konstruct.setConfigs(["debug"])
 
 @CommandLine.option("--third-party-path", default="")
@@ -229,6 +229,6 @@ if __name__ == '__main__':
     if Platform.system == "Windows":
         args += " -G msvs_version=2015"
     Gyp.setArgs(args)
-    Build.add(Gyp("gyp/network.gyp"));
+    Build.add(Gyp("gyp/network.gyp"))
     Konstruct.start()
 
