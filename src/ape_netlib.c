@@ -102,8 +102,7 @@ ape_global *APE_init()
     /* Store ape in a Thread local storage */
     pthread_once(&g_InitOnce, ape_inittls);
     if (pthread_getspecific(g_APEThreadContextKey) != NULL) {
-        printf("[Error] An instance of APE already exists in the current thread");
-
+        printf("[Error] An instance of APE already exists in the current thread\n");
         return NULL;
     }
 
@@ -154,5 +153,7 @@ void APE_destroy(ape_global *ape)
     }
     //  destroying rest
     free(ape);
+
+    pthread_setspecific(g_APEThreadContextKey, NULL);
 }
 
