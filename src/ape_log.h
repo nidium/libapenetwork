@@ -38,12 +38,12 @@ typedef struct _ape_logger_t {
     void *                   ctx;
 } ape_logger_t;
 
-void APE_setlogger(ape_logger_t *logger, const ape_log_lvl_t lvl,
+void APE_setlogger(const ape_log_lvl_t lvl,
     const ape_log_init_callback_t init, const ape_log_log_callback_t log,
     const ape_log_cleanup_callback_t cleanup, void *ctx);
-int APE_logf(const ape_logger_t *logger, const ape_log_lvl_t lvl,
+int APE_logf(const ape_log_lvl_t lvl,
     const char *tag, const char *fmt, ...);
-int APE_log(const ape_logger_t *logger, const ape_log_lvl_t lvl,
+int APE_log(const ape_log_lvl_t lvl,
     const char *tag, const char *buffer);
 
 #if 0
