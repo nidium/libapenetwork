@@ -175,10 +175,8 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
 
     ret->delay_timer = NULL;
 
-#ifdef _HAVE_SSL_SUPPORT
     ret->SSL.issecure   = (pt == APE_SOCKET_PT_SSL);
     ret->SSL.need_write = 0;
-#endif
 
     buffer_init(&ret->data_in);
     ape_init_job_list(&ret->jobs, 2);
@@ -604,11 +602,11 @@ static int ape_socket_free(void *arg)
 {
     ape_socket *socket = arg;
     _ndec++;
-#ifdef _HAVE_SSL_SUPPORT
+
     if (socket->SSL.issecure) {
         ape_ssl_destroy(socket->SSL.ssl);
     }
-#endif
+
     buffer_delete(&socket->data_in);
     ape_destroy_pool_with_cleaner(socket->jobs.head,
                                   ape_socket_job_pool_cleaner, socket);
@@ -727,12 +725,11 @@ int APE_socket_writev(ape_socket *socket, const struct iovec *iov, int iovcnt)
         return -1;
     }
 
-#ifdef _HAVE_SSL_SUPPORT
     if (APE_SOCKET_ISSECURE(socket)) {
         /*TODO: SSL, NOT IMPLEMENTED */
         return -1;
     }
-#endif
+
     if ((socket->states.flags & APE_SOCKET_WOULD_BLOCK)
         || (socket->jobs.head->flags & APE_SOCKET_JOB_ACTIVE)) {
         return 1;
@@ -768,7 +765,7 @@ int APE_socket_write(ape_socket *socket, void *data, size_t len,
         ape_socket_queue_data(socket, data, len, 0, data_type);
         return len;
     }
-#ifdef _HAVE_SSL_SUPPORT
+
     if (APE_SOCKET_ISSECURE(socket)) {
         int w;
         // APE_DEBUG("libapenetwork", "[Socket] Want write on a secure connection\n");
@@ -872,7 +869,7 @@ int APE_socket_write(ape_socket *socket, void *data, size_t len,
             data_type = (dst_cmp == socket->lz4.tx.cmp_buffer) ? APE_DATA_OWN
                                                                : APE_DATA_COPY;
         }
-#endif
+
         while (t_bytes < len) {
 
             if ((n = swrite(socket->s.fd, data + t_bytes, r_bytes)) < 0) {
@@ -891,9 +888,9 @@ int APE_socket_write(ape_socket *socket, void *data, size_t len,
             t_bytes += n;
             r_bytes -= ape_min(n, 0);
         }
-#ifdef _HAVE_SSL_SUPPORT
+
     }
-#endif
+
 
     ape_socket_release_data(
         data, (data_type == APE_DATA_COPY && !APE_SOCKET_IS_LZ4(socket, tx)
@@ -963,7 +960,7 @@ int ape_socket_do_jobs(ape_socket *socket)
                 ape_pool_list_t *plist = (ape_pool_list_t *)job->pool.ptr.data;
                 ape_socket_packet_t *packet
                     = (ape_socket_packet_t *)plist->head;
-#ifdef _HAVE_SSL_SUPPORT
+
                 if (APE_SOCKET_ISSECURE(socket)) {
                     ERR_clear_error();
 
@@ -997,7 +994,7 @@ int ape_socket_do_jobs(ape_socket *socket)
                             plist);
                     }
                 } else {
-#endif
+
                 chunk:
                     for (i = 0; packet != NULL && i < max_chunks; i++) {
                         if (packet->pool.ptr.data == NULL) {
@@ -1053,9 +1050,9 @@ int ape_socket_do_jobs(ape_socket *socket)
                     if (packet->pool.ptr.data != NULL) {
                         goto chunk;
                     }
-#ifdef _HAVE_SSL_SUPPORT
+
                 }
-#endif
+
                 break;
             }
 #ifndef __WIN32
@@ -1179,12 +1176,10 @@ int ape_socket_connected(void *arg)
 {
     ape_socket *socket = (ape_socket *)arg;
 
-#ifdef _HAVE_SSL_SUPPORT
     if (APE_SOCKET_ISSECURE(socket)) {
         socket->SSL.ssl
             = ape_ssl_init_con(socket->ape->ssl_global_ctx, socket->s.fd, 0);
     }
-#endif
 
     if (socket->callbacks.on_connected != NULL) {
         socket->callbacks.on_connected(socket, socket->ape,
@@ -1220,12 +1215,12 @@ int ape_socket_accept(ape_socket *socket)
 
         client->states.state = APE_SOCKET_ST_ONLINE;
         client->states.type  = APE_SOCKET_TP_CLIENT;
-#ifdef _HAVE_SSL_SUPPORT
+
         if (APE_SOCKET_ISSECURE(socket)) {
             client->SSL.ssl
                 = ape_ssl_init_con(socket->SSL.ssl, client->s.fd, 1);
         }
-#endif
+
         events_add((ape_event_descriptor *)client, EVENT_READ | EVENT_WRITE,
                    socket->ape);
 
@@ -1305,11 +1300,10 @@ static int ape_shutdown(ape_socket *socket, int rw)
     if (socket->states.state != APE_SOCKET_ST_ONLINE) {
         return 1;
     }
-#ifdef _HAVE_SSL_SUPPORT
+
     if (APE_SOCKET_ISSECURE(socket)) {
         ape_ssl_shutdown(socket->SSL.ssl);
     }
-#endif
 
     if (socket->states.proto != APE_SOCKET_PT_UDP) {
         shutdown(socket->s.fd, rw);
@@ -1479,7 +1473,7 @@ int ape_socket_read(ape_socket *socket)
     do {
         /* TODO : avoid extra calling (avoid realloc) */
         buffer_prepare(&socket->data_in, 2048);
-#ifdef _HAVE_SSL_SUPPORT
+
         if (APE_SOCKET_ISSECURE(socket)) {
             ERR_clear_error();
 
@@ -1505,7 +1499,7 @@ int ape_socket_read(ape_socket *socket)
             }
             socket->data_in.used += ape_max(nread, 0);
         } else {
-#endif
+
         socket_reread:
             nread = read(socket->s.fd,
                          socket->data_in.data + socket->data_in.used,
@@ -1526,9 +1520,9 @@ int ape_socket_read(ape_socket *socket)
             }
 
             socket->data_in.used += ape_max(nread, 0);
-#ifdef _HAVE_SSL_SUPPORT
+
         }
-#endif
+
     } while (nread > 0);
 
     if (socket->data_in.used != 0) {

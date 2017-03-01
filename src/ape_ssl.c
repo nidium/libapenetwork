@@ -1,7 +1,7 @@
 #include "ape_ssl.h"
 #include "ape_log.h"
 
-#if _HAVE_SSL_SUPPORT
+
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/conf.h>
@@ -188,5 +188,3 @@ void ape_ssl_destroy(ape_ssl_t *ssl)
 
     free(ssl);
 }
-#endif
-

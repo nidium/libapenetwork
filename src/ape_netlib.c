@@ -80,12 +80,12 @@ ape_global *APE_init()
     ape->kill_handler = NULL;
 
     ape_dns_init(ape);
-#ifdef _HAVE_SSL_SUPPORT
+
     ape_ssl_library_init();
     if ((ape->ssl_global_ctx = ape_ssl_init_global_client_ctx()) == NULL) {
         printf("[Error] SSL: failed to init global CTX\n");
     }
-#endif
+
     events_init(ape);
 
     ape->failed_write_count    = 0;
@@ -142,13 +142,12 @@ void APE_destroy(ape_global *ape)
     // destroying timers
     APE_timers_destroy_all(ape);
 
-#ifdef _HAVE_SSL_SUPPORT
     if (ape->ssl_global_ctx) {
         ape_ssl_shutdown(ape->ssl_global_ctx);
         ape_ssl_destroy(ape->ssl_global_ctx);
     }
     ape_ssl_library_destroy();
-#endif
+
     close(ape->urandom_fd);
     if (ape->logger.cleanup) {
         ape->logger.cleanup(ape->logger.ctx, ape->logger.cb_args);
