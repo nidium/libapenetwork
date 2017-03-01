@@ -30,8 +30,6 @@ void APE_setlogger(const ape_log_lvl_t lvl,
     if (logger->init) {
         logger->cb_args = logger->init(ctx);
     }
-
-    APE_log(APE_LOG_DEBUG, "log", "Log init !");
 }
 
 const char *APE_getloglabel(ape_log_lvl_t lvl)
