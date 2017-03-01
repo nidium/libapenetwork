@@ -56,8 +56,6 @@ int APE_log(const ape_log_lvl_t lvl,
 int APE_logf(const ape_log_lvl_t lvl,
     const char *tag, const char * fmt, ...)
 {
-    ape_logger_t *logger = &APE_get()->logger;
-
     int logged;
     va_list args;
     char* buff;
