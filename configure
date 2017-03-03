@@ -229,7 +229,8 @@ if Platform.system == "Darwin":
 if __name__ == '__main__':
     args = "--depth ./ --include=gyp/config.gypi --include=gyp/common.gypi"
     if Platform.system == "Windows":
-        args += " -G msvs_version=2015"
+        Variables.set("msvs_version", 2015)
+
     Gyp.setArgs(args)
     Build.add(Gyp("gyp/network.gyp"))
     Konstruct.start()
