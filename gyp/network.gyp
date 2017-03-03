@@ -23,7 +23,6 @@
             ],
 
             'defines': [
-                '_HAVE_SSL_SUPPORT',
                 'OPENSSL_API_COMPAT=0x10100000L',
                 'CARES_STATICLIB',
                 'FD_SETSIZE=2048',
@@ -46,6 +45,7 @@
                             '-lm',
                             '-lz',
                             '-lrt',
+                            '-lpthread'
                         ]
                     }
                 }],

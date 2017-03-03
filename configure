@@ -25,7 +25,7 @@ DEPEDENCY_REPO = "http://deps.nidium.com"
 Platform.setEnviron(
     "CC=%s" % (os.environ.get("CC", "clang")),
     "CXX=%s" % (os.environ.get("CXX", "clang++")),
-    "LDFLAGS=%s" % (os.environ.get("LDFLAGS", "")),
+    "LDFLAGS=%s" % (os.environ.get("LDFLAGS", ""))
 )
 
 if Platform.system == "Darwin":

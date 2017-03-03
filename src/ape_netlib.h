@@ -19,6 +19,9 @@ extern "C" {
 ape_global *APE_init();
 void APE_destroy(ape_global *ape);
 
+/* Read back the value from thread local storage */
+ape_global *APE_get();
+
 #ifdef __cplusplus
 }
 
