@@ -14,6 +14,7 @@
         #   https://code.google.com/p/gyp/issues/detail?id=444
         'variables': {
             'third_party%': 'third-party',
+            'platform%': '<(platform)',
             'libapenetwork_output_third_party_path': '<(libapenetwork_output_path)/third-party/',
             'libapenetwork_tests_output_path': '<(libapenetwork_output_path)/tests/',
         },
