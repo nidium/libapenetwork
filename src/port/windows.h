@@ -8,6 +8,8 @@
 
 #define __APE_PORT_WINDOWS_H
 
+#define NOGDI
+
 #include <winsock2.h>
 
 #if defined(_WIN64)
