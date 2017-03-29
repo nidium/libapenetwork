@@ -55,28 +55,20 @@ TEST(Logger,  Logger)
 {
     ape_global *g_ape;
     g_ape = APE_init();
-    ape_logger_t logger;
     int fwd;
 
-    memset(&logger, 0, sizeof(logger));
-    APE_setlogger(&logger, APE_LOG_ERROR, loginit, loglog, logcleanup, NULL);
+    APE_setlogger(APE_LOG_ERROR, loginit, loglog, logcleanup, NULL);
 
-    EXPECT_TRUE(logger.lvl == APE_LOG_ERROR);
-    EXPECT_TRUE(logger.init == loginit);
-    EXPECT_TRUE(logger.log == loglog);
-    EXPECT_TRUE(logger.cleanup == logcleanup);
-    EXPECT_TRUE(logger.ctx == NULL);
-    EXPECT_TRUE(logger.cb_args != NULL);
-
-    fwd = APE_logf(&logger, APE_LOG_ERROR, "tag", "should %s print", "indeed");
+    fwd = APE_logf(APE_LOG_ERROR, "tag", "should %s print", "indeed");
     EXPECT_TRUE(fwd == 1);
-    fwd = APE_logf(&logger, APE_LOG_INFO, "tag", "should %s print", "not");
+    fwd = APE_logf(APE_LOG_INFO, "tag", "should %s print", "not");
     EXPECT_TRUE(fwd == 0);
-    fwd = APE_log(&logger, APE_LOG_ERROR, "tag", "should print");
+    fwd = APE_log(APE_LOG_ERROR, "tag", "should print");
     EXPECT_TRUE(fwd == 1);
-    fwd = APE_log(&logger, APE_LOG_INFO, "tag", "should not print");
+    fwd = APE_log(APE_LOG_INFO, "tag", "should not print");
     EXPECT_TRUE(fwd == 0);
-
-    logger.cleanup(logger.ctx, logger.cb_args);
+    if (g_ape->logger.cleanup) {
+        g_ape->logger.cleanup(g_ape->logger.ctx, g_ape->logger.cb_args);
+    }
 }
 

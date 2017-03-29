@@ -46,17 +46,15 @@ typedef struct _ape_global ape_global;
 
 #include "ape_events.h"
 #include "ape_timers_next.h"
-#ifdef _HAVE_SSL_SUPPORT
+
 #include "ape_ssl.h"
-#endif
+
 #include "ape_hash.h"
 #include "ape_log.h"
 
 struct _ape_global {
     void *ctx; /* public */
-#ifdef _HAVE_SSL_SUPPORT
     ape_ssl_t *ssl_global_ctx;
-#endif
     unsigned int seed;
     struct _fdevent events;
     struct {

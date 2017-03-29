@@ -18,12 +18,12 @@
                 ['OS=="win"', {
                     'include_dirs': [
                         '<(third_party_path)/openssl/inc32/',
+                        '<(third_party_path)/pthreads4w/',
                     ]
                 }]
             ],
 
             'defines': [
-                '_HAVE_SSL_SUPPORT',
                 'CARES_STATICLIB',
                 'FD_SETSIZE=2048',
                 '_GNU_SOURCE'
@@ -45,6 +45,7 @@
                             '-lm',
                             '-lz',
                             '-lrt',
+                            '-lpthread'
                         ]
                     }
                 }],

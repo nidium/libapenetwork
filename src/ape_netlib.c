@@ -19,9 +19,20 @@
 #include <unistd.h>
 #endif
 
+#include <pthread.h>
+
 #include "ape_dns.h"
 
 int ape_running = 1;
+
+static pthread_key_t g_APEThreadContextKey;
+static pthread_once_t g_InitOnce = PTHREAD_ONCE_INIT;
+
+/* Init Thread Local storage key */
+static void ape_inittls()
+{
+    pthread_key_create(&g_APEThreadContextKey, NULL);
+}
 
 ape_global *APE_init()
 {
@@ -39,7 +50,7 @@ ape_global *APE_init()
 
     err = WSAStartup(wVersionRequested, &wsaData);
     if (err != 0) {
-        APE_ERROR("libapenetwork", "[Netlib] WSA failed\n");
+        printf("[Error] WSA failed\n");
         return NULL;
     }
 #endif
@@ -68,12 +79,12 @@ ape_global *APE_init()
     ape->kill_handler = NULL;
 
     ape_dns_init(ape);
-#ifdef _HAVE_SSL_SUPPORT
+
     ape_ssl_library_init();
     if ((ape->ssl_global_ctx = ape_ssl_init_global_client_ctx()) == NULL) {
-        APE_ERROR("libapenetwork", "[Netlib] SSL: failed to init global CTX\n");
+        printf("[Error] SSL: failed to init global CTX\n");
     }
-#endif
+
     events_init(ape);
 
     ape->failed_write_count    = 0;
@@ -82,11 +93,26 @@ ape_global *APE_init()
     ape->urandom_fd = open("/dev/urandom", O_RDONLY);
 
     if (!ape->urandom_fd) {
-        APE_WARN("libapenetwork", "[Netlib] Can not open /dev/urandom\n");
+        printf("Can not open /dev/urandom\n");
+        return NULL;
     }
     memset(&ape->logger, 0, sizeof(ape->logger));
 
+    /* Store ape in a Thread local storage */
+    pthread_once(&g_InitOnce, ape_inittls);
+    if (pthread_getspecific(g_APEThreadContextKey) != NULL) {
+        printf("[Error] An instance of APE already exists in the current thread\n");
+        return NULL;
+    }
+
+    pthread_setspecific(g_APEThreadContextKey, ape);
+
     return ape;
+}
+
+ape_global *APE_get()
+{
+    return (ape_global*)pthread_getspecific(g_APEThreadContextKey);
 }
 
 void APE_destroy(ape_global *ape)
@@ -114,18 +140,19 @@ void APE_destroy(ape_global *ape)
     // destroying timers
     APE_timers_destroy_all(ape);
 
-#ifdef _HAVE_SSL_SUPPORT
     if (ape->ssl_global_ctx) {
         ape_ssl_shutdown(ape->ssl_global_ctx);
         ape_ssl_destroy(ape->ssl_global_ctx);
     }
     ape_ssl_library_destroy();
-#endif
+
     close(ape->urandom_fd);
     if (ape->logger.cleanup) {
         ape->logger.cleanup(ape->logger.ctx, ape->logger.cb_args);
     }
     //  destroying rest
     free(ape);
+
+    pthread_setspecific(g_APEThreadContextKey, NULL);
 }
 

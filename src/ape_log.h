@@ -13,13 +13,15 @@
 extern "C" {
 #endif
 
-static const char *ape_log_levellabels[] = {"DEBUG", "WARN", "ERROR", "INFO"};
+static const char *ape_log_levellabels[] = {"ERROR", "WARN", "INFO", "DEBUG", ""};
+
 
 typedef enum _ape_log_lvl_t {
-    APE_LOG_DEBUG = 0,
+    APE_LOG_ERROR = 0,
     APE_LOG_WARN,
-    APE_LOG_ERROR,
-    APE_LOG_INFO
+    APE_LOG_INFO,
+    APE_LOG_DEBUG,
+    APE_LOG_COUNT
 } ape_log_lvl_t;
 
 const char *APE_getloglabel(ape_log_lvl_t lvl);
@@ -38,12 +40,12 @@ typedef struct _ape_logger_t {
     void *                   ctx;
 } ape_logger_t;
 
-void APE_setlogger(ape_logger_t *logger, const ape_log_lvl_t lvl,
+void APE_setlogger(const ape_log_lvl_t lvl,
     const ape_log_init_callback_t init, const ape_log_log_callback_t log,
     const ape_log_cleanup_callback_t cleanup, void *ctx);
-int APE_logf(const ape_logger_t *logger, const ape_log_lvl_t lvl,
+int APE_logf(const ape_log_lvl_t lvl,
     const char *tag, const char *fmt, ...);
-int APE_log(const ape_logger_t *logger, const ape_log_lvl_t lvl,
+int APE_log(const ape_log_lvl_t lvl,
     const char *tag, const char *buffer);
 
 #if 0
