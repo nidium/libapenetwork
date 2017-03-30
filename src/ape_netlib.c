@@ -29,7 +29,7 @@ static pthread_key_t g_APEThreadContextKey;
 static pthread_once_t g_InitOnce = PTHREAD_ONCE_INIT;
 
 /* Init Thread Local storage key */
-static void ape_inittls()
+static void ape_inittls(void)
 {
     pthread_key_create(&g_APEThreadContextKey, NULL);
 }
