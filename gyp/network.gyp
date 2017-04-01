@@ -36,6 +36,23 @@
         'type': 'none',
         'direct_dependent_settings': {
             'conditions': [
+                ['OS=="win"', {
+                    "link_settings": {
+                        'libraries': [
+                            '-lpthreadVCE2',
+                            '-lzlib',
+                            '-llibcares',
+                            '-lssleay32',
+                            '-llibeay32',
+                            # GDI and User32 are required by openssl
+                            '-lgdi32',
+                            '-lUser32',
+                            '-lWs2_32',
+                            # Required by c-ares (RegClose...)
+                            '-lAdvapi32'
+                        ]
+                    }
+                }],
                 ['OS=="linux"', {
                     "link_settings": {
                         'libraries': [
@@ -59,21 +76,6 @@
                         ]
                     }
                 }],
-                ['OS=="win"', {
-                    "link_settings": {
-                        'libraries': [
-                            '-llibcares',
-                            '-lssleay32',
-                            '-llibeay32',
-                            # GDI and User32 are required by openssl
-                            '-lgdi32',
-                            '-lUser32',
-                            '-lWs2_32',
-                            # Required by c-ares (RegClose...)
-                            '-lAdvapi32'
-                        ]
-                    }
-                }]
             ],
         },
     }, {
