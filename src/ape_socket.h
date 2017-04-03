@@ -258,7 +258,9 @@ int APE_socket_write(ape_socket *socket,
                      size_t len,
                      ape_socket_data_autorelease data_type);
 int APE_socket_writev(ape_socket *socket, const struct iovec *iov, int iovcnt);
+#ifndef __WIN32
 int APE_sendfile(ape_socket *socket, const char *file);
+#endif
 int APE_socket_is_online(ape_socket *socket);
 
 char *APE_socket_ipv4(ape_socket *socket);
