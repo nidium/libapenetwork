@@ -8,6 +8,10 @@
 
 #define __APE_PORT_WINDOWS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define NOGDI
 
 #include <winsock2.h>
@@ -107,6 +111,12 @@ typedef const char sockopt_t;
 #define EDQUOT WSAEDQUOT
 #define ESTALE WSAESTALE
 #define EREMOTE WSAEREMOTE
+
+int vasprintf(char **strp, const char *fmt, va_list ap);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

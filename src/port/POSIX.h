@@ -9,6 +9,10 @@
 
 #include <errno.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define sclose(x) close((x))
 #define swrite(fd, data, bytes) write(fd, data, bytes)
 #define sread(fd, buf, len) read(fd, buf, len)
@@ -17,6 +21,10 @@
 #define SET_SOCKERRNO(x) (errno = (x))
 
 typedef int sockopt_t;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

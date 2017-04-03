@@ -109,5 +109,17 @@
             '../src/ape_blowfish.c',
             '../src/ape_log.c'
         ],
+        'conditions': [
+            ['OS=="win"', {
+                "sources": [
+                    '../src/port/windows.c',
+                ]
+            }],
+            ['OS!="win"', {
+                "sources": [
+                    '../src/port/POSIX.c',
+                ]
+            }]
+        ]
     }],
 }
