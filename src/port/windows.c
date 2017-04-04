@@ -6,6 +6,8 @@
 
 #include "../port/windows.h"
 
+#include <stdio.h>
+
 int vasprintf(char **strp, const char *fmt, va_list ap)
 {
     // _vscprintf tells you how big the buffer needs to be
