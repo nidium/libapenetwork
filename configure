@@ -81,11 +81,15 @@ def cares():
 @Deps.register("openssl")
 def openssl():
     location = "https://github.com/openssl/openssl/archive/OpenSSL_1_0_1t.tar.gz"
+    #location = "https://github.com/openssl/openssl/archive/OpenSSL_1_0_1u.tar.gz"
     if Platform.system == "Windows":
+        #use no-asm to enable SAFESEH
         if Platform.wordSize == 32:
-           build = ["perl Configure VC-WIN32", r"ms\do_ms"]
+           build = ["perl Configure VC-WIN32 no-shared enable-static-engine no-asm", r"ms\do_ms"]
         else:
            build = ["perl Configure VC-WIN64A no-shared enable-static-engine no-asm", r"ms\do_win64a"]
+        #A patch file is not needed because the ms/*.mak files are regenerated after configure
+        build.append('sed -i -e "s/^LFLAGS\=/LFLAGS\=\/SAFESEH /" ms/*.mak')
         return {
             "location": location,
             "build" :  build + [ r"nmake -f ms\nt.mak"],
