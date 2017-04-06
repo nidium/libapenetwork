@@ -22,6 +22,10 @@ extern "C" {
 #define ssize_t int
 #endif
 
+#ifndef usleep
+#define usleep Sleep
+#endif
+
 #define strncasecmp _strnicmp
 #define strcasecmp _stricmp
 

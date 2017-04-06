@@ -49,7 +49,9 @@
                             '-lUser32',
                             '-lWs2_32',
                             # Required by c-ares (RegClose...)
-                            '-lAdvapi32'
+                            '-lAdvapi32',
+                            #required by Sleep
+                            '-lkernel32',
                         ]
                     }
                 }],
