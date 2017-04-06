@@ -3,6 +3,7 @@
    Use of this source code is governed by a MIT license
    that can be found in the LICENSE file.
 */
+#include "ape_common.h"
 
 #include <string.h>
 #include <stdlib.h>
