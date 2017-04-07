@@ -145,15 +145,30 @@ def pprof():
 
 @Deps.register("gtest")
 def gtest():
-    flags = ""
+    build = ["cmake .", "make"]
+    outputs = ["googlemock/libgmock.a", 
+                "googlemock/libgmock_main.a", 
+                "googlemock/gtest/libgtest.a", 
+                "googlemock/gtest/libgtest_main.a"]
 
     if Platform.system == "Darwin":
-        flags = "-DCMAKE_CXX_FLAGS='-std=c++11 -stdlib=libc++'"
-
+        build = ["cmake -DCMAKE_CXX_FLAGS='-std=c++11 -stdlib=libc++' .", "make"]
+    elif Platform.system == "Windows":
+        platform = "Win32"
+        build = ["cd ./googlemock", 
+                "cmake .",
+                "MSBuild.exe /nologo ALL_BUILD.vcxproj /p:Configuration=Release /P:Platform=%s /maxcpucount:%i" % (platform, Platform.cpuCount),
+                "cd ..",
+                "cmake",
+                "MSBuild.exe /nologo ALL_BUILD.vcxproj /p:Configuration=Release /P:Platform=%s /maxcpucount:%i" % (platform, Platform.cpuCount)]
+        outputs = ["googlemock/gtest/Release/gtest.lib",
+                "googlemock/gtest/Release/gtest_main.lib",
+                "googlemock/Release/gmock.lib",
+                "googlemock/Release/gmock_main.lib"]
     return {
         "location": Deps.GitRepo("https://github.com/google/googletest.git", revision="d225acc90bc3a8c420a9bcd1f033033c1ccd7fe0"),
-        "build": ["cmake %s ." % flags, "make"],
-        "outputs": ["googlemock/libgmock.a", "googlemock/libgmock_main.a", "googlemock/gtest/libgtest.a", "googlemock/gtest/libgtest_main.a"]
+        "build": build,
+        "outputs": outputs
     }
 
 #####
