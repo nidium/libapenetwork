@@ -156,10 +156,10 @@ def gtest():
     elif Platform.system == "Windows":
         platform = "Win32"
         build = ["cd ./googlemock", 
-                "cmake .",
+                "cmake . -DCMAKE_C_FLAGS='/MD' -DCXXFLAGS='/MD'",
                 "MSBuild.exe /nologo ALL_BUILD.vcxproj /p:Configuration=Release /P:Platform=%s /maxcpucount:%i" % (platform, Platform.cpuCount),
                 "cd ..",
-                "cmake",
+                "cmake . -DCMAKE_C_FLAGS='/MD' -DC_FLAGS='/MD'",
                 "MSBuild.exe /nologo ALL_BUILD.vcxproj /p:Configuration=Release /P:Platform=%s /maxcpucount:%i" % (platform, Platform.cpuCount)]
         outputs = ["googlemock/gtest/Release/gtest.lib",
                 "googlemock/gtest/Release/gtest_main.lib",
