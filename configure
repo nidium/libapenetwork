@@ -209,9 +209,7 @@ def testNetwork(unitTests):
     if unitTests:
         Gyp.set("unit_test", 1)
         Deps.set("gtest")
-
-        Tests.register([
-            "build/tests/network-unittests"
+        Tests.register([ "./build/tests/network-unittests"
         ], builders=[Gyp("%s/gyp/network-unittests.gyp" % cwd)])
 
     @Konstruct.hook("postBuild")
