@@ -4,8 +4,8 @@
    that can be found in the LICENSE file.
 */
 
-#ifndef __TESTS_UNITTEST_H_
-#define __TESTS_UNITTEST_H_
+#ifndef __TESTS_NUNITTEST_H_
+#define __TESTS_NUNITTEST_H_
 
 #include <gtest/gtest.h>
 
@@ -14,6 +14,7 @@ extern "C" {
 #endif
 
 extern int ape_running;
+extern unsigned long _ape_seed;
 
 #ifdef __cplusplus
 }

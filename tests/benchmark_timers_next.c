@@ -9,8 +9,8 @@
 #include <ape_netlib.h>
 #include <ape_dns.h>
 
-
 ape_global * g_ape;
+unsigned long _ape_seed = 31415961;
 
 #define MIN_TIMEOUT 8
 
@@ -19,7 +19,6 @@ static int resolve_cb(const char *ip, void * arg, int status)
     APE_loop_stop();
     return 1;
 }
-
 
 static int interval_cb(void *param) {
     int *p;

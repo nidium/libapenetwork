@@ -14,8 +14,6 @@
 #define KEY1 "1234567890123456"
 #define KEY2 "2345678901234567"
 
-unsigned long _ape_seed = 31415961;
-
 TEST(Hash, MurmurHash)
 {
     unsigned int hash;

@@ -4,5 +4,13 @@
    that can be found in the LICENSE file.
 */
 
-#include "unittest.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+unsigned long _ape_seed = 31415961;
+
+#ifdef __cplusplus
+}
+#endif
 

@@ -15,6 +15,8 @@
 
 #define REPEAT 2048
 
+unsigned long _ape_seed = 31415961;
+
 int main(const int argc, const char **argv)
 {
     size_t repeat, size, n;

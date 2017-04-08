@@ -1,2 +1,4 @@
 *.VC.VC.opendb
 *.VC.db
+*.vcxproj*
+*.sln

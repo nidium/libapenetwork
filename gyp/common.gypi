@@ -25,7 +25,10 @@
             'VCLinkerTool': {
                 'LinkTimeCodeGeneration': 1,
                 'SubSystem': '1',  # console app
-                "AdditionalLibraryDirectories": ["<(libapenetwork_output_third_party_path)"]
+                "AdditionalLibraryDirectories": [
+                    "../../../build/third-party", #<--FIXME, it is not working
+                    "<(libapenetwork_output_third_party_path)",
+                ]
             }
         },
         'xcode_settings': {

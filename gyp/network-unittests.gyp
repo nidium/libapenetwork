@@ -12,6 +12,17 @@
                  '<(third_party_path)/gtest/googletest/include',
              ],
             'conditions': [
+                ['OS=="win"', {
+                    "link_settings": {
+                        'libraries': [
+                            '-lgtest_main',
+                            '-lgtest',
+                            '-lpthreadVCE2',
+
+                            '-lshlwapi',
+                        ]
+                    }
+                }],
                 ['OS=="linux"', {
                     "link_settings": {
                         'libraries': [
@@ -41,10 +52,10 @@
         # working directory of gyp is different between 
         # OSX and Linux. Workaround that.
         'conditions': [
-            ['OS=="mac"', {
-                'product_dir': '<(libapenetwork_tests_output_path)',
-            }, {
+            ['OS=="linux"', {
                 'product_dir': '../build/tests/',
+            }, {
+                'product_dir': '<(libapenetwork_tests_output_path)',
             }]
         ],
         'dependencies': [
