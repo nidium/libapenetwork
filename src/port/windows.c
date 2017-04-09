@@ -7,6 +7,7 @@
 #include "../port/windows.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 
 int vasprintf(char **strp, const char *fmt, va_list ap)
 {
@@ -16,7 +17,7 @@ int vasprintf(char **strp, const char *fmt, va_list ap)
         return -1;
     }
     size_t size = (size_t)len + 1;
-    char *str = (char*)malloc(size);
+    char *str = malloc(size);
     if (!str) {
         return -1;
     }
