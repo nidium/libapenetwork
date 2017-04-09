@@ -23,7 +23,7 @@ int main(const int argc, const char **argv)
     for(repeat = 0; repeat < REPEAT; repeat++) {
         for(size = 0; size < SIZE_LIMIT; size += SIZE_STEP) {
             for(n = N_STEP; n < N_LIMIT; n += N_STEP) {
-                printf("%d %d %d\n", size, n, repeat);
+                printf("%d %d %d\n", (int)size, (int)n, (int)repeat);
                 ape_pool_t * p = ape_new_pool(size, n);
                 ape_destroy_pool(p);
             }
