@@ -88,8 +88,6 @@ def openssl():
            build = ["perl Configure VC-WIN32 no-shared enable-static-engine no-asm", r"ms\do_ms"]
         else:
            build = ["perl Configure VC-WIN64A no-shared enable-static-engine no-asm", r"ms\do_win64a"]
-        #A patch file is not needed because the ms/*.mak files are regenerated after configure
-        build.append('sed -i -e "s/^LFLAGS\=/LFLAGS\=\/SAFESEH /" ms/*.mak')
         return {
             "location": location,
             "build" :  build + [ r"nmake -f ms\nt.mak"],
@@ -146,21 +144,23 @@ def pprof():
 @Deps.register("gtest")
 def gtest():
     build = ["cmake .", "make"]
-    outputs = ["googlemock/libgmock.a", 
-                "googlemock/libgmock_main.a", 
-                "googlemock/gtest/libgtest.a", 
+    outputs = ["googlemock/libgmock.a",
+                "googlemock/libgmock_main.a",
+                "googlemock/gtest/libgtest.a",
                 "googlemock/gtest/libgtest_main.a"]
 
     if Platform.system == "Darwin":
         build = ["cmake -DCMAKE_CXX_FLAGS='-std=c++11 -stdlib=libc++' .", "make"]
     elif Platform.system == "Windows":
-        platform = "Win32"
-        build = ["cd ./googlemock", 
-                "cmake . -DCMAKE_C_FLAGS='/MD' -DCXXFLAGS='/MD'",
-                "MSBuild.exe /nologo ALL_BUILD.vcxproj /p:Configuration=Release /P:Platform=%s /maxcpucount:%i" % (platform, Platform.cpuCount),
+        #platform = ["Win32", "x64"][Platform.wordSize == 64]
+        cmake, platform, toolset = Platform.CMake()
+        build = ["cd ./googlemock",
+                cmake + " . -DCMAKE_C_FLAGS='/MD' -DCXXFLAGS='/MD'",
+                "MSBuild.exe /nologo ALL_BUILD.vcxproj /p:Configuration=Release /p:PlatformToolset=%s /maxcpucount:%i" %(toolset, Platform.cpuCount),
                 "cd ..",
-                "cmake . -DCMAKE_C_FLAGS='/MD' -DC_FLAGS='/MD'",
-                "MSBuild.exe /nologo ALL_BUILD.vcxproj /p:Configuration=Release /P:Platform=%s /maxcpucount:%i" % (platform, Platform.cpuCount)]
+                cmake + " . -DCMAKE_C_FLAGS='/MD' -DC_FLAGS='/MD'",
+                "MSBuild.exe /nologo ALL_BUILD.vcxproj /p:Configuration=Release /p:PlatformToolset=%s /maxcpucount:%i" %(toolset, Platform.cpuCount),
+               ]
         outputs = ["googlemock/gtest/Release/gtest.lib",
                 "googlemock/gtest/Release/gtest_main.lib",
                 "googlemock/Release/gmock.lib",
