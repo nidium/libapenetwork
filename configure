@@ -207,10 +207,13 @@ def testNetwork(unitTests):
     #Builder.Gyp.set("asan", 1)
 
     if unitTests:
+        cdir = "../build/tests"
+        if Platform.system == "Windows":
+            cdir = cdir[1:]
         Gyp.set("unit_test", 1)
         Deps.set("gtest")
-        Tests.register([ "./build/tests/network-unittests"
-        ], builders=[Gyp("%s/gyp/network-unittests.gyp" % cwd)])
+        Tests.register([ ("network-unittests", cdir)], builders=[
+            Gyp("%s/gyp/network-unittests.gyp" % cwd)])
 
     @Konstruct.hook("postBuild")
     def runNetworkTest(success):
