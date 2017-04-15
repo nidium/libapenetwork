@@ -152,15 +152,13 @@ def gtest():
     if Platform.system == "Darwin":
         build = ["cmake -DCMAKE_CXX_FLAGS='-std=c++11 -stdlib=libc++' .", "make"]
     elif Platform.system == "Windows":
-        #platform = ["Win32", "x64"][Platform.wordSize == 64]
         cmake, platform, toolset = Platform.CMake()
         build = ["cd ./googlemock",
                 cmake + " . -DCMAKE_C_FLAGS='/MD' -DCXXFLAGS='/MD'",
-                "MSBuild.exe /nologo ALL_BUILD.vcxproj /p:Configuration=Release /p:PlatformToolset=%s /maxcpucount:%i" %(toolset, Platform.cpuCount),
+                Platform.MsBuild("ALL_BUILD.vcxproj"),
                 "cd ..",
                 cmake + " . -DCMAKE_C_FLAGS='/MD' -DC_FLAGS='/MD'",
-                "MSBuild.exe /nologo ALL_BUILD.vcxproj /p:Configuration=Release /p:PlatformToolset=%s /maxcpucount:%i" %(toolset, Platform.cpuCount),
-               ]
+                Platform.MsBuild("ALL_BUILD.vcxproj")]
         outputs = ["googlemock/gtest/Release/gtest.lib",
                 "googlemock/gtest/Release/gtest_main.lib",
                 "googlemock/Release/gmock.lib",
