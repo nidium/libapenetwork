@@ -78,11 +78,11 @@ def openssl():
             "ANDROID_DEV": "%s/sysroot/usr/" % (Vars.get("toolchainPath"))
         })
     elif Platform.system == 'Windows':
-	configure[0] = "./Configure mingw -fPIC"
+	    configure[0] = "./Configure mingw -fPIC"
     elif Platform.system == "Darwin":
-        configure[0] = "./Configure darwin64-x86_64-cc -no-shared"
+        configure[0] = "./config -no-shared -DOPENSSL_API_COMPAT=0x10100000L"
     else:
-        configure[0] = "./config -fPIC"
+        configure[0] = "./config -fPIC -DOPENSSL_API_COMPAT=0x10100000L"
     return {
         "location": "https://github.com/openssl/openssl/archive/OpenSSL_1_1_0c.tar.gz",
         "build": configure,

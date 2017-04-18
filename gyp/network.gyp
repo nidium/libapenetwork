@@ -53,11 +53,18 @@
                     "link_settings": {
                         'libraries': [
                             'libcares.a',
-                            'libssl.a',
-                            'libcrypto.a',
                             'libz.a'
                         ]
-                    }
+                    },
+                    # clang will linking with libssl from Xcode. Gyp does not
+                    # support providing paths in link_settings/librairies, we
+                    # provide libssl and libcrypto link option trough LDFLAGS
+                    "xcode_settings": {
+                        'OTHER_LDFLAGS': [
+                            '../build/third-party/libssl.a',
+                            '../build/third-party/libcrypto.a',
+                        ],
+                    },
                 }],
                 ['target_os=="win"', {
                     "link_settings": {
