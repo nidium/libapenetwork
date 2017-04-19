@@ -23,6 +23,7 @@
 //@TODO: void APE_socket_shutdown(ape_socket *socket);
 //@TODO: void APE_socket_shutdown_now(ape_socket *socket);
 //@TODO: int APE_sendfile(ape_socket *socket, const char *file);
+//@TODO: int APE_socket_port(ape_socket *socket);
 //@TODO: char *APE_socket_ipv4(ape_socket *socket);
 //@TODO: int APE_socket_is_online(ape_socket *socket)
 //@TODO: int ape_socket_do_jobs(ape_socket *socket);
