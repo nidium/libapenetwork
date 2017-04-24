@@ -906,16 +906,14 @@ int APE_socket_write(ape_socket *socket, void *data, size_t len,
     return 0;
 }
 
-int APE_socket_port(ape_socket *socket)
+uint16_t APE_socket_port(ape_socket *socket)
 {
     if (!socket) {
-        return -1;
+        return 0;
     }
 
 
-    int port = ntohs(socket->sockaddr.sin_port);
-
-    return port;
+    return ntohs(socket->sockaddr.sin_port);
 
 }
 
