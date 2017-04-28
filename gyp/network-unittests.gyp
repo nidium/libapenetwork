@@ -43,6 +43,16 @@
         'conditions': [
             ['OS=="mac"', {
                 'product_dir': '<(libapenetwork_tests_output_path)',
+                "xcode_settings": {
+                    'OTHER_LDFLAGS!': [
+                        '../build/third-party/libssl.a',
+                        '../build/third-party/libcrypto.a',
+                    ],
+                    'OTHER_LDFLAGS': [
+                        '<(DEPTH)/build/third-party/libssl.a',
+                        '<(DEPTH)/build/third-party/libcrypto.a',
+                    ],
+                },
             }, {
                 'product_dir': '../build/tests/',
             }]
@@ -69,30 +79,6 @@
             '../tests/unittest_ssl.cpp',
             '../tests/unittest_websocket.cpp',
             '../tests/unittest_log.cpp',
-        ],
-    },
-    {
-        'target_name': 'network_benchmark_new_pool',
-        'type': 'executable',
-        'product_dir': '<(libapenetwork_tests_output_path)',
-        'dependencies': [
-            'network-unittests.gyp:unittests-settings',
-            'network.gyp:*',
-        ],
-        'sources': [
-            '../tests/benchmark_new_pool.c',
-        ],
-    },
-    {
-        'target_name': 'network_benchmark_timers_next',
-        'type': 'executable',
-        'product_dir': '<(libapenetwork_tests_output_path)',
-        'dependencies': [
-            'network-unittests.gyp:unittests-settings',
-            'network.gyp:*',
-        ],
-        'sources': [
-            '../tests/benchmark_timers_next.c',
         ],
     }]
 }
