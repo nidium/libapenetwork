@@ -1,0 +1,14 @@
+Authors of libapenetwork:
+
+* Anthony CATEL		First version
+* Nicolas TRANI		Build system
+
+Other:
+
+* Peter REIJNDERS		Minor things and nagging
+
+Snippets/external:
+
+* Christophe DEVINE	sha1 implementation
+* Austin APPLEBY    MurmurHash2
+* sry					      utf8 <-> buffer
