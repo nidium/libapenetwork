@@ -11,7 +11,7 @@ from konstructor import CommandLine
 from konstructor import Build
 from konstructor import Builder
 from konstructor import Platform
-from konstructor import Variables
+from konstructor import Variables as Vars
 from konstructor import Konstruct
 from konstructor import Utils
 from konstructor import assumeYes
@@ -20,16 +20,18 @@ from konstructor import Log
 from konstructor import ROOT
 
 Gyp = Builder.Gyp
-
 DEPEDENCY_REPO = "http://deps.nidium.com"
 
-Platform.setEnviron("LDFLAGS=%s" % (os.environ.get("LDFLAGS", "")))
 
 if Platform.system == "Windows":
-   Platform.setCompiler("cl", "cl")
-   Deps.set('pthreads4w')
+    Platform.setCompiler("cl", "cl")
+    Vars.set("msvs_version", Platform.getEnviron("MSVS_VERSION", 2015))
+    Gyp.setOutputFormat("msvs -G %s" % Vars.get("msvs_version"))
+    Deps.set('pthreads4w')
 else:
    Platform.setCompiler("clang", "clang++")
+   Platform.setEnviron("LDFLAGS=%s" % (os.environ.get("LDFLAGS", "")))
+
    if Platform.system == "Darwin":
       Platform.setEnviron("MACOSX_DEPLOYMENT_TARGET=10.7")
 
@@ -64,58 +66,80 @@ def gyp():
 
 @Deps.register("c-ares")
 def cares():
-    makefile = ""
-    if Platform.system == "Windows":
-        return {
-                "location" : Deps.GitRepo("https://github.com/c-ares/c-ares.git", tag="cares-1_12_0"),
-                "build" : [ "buildconf.bat", "nmake -f Makefile.msvc"],
-                "outputs": ["./msvc140/cares/lib-release/libcares.lib"]
-        }
+    env = Utils.Env()
+
+    build = []
+    output = ".libs/libcares.a"
+
+    if Konstruct.config("android"):
+        env.update(Vars.get("androidEnvClang"))
+        env.append("CFLAGS", "-Wno-invalid-source-encoding")
+        build = ["./configure --enable-shared=no --host=%s " % (Vars.get("targetTriplet")), "make"]
+    elif Platform.system == 'Windows':
+        build = ["buildconf.bat", "nmake -f Makefile.msvc"]
+        output = "msvc140/cares/lib-release/libcares.lib"
     else:
-        return {
-            "location": "http://c-ares.haxx.se/download/c-ares-1.12.0.tar.gz",
-                    "build": ["./configure", "make"],
-            "outputs": [".libs/libcares.a"]
-        }
+        build = ["./configure --enable-shared=no", "make"]
+
+    return {
+        "location" : Deps.GitRepo("https://github.com/c-ares/c-ares.git", tag="cares-1_12_0"),
+        "build": build,
+        "env": env,
+        "outputs": [output]
+    }
 
 @Deps.register("openssl")
 def openssl():
-    location = "https://github.com/openssl/openssl/archive/OpenSSL_1_0_1t.tar.gz"
-    #location = "https://github.com/openssl/openssl/archive/OpenSSL_1_0_1u.tar.gz"
-    if Platform.system == "Windows":
-        #use no-asm to enable SAFESEH
+    env = Utils.Env()
+    build = ["", "make build_libs"]
+
+    if Konstruct.config("android"):
+        # The define OPENSSL_API_COMPAT=0x10100000L prevents OpenSSL from adding deprecated APIs
+        # (It also fix a naming conflic with skia sk_free() function)
+        build[0] = "./config -fPIC -fno-integrated-as -DOPENSSL_API_COMPAT=0x10100000L"
+        env.update({
+            "CROSS_COMPILE": "arm-linux-androideabi-",
+            "MACHINE": Vars.get("targetCpu"),
+            "ANDROID_DEV": "%s/sysroot/usr/" % (Vars.get("toolchainPath"))
+        })
+    elif Platform.system == "Windows":
+        # Use no-asm to enable SAFESEH
+        # no-deprecated flags has the same effect than -DOPENSSL_API_COMPAT=0x10100000L
         if Platform.wordSize == 32:
-           build = ["perl Configure VC-WIN32 no-shared enable-static-engine no-asm", r"ms\do_ms"]
+           build = ["perl Configure VC-WIN32 no-shared no-deprecated enable-static-engine no-asm", "nmake"]
         else:
-           build = ["perl Configure VC-WIN64A no-shared enable-static-engine no-asm", r"ms\do_win64a"]
-        return {
-            "location": location,
-            "build" :  build + [ r"nmake -f ms\nt.mak"],
-            "outputs": ["out32/libeay32.lib", "out32/ssleay32.lib"]
-        }
+           build = ["perl Configure VC-WIN64A no-shared no-deprecated enable-static-engine no-asm", "nmake"]
     elif Platform.system == "Darwin":
-        build = ["./Configure darwin64-x86_64-cc -no-shared||make depend",
-                 "make build_crypto", "make build_ssl"],
+        build[0] = "./config -no-shared -DOPENSSL_API_COMPAT=0x10100000L"
     else:
-        build = ["./config -fPIC||make depend",
-                "make build_crypto", "make build_ssl"]
+        build[0] = "./config -fPIC -DOPENSSL_API_COMPAT=0x10100000L"
+
     return {
-        "location": location,
-        "build"   : build,
+        "location": "https://github.com/openssl/openssl/archive/OpenSSL_1_1_0c.tar.gz",
+        "build": build,
+        "env": env,
         "outputs": ["libssl(.a|.lib)", "libcrypto(.a|.lib)"]
     }
 
 @Deps.register("zlib")
 def zlip():
-    if Platform.system == 'Windows':
+    env = Utils.Env()
+    output = 'libz.a'
+    build = []
+
+    if Konstruct.config("android"):
+        env = Vars.get("androidEnvClang")
+        build = ["./configure --static", "make"]
+    elif Platform.system == 'Windows':
         build = ["nmake -f ./win32/Makefile.msc"]
         output = 'zlib.lib'
     else:
         build = ["./configure --static", "make"]
-        output = 'libz.a'
+
     return {
         "location": "%s/zlib-1.2.11.tar.gz" % (DEPEDENCY_REPO),
         "build": build,
+        "env": env,
         "outputs": [output]
     }
 
@@ -169,12 +193,99 @@ def gtest():
         "outputs": outputs
     }
 
+def setupAndroidSDK():
+    import shutil
+
+    # The android-sdk should be placed in a "tools" directory
+    # (compatibility with various build system)
+    src = os.path.join(Deps.getDir(), "android-sdk")
+    dst = os.path.join(src, "tools")
+
+    if not os.path.exists(dst):
+        Log.debug("Moving android tools in subdirectory (%s)" % (dst))
+        Utils.mkdir(dst)
+
+        for f in os.listdir(src):
+            shutil.move(os.path.join(src, f), dst)
+
+    # Install the platform-tools, build tools, NDK and android libs
+    sdkManager = (os.path.join(dst, "bin", "sdkmanager"))
+    Log.info("Downloading android tools, this make take a while, be patient...")
+    Utils.run("chmod +x %s" % sdkManager)
+    Utils.run(sdkManager + " platform-tools")
+    Utils.run(sdkManager + " ndk-bundle")
+    Utils.run(sdkManager + " \"build-tools;25.0.2\"")
+    Utils.run(sdkManager + " \"platforms;android-25\"")
+
+    # Setup NDK toolchain
+    androidNdkPath = Vars.get("androidNdkPath")
+    toolchainPath = Vars.get("toolchainPath")
+    if os.path.isdir(toolchainPath):
+        Log.debug("Removing previous android toolchain")
+        Utils.rmdir(toolchainPath)
+
+    Utils.run("chmod +x %s/build/tools/make_standalone_toolchain.py" % (androidNdkPath))
+    Utils.run("%s/build/tools/make_standalone_toolchain.py \
+            --api=%d --install-dir=%s --arch=arm \
+            --stl=libc++" % (androidNdkPath, Vars.get("androidNDKAPIVersion"), toolchainPath))
+
+@Deps.register("android-sdk")
+def androidNDK():
+    NDKAPIVersion = 21
+    SDKAPIVersion = 25
+
+    toolchainPath = ROOT + "/tools/android-toolchain/"
+    androidSdkPath = Deps.getDir() + "/android-sdk/"
+    androidNdkPath = androidSdkPath + "/ndk-bundle/"
+
+    Vars.set("toolchainPath", toolchainPath);
+    Vars.set("androidNDKAPIVersion", NDKAPIVersion)
+    Vars.set("androidSDKAPIVersion", SDKAPIVersion)
+    Vars.set("androidNdkPath", androidNdkPath)
+    Vars.set("androidSdkPath", androidSdkPath)
+
+    Platform.setEnviron(
+        "PATH=%s:%s/bin/" % (os.environ.get("PATH", ""), toolchainPath),
+        "ANDROID_SDK_ROOT=%s" % (androidSdkPath),
+        "ANDROID_NDK_ROOT=%s" % (androidNdkPath),
+    )
+
+    Vars.set("androidEnvGcc", Utils.Env({
+        "CC": "%s/bin/arm-linux-androideabi-gcc" % toolchainPath,
+        "CXX": "%s/bin/arm-linux-androideabi-g++" % toolchainPath,
+        "AR": "%s/bin/arm-linux-androideabi-ar" % toolchainPath,
+        "RANLIB": "%s/bin/arm-linux-androideabi-ranlib" % toolchainPath,
+        "LD": "%s/bin/arm-linux-androideabi-ld.gold" % toolchainPath,
+        # With android ndk R13 gcc has incorrect include path. Fix that.
+        # See : https://github.com/android-ndk/ndk/issues/215
+        "CXXFLAGS": "-nostdinc %s" % (os.environ.get("CXXFLAGS", "")) +
+            " -I%s/include/c++/4.9.x" % (Vars.get("toolchainPath")) +
+            " -I%s/include/c++/4.9.x/arm-linux-androideabi" % (Vars.get("toolchainPath")) +
+            " -I%s/lib/gcc/arm-linux-androideabi/4.9.x/include" % (Vars.get("toolchainPath")) +
+            " -I%s/lib/gcc/arm-linux-androideabi/4.9.x/include-fixed" % (Vars.get("toolchainPath")) +
+            " -I%s/sysroot/usr/local/include" % (Vars.get("toolchainPath")) +
+            " -I%s/sysroot/usr/include" % (Vars.get("toolchainPath"))
+    }))
+
+    Vars.set("androidEnvClang", Utils.Env({
+        "CC": "%s/bin/arm-linux-androideabi-clang" % toolchainPath,
+        "CXX": "%s/bin/arm-linux-androideabi-clang++" % toolchainPath,
+        "AR": "%s/bin/arm-linux-androideabi-ar" % toolchainPath,
+        "RANLIB": "%s/bin/arm-linux-androideabi-ranlib" % toolchainPath,
+        "LD": "%s/bin/arm-linux-androideabi-ld.gold" % toolchainPath
+    }))
+
+    return {
+        "location": "https://dl.google.com/android/repository/tools_r25.2.3-linux.zip",
+        "build": [setupAndroidSDK]
+    }
+
 #####
 
 @CommandLine.option("--debug", default=False)
 def debug(debug):
     if debug:
-        Variables.set("debug", True)
+        Vars.set("debug", True)
         Gyp.setConfiguration("Debug")
         Konstruct.setConfigs(["debug"])
 
@@ -182,7 +293,6 @@ def debug(debug):
 def gypConfig(thirdPartyPath):
     if thirdPartyPath:
         Deps.setDir(thirdPartyPath)
-        Variables.set("thirdPartyPath", os.path.abspath(thirdPartyPath))
         # Gyp needs a relative path
         Gyp.set("third_party", os.path.relpath(thirdPartyPath))
         Gyp.setExec(os.path.join(thirdPartyPath, "gyp", "gyp"))
@@ -226,10 +336,39 @@ def asan(asan):
             exit()
         Gyp.set("asan", 1)
 
+@CommandLine.option("--android", default=False)
+def android(android):
+    if not android:
+        return
+
+    if Platform.system != "Linux":
+        Utils.exit("Building nidium for Android is only supported on Linux")
+
+    Konstruct.setConfigs(["android"])
+
+    Gyp.set("target_cpu", Vars.get("target_cpu", "arm"));
+    Gyp.set("target_os", "android");
+    Gyp.setOutputFormat("ninja-android")
+
+    Vars.set("targetTriplet", "arm-linux-androideabi")
+    Vars.set("targetArch", "arm")
+    Vars.set("targetCpu", "armv7")
+
+    # Add android-sdk dependency just before preparing/building
+    # all deps so it will be the first dependency to be
+    # downloaded/build since all dependecies depends on it
+    @Konstruct.hook("start")
+    def androidPreBuild():
+        Deps.append("android-sdk")
+
+    @Konstruct.hook("preBuild")
+    def androidPreBuild():
+        Platform.setEnviron(Vars.get("androidEnvClang"))
+
 #####
 
 Deps.set("gyp", "c-ares", "openssl", "zlib")
-Variables.set("depsRepo", DEPEDENCY_REPO)
+Vars.set("depsRepo", DEPEDENCY_REPO)
 
 @CommandLine.option("--mac-sdk-version", default="")
 def macSdkVersion(version):
@@ -265,11 +404,7 @@ if Platform.system == "Darwin":
     Gyp.set("mac_sdk_version", sdk)
 
 if __name__ == '__main__':
-    args = "--depth ./ --include=gyp/config.gypi --include=gyp/common.gypi"
-    if Platform.system == "Windows":
-        Variables.set("msvs_version", 2015)
-
-    Gyp.setArgs(args)
+    Gyp.setArgs("--depth ./ --include=gyp/config.gypi --include=gyp/common.gypi")
     Build.add(Gyp("gyp/network.gyp"))
     Konstruct.start()
 

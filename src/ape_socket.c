@@ -906,6 +906,17 @@ int APE_socket_write(ape_socket *socket, void *data, size_t len,
     return 0;
 }
 
+uint16_t APE_socket_port(ape_socket *socket)
+{
+    if (!socket) {
+        return 0;
+    }
+
+
+    return ntohs(socket->sockaddr.sin_port);
+
+}
+
 char *APE_socket_ipv4(ape_socket *socket)
 {
     if (!socket) {

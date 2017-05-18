@@ -20,7 +20,7 @@
                 'standalone_static_library': 1, # disable thin archive
             }],
         ],
-        'msvs_configuration_platform': '<(platform)',
+        'msvs_configuration_platform': '<(COMPILER_PLATFORM)',
         'msvs_settings': {
             'VCLinkerTool': {
                 'LinkTimeCodeGeneration': 1,
@@ -43,7 +43,7 @@
                 '-stdlib=libc++'
             ],
             'ARCHS': [
-                '<(platform)',
+                '<(COMPILER_PLATFORM)',
             ],
             'MACOSX_DEPLOYMENT_TARGET': [
                 '<(mac_deployment_target)'

@@ -263,6 +263,7 @@ int APE_sendfile(ape_socket *socket, const char *file);
 #endif
 int APE_socket_is_online(ape_socket *socket);
 
+uint16_t APE_socket_port(ape_socket *socket);
 char *APE_socket_ipv4(ape_socket *socket);
 
 int ape_socket_destroy(ape_socket *socket);

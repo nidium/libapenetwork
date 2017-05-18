@@ -15,7 +15,7 @@
             ],
 
             'conditions': [
-                ['OS=="win"', {
+                ['target_os=="win"', {
                     'include_dirs': [
                         '<(third_party_path)/openssl/inc32/',
                         '<(third_party_path)/pthreads4w/',
@@ -24,6 +24,7 @@
             ],
 
             'defines': [
+                'OPENSSL_API_COMPAT=0x10100000L',
                 'CARES_STATICLIB',
                 'FD_SETSIZE=2048',
                 '_GNU_SOURCE'
@@ -55,7 +56,7 @@
                         ]
                     }
                 }],
-                ['OS=="linux"', {
+                ['target_os=="linux" or target_os=="android"', {
                     "link_settings": {
                         'libraries': [
                             '-lcares',
@@ -68,15 +69,22 @@
                         ]
                     }
                 }],
-                ['OS=="mac"', {
+                ['target_os=="mac"', {
                     "link_settings": {
                         'libraries': [
                             'libcares.a',
-                            'libssl.a',
-                            'libcrypto.a',
                             'libz.a'
                         ]
-                    }
+                    },
+                    # clang will link with libssl from Xcode. But GYP does not
+                    # support providing paths in link_settings/librairies, so we
+                    # need provide libssl and libcrypto link option trough LDFLAGS
+                    "xcode_settings": {
+                        'OTHER_LDFLAGS': [
+                            '../build/third-party/libssl.a',
+                            '../build/third-party/libcrypto.a',
+                        ],
+                    },
                 }],
             ],
         },
