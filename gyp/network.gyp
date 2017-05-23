@@ -43,9 +43,10 @@
                             '-lpthreadVCE2',
                             '-lzlib',
                             '-llibcares',
-                            '-lssleay32',
-                            '-llibeay32',
+                            '-llibcrypto',
+                            '-llibssl',
                             # GDI and User32 are required by openssl
+                            '-lcrypt32',
                             '-lgdi32',
                             '-lUser32',
                             '-lWs2_32',
