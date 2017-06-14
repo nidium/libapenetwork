@@ -9,8 +9,6 @@
 
 #include "unittest.h"
 
-#if _HAVE_SSL_SUPPORT
-
 #include <ape_ssl.h>
 
 TEST(SSL, Simple)
@@ -36,5 +34,3 @@ TEST(SSL, Simple)
 @TODO: ape_ssl_read
 @TODO: ape_ssl_write
 */
-
-#endif

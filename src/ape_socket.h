@@ -32,11 +32,8 @@
 #define APE_EVENT_SOCKET_PTR(attach) ((ape_socket *)attach)
 
 
-#ifdef _HAVE_SSL_SUPPORT
 #define APE_SOCKET_ISSECURE(socket) socket->SSL.issecure
-#else
-#define APE_SOCKET_ISSECURE(socket) 0
-#endif
+
 
 #ifdef __WIN32
 struct iovec
@@ -199,14 +196,13 @@ struct _ape_socket
         uint8_t state;
     } states;
 
-#ifdef _HAVE_SSL_SUPPORT
     struct
     {
         struct _ape_ssl *ssl;
         int need_write;
         uint8_t issecure;
     } SSL;
-#endif
+
     uint16_t remote_port;
     uint16_t local_port;
     size_t max_buffer_memory_mb;
@@ -261,6 +257,7 @@ int APE_socket_writev(ape_socket *socket, const struct iovec *iov, int iovcnt);
 int APE_sendfile(ape_socket *socket, const char *file);
 int APE_socket_is_online(ape_socket *socket);
 
+uint16_t APE_socket_port(ape_socket *socket);
 char *APE_socket_ipv4(ape_socket *socket);
 
 int ape_socket_destroy(ape_socket *socket);
@@ -283,3 +280,4 @@ int ape_socket_write_udp(ape_socket *from,
         ape_global *ape);
 */
 #endif
+

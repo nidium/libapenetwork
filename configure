@@ -25,7 +25,7 @@ DEPEDENCY_REPO = "http://deps.nidium.com"
 Platform.setEnviron(
     "CC=%s" % (os.environ.get("CC", "clang")),
     "CXX=%s" % (os.environ.get("CXX", "clang++")),
-    "LDFLAGS=%s" % (os.environ.get("LDFLAGS", "")),
+    "LDFLAGS=%s" % (os.environ.get("LDFLAGS", ""))
 )
 
 # We explicitely set "python2.7 gyp_main.py" because "gyp" executable force
@@ -66,7 +66,7 @@ def cares():
 @Deps.register("openssl")
 def openssl():
     env = Utils.Env()
-    configure = ["", "make build_crypto", "make build_ssl"]
+    configure = ["", "make build_libs"]
 
     if Konstruct.config("android"):
         # The define OPENSSL_API_COMPAT=0x10100000L prevents OpenSSL from adding deprecated APIs
@@ -83,9 +83,9 @@ def openssl():
     elif Platform.system == 'Windows':
 	    configure[0] = "./Configure mingw -fPIC"
     elif Platform.system == "Darwin":
-        configure[0] = "./Configure darwin64-x86_64-cc -no-shared"
+        configure[0] = "./config -no-shared -DOPENSSL_API_COMPAT=0x10100000L"
     else:
-        configure[0] = "./config -fPIC"
+        configure[0] = "./config -fPIC -DOPENSSL_API_COMPAT=0x10100000L"
     return {
         "location": "https://github.com/openssl/openssl/archive/OpenSSL_1_1_0c.tar.gz",
         "build": configure,
@@ -116,7 +116,7 @@ def gperftools():
     return {
         "location": "https://github.com/gperftools/gperftools/releases/download/gperftools-2.5/gperftools-2.5.tar.gz",
         "build": ["autoconf", "chmod +x ./configure", "./configure --enable-static --enable-shared", "make"],
-        "outputs": [[".libs/libprofiler.so.0$", "libprofiler.so"]]
+        "outputs": [".libs/libprofiler.so.0$"]
     }
 
 @Deps.register("pprof")
@@ -178,7 +178,7 @@ def setupAndroidSDK():
 
 @Deps.register("android-sdk")
 def androidNDK():
-    NDKAPIVersion = 24
+    NDKAPIVersion = 21
     SDKAPIVersion = 25
 
     toolchainPath = ROOT + "/tools/android-toolchain/"

@@ -61,7 +61,6 @@ void ape_array_delete(ape_array_t *array, const char *key, int klen);
 }
 #endif
 
-
 #define APE_A_FOREACH(_array, _key, _val)                                      \
     ape_array_item_t *__array_item;                                            \
     for (__array_item = (ape_array_item_t *)_array->head;                      \
@@ -72,3 +71,4 @@ void ape_array_delete(ape_array_t *array, const char *key, int klen);
             && (_val = __array_item->pool.ptr.buf))
 
 #endif
+

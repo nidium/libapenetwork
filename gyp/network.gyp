@@ -23,10 +23,10 @@
             ],
 
             'defines': [
-                '_HAVE_SSL_SUPPORT',
                 'OPENSSL_API_COMPAT=0x10100000L',
                 'CARES_STATICLIB',
-                'FD_SETSIZE=2048'
+                'FD_SETSIZE=2048',
+                '_GNU_SOURCE'
 #                'USE_SPECIFIC_HANDLER',
 #                'USE_SELECT_HANDLER'
             ],
@@ -45,6 +45,7 @@
                             '-lm',
                             '-lz',
                             '-lrt',
+                            '-lpthread'
                         ]
                     }
                 }],
@@ -52,11 +53,18 @@
                     "link_settings": {
                         'libraries': [
                             'libcares.a',
-                            'libssl.a',
-                            'libcrypto.a',
                             'libz.a'
                         ]
-                    }
+                    },
+                    # clang will link with libssl from Xcode. But GYP does not
+                    # support providing paths in link_settings/librairies, so we
+                    # need provide libssl and libcrypto link option trough LDFLAGS
+                    "xcode_settings": {
+                        'OTHER_LDFLAGS': [
+                            '../build/third-party/libssl.a',
+                            '../build/third-party/libcrypto.a',
+                        ],
+                    },
                 }],
                 ['target_os=="win"', {
                     "link_settings": {
@@ -103,7 +111,8 @@
             '../src/ape_sha1.c',
             '../src/ape_ssl.c',
             '../src/ape_lz4.c',
-            '../src/ape_blowfish.c'
+            '../src/ape_blowfish.c',
+            '../src/ape_log.c'
         ],
     }],
 }

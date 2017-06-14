@@ -7,7 +7,7 @@
 #ifndef __APE_SSL_H
 #define __APE_SSL_H
 
-#ifdef _HAVE_SSL_SUPPORT
+
 
 #include <openssl/ssl.h>
 
@@ -32,8 +32,6 @@ void ape_ssl_destroy(ape_ssl_t *ssl);
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif
 
 #endif

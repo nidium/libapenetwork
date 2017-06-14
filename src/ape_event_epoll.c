@@ -139,7 +139,7 @@ int event_epoll_init(struct _fdevent *ev)
     ev->mod             = event_epoll_mod;
 
 #ifdef DEBUG
-    printf("Event loop started using epoll()\n");
+    APE_DEBUG("libapenetwork", "[Event] Event loop started using epoll()\n");
 #endif
     return 1;
 }
@@ -150,3 +150,4 @@ int event_epoll_init(struct _fdevent *ev)
     return 0;
 }
 #endif
+

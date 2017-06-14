@@ -156,7 +156,7 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
                 == -1)
         || setnonblocking(sock) == -1) {
 
-        printf("[Socket] Cant create socket(%d) : %s\n", SOCKERRNO,
+        APE_ERROR("libapenetwork", "[Socket] Can not create socket(%d) : %s\n", SOCKERRNO,
                strerror(SOCKERRNO));
         return NULL;
     }
@@ -175,10 +175,8 @@ ape_socket *APE_socket_new(uint8_t pt, int from, ape_global *ape)
 
     ret->delay_timer = NULL;
 
-#ifdef _HAVE_SSL_SUPPORT
     ret->SSL.issecure   = (pt == APE_SOCKET_PT_SSL);
     ret->SSL.need_write = 0;
-#endif
 
     buffer_init(&ret->data_in);
     ape_init_job_list(&ret->jobs, 2);
@@ -213,8 +211,8 @@ int APE_socket_setTimeout(ape_socket *socket, sockopt_t secs)
     if (setsockopt(socket->s.fd, SOL_SOCKET, SO_KEEPALIVE, &enable,
                    sizeof(enable))
         == -1) {
-        fprintf(stderr,
-                "Failed to set socket timeout (SO_KEEPALIVE) : error %d %s\n",
+        APE_ERROR("libapenetwork",
+                "[Socket] Failed to set socket timeout (SO_KEEPALIVE) : error %d %s\n",
                 errno, strerror(errno));
         return 0;
     }
@@ -222,8 +220,8 @@ int APE_socket_setTimeout(ape_socket *socket, sockopt_t secs)
     if (setsockopt(socket->s.fd, IPPROTO_TCP, KEEPALIVE_OPT, &secs,
                    sizeof(secs))
         == -1) {
-        fprintf(stderr,
-                "Failed to set socket timeout (TCP_KEEPALIVE) : error %d %s\n",
+        APE_ERROR("libapenetwork",
+                "[Socket] Failed to set socket timeout (TCP_KEEPALIVE) : error %d %s\n",
                 errno, strerror(errno));
         return 0;
     }
@@ -232,8 +230,8 @@ int APE_socket_setTimeout(ape_socket *socket, sockopt_t secs)
     if (setsockopt(socket->s.fd, IPPROTO_TCP, TCP_KEEPINTVL, &keepintvl,
                    sizeof(keepintvl))
         == -1) {
-        fprintf(stderr,
-                "Failed to set socket timeout (TCP_KEEPINTVL) : error %d %s\n",
+        APE_ERROR("libapenetwork",
+                "[Socket] Failed to set socket timeout (TCP_KEEPINTVL) : error %d %s\n",
                 errno, strerror(errno));
         return 0;
     }
@@ -243,8 +241,8 @@ int APE_socket_setTimeout(ape_socket *socket, sockopt_t secs)
     if (setsockopt(socket->s.fd, IPPROTO_TCP, TCP_KEEPINTVL, &kepcnt,
                    sizeof(kepcnt))
         == -1) {
-        fprintf(stderr,
-                "Failed to set socket timeout (TCP_KEEPCNT) : error %d %s\n",
+        APE_ERROR("libapenetwork",
+                "[Socket] Failed to set socket timeout (TCP_KEEPCNT) : error %d %s\n",
                 errno, strerror(errno));
         return 0;
     }
@@ -256,9 +254,8 @@ int APE_socket_setTimeout(ape_socket *socket, sockopt_t secs)
     if (setsockopt(socket->s.fd, IPPROTO_TCP, TCP_USER_TIMEOUT, &mstimeout,
                    sizeof(mstimeout))
         == -1) {
-        fprintf(
-            stderr,
-            "Failed to set socket timeout (TCP_USER_TIMEOUT) : error %d %s\n",
+        APE_ERROR("libapenetwork",
+            "[Socket] Failed to set socket timeout (TCP_USER_TIMEOUT) : error %d %s\n",
             errno, strerror(errno));
         return 0;
     }
@@ -293,12 +290,12 @@ int APE_socket_listen(ape_socket *socket, uint16_t port, const char *local_ip,
                       sizeof(int))
                != 0) {
 
-        printf("[Socket] setsockopt (SO_REUSEPORT) (%s:%u) warning : %s\n",
+        APE_WARN("libapenetwork", "[Socket] setsockopt (SO_REUSEPORT) (%s:%u) warning : %s\n",
                local_ip, port, strerror(errno));
     }
 #else
     if (reuse_port) {
-        printf(
+        APE_WARN("libapenetwork",
             "[Socket] SO_REUSEPORT is requested but compiled on an unsuported "
             "target\n");
     }
@@ -313,7 +310,7 @@ int APE_socket_listen(ape_socket *socket, uint16_t port, const char *local_ip,
          && listen(socket->s.fd, APE_SOCKET_BACKLOG) == -1)) {
 
         sclose(socket->s.fd);
-        printf("[Socket] bind(%s:%u) error : %s\n", local_ip, port,
+        APE_ERROR("libapenetwork", "[Socket] bind(%s:%u) error : %s\n", local_ip, port,
                strerror(SOCKERRNO));
         return -1;
     }
@@ -359,7 +356,7 @@ static int ape_socket_connect_ready_to_connect(const char *remote_ip, void *arg,
 
     if (socket->states.proto == APE_SOCKET_PT_UNIX) {
 #ifdef _WIN32
-        fprintf(stderr, "[Error] Unix socket are not supported on Windows\n");
+        APE_ERROR("libapenetwork", "[Socket] Unix socket are not supported on Windows\n");
         return -1;
 #else
         struct sockaddr_un unixaddr;
@@ -391,7 +388,7 @@ retry_connect:
 
         if (bind(socket->s.fd, (struct sockaddr *)&addr_loc, sizeof(addr_loc))
             == -1) {
-            printf("[Socket] bind() error(%d) on %d : %s\n", SOCKERRNO,
+            APE_ERROR("libapenetwork", "[Socket] bind() error(%d) on %d : %s\n", SOCKERRNO,
                    socket->s.fd, strerror(SOCKERRNO));
             return -1;
         }
@@ -399,7 +396,7 @@ retry_connect:
 
     if (connect(socket->s.fd, punaddr, sizeof(struct sockaddr)) == -1
         && (SOCKERRNO != EWOULDBLOCK && SOCKERRNO != EINPROGRESS)) {
-        printf("[Socket] connect() error(%d) on %d : %s (retry : %d)\n",
+        APE_ERROR("libapenetwork", "[Socket] connect() error(%d) on %d : %s (retry : %d)\n",
                SOCKERRNO, socket->s.fd, strerror(SOCKERRNO), ntry);
 
         switch (SOCKERRNO) {
@@ -489,7 +486,7 @@ void APE_socket_shutdown(ape_socket *socket)
     if ((socket->states.flags & APE_SOCKET_WOULD_BLOCK)
         || (socket->jobs.head->flags & APE_SOCKET_JOB_ACTIVE)) {
         ape_socket_job_get_slot(socket, APE_SOCKET_JOB_SHUTDOWN);
-        // printf("Shutdown pushed to queue\n");
+        // APE_DEBUG("libapenetwork", "[Socket] Shutdown pushed to queue\n");
         return;
     }
 
@@ -510,7 +507,7 @@ void APE_socket_shutdown_delay(ape_socket *socket, int ms)
     if (!socket || socket->delay_timer) {
         return;
     }
-    
+
     socket->delay_timer =
         APE_timer_create(socket->ape, ms, ape_socket_shutdown_delay_cb, socket);
 }
@@ -605,11 +602,11 @@ static int ape_socket_free(void *arg)
 {
     ape_socket *socket = arg;
     _ndec++;
-#ifdef _HAVE_SSL_SUPPORT
+
     if (socket->SSL.issecure) {
         ape_ssl_destroy(socket->SSL.ssl);
     }
-#endif
+
     buffer_delete(&socket->data_in);
     ape_destroy_pool_with_cleaner(socket->jobs.head,
                                   ape_socket_job_pool_cleaner, socket);
@@ -676,7 +673,7 @@ int APE_sendfile(ape_socket *socket, const char *file)
     }
 
     if ((fd = open(file, O_RDONLY)) == -1) {
-        printf("Failed to open %s - %s\n", file, strerror(errno));
+        APE_ERROR("libapenetwork", "[Socket] Failed to open %s - %s\n", file, strerror(errno));
         return 0;
     }
 
@@ -712,7 +709,7 @@ int APE_sendfile(ape_socket *socket, const char *file)
         /* BSD/OSX require offset */
         job->offset = offset_file;
     } else {
-        // printf("File sent...\n");
+        // APE_DEBUG("libapenetwork", "[Socket] File sent...\n");
         close(fd);
     }
 
@@ -728,12 +725,11 @@ int APE_socket_writev(ape_socket *socket, const struct iovec *iov, int iovcnt)
         return -1;
     }
 
-#ifdef _HAVE_SSL_SUPPORT
     if (APE_SOCKET_ISSECURE(socket)) {
         /*TODO: SSL, NOT IMPLEMENTED */
         return -1;
     }
-#endif
+
     if ((socket->states.flags & APE_SOCKET_WOULD_BLOCK)
         || (socket->jobs.head->flags & APE_SOCKET_JOB_ACTIVE)) {
         return 1;
@@ -741,7 +737,7 @@ int APE_socket_writev(ape_socket *socket, const struct iovec *iov, int iovcnt)
     wroteBytes = writev(socket->s.fd, iov, iovcnt);
     /* TODO: Verify if the write was finished */
     if (wroteBytes == -1) {
-        printf("IO error (%d) : %s\n", APE_SOCKET_FD(socket), strerror(errno));
+        APE_ERROR("libapenetwork", "[Socket] IO error (%d) : %s\n", APE_SOCKET_FD(socket), strerror(errno));
         APE_socket_shutdown_now(socket);
         return -1;
     }
@@ -769,10 +765,10 @@ int APE_socket_write(ape_socket *socket, void *data, size_t len,
         ape_socket_queue_data(socket, data, len, 0, data_type);
         return len;
     }
-#ifdef _HAVE_SSL_SUPPORT
+
     if (APE_SOCKET_ISSECURE(socket)) {
         int w;
-        // printf("Want write on a secure connection\n");
+        // APE_DEBUG("libapenetwork", "[Socket] Want write on a secure connection\n");
 
         ERR_clear_error();
 
@@ -848,7 +844,7 @@ int APE_socket_write(ape_socket *socket, void *data, size_t len,
                 dst_pos += cmp_len + sizeof(int);
 
                 if (cmp_len <= 0) {
-                    printf("LZ4 compression error %d\n", cmp_len);
+                    APE_ERROR("libapenetwork", "[Socket] LZ4 compression error %d\n", cmp_len);
                     return -1;
                 }
             }
@@ -873,7 +869,7 @@ int APE_socket_write(ape_socket *socket, void *data, size_t len,
             data_type = (dst_cmp == socket->lz4.tx.cmp_buffer) ? APE_DATA_OWN
                                                                : APE_DATA_COPY;
         }
-#endif
+
         while (t_bytes < len) {
 
             if ((n = swrite(socket->s.fd, data + t_bytes, r_bytes)) < 0) {
@@ -892,9 +888,9 @@ int APE_socket_write(ape_socket *socket, void *data, size_t len,
             t_bytes += n;
             r_bytes -= ape_min(n, 0);
         }
-#ifdef _HAVE_SSL_SUPPORT
+
     }
-#endif
+
 
     ape_socket_release_data(
         data, (data_type == APE_DATA_COPY && !APE_SOCKET_IS_LZ4(socket, tx)
@@ -902,12 +898,23 @@ int APE_socket_write(ape_socket *socket, void *data, size_t len,
                    : data_type));
 
     if (io_error) {
-        printf("IO error (%d) : %s\n", APE_SOCKET_FD(socket), strerror(rerrno));
+        APE_ERROR("libapenetwork", "[Socket] IO error (%d) : %s\n", APE_SOCKET_FD(socket), strerror(rerrno));
         APE_socket_shutdown_now(socket);
         return -1;
     }
 
     return 0;
+}
+
+uint16_t APE_socket_port(ape_socket *socket)
+{
+    if (!socket) {
+        return 0;
+    }
+
+
+    return ntohs(socket->sockaddr.sin_port);
+
 }
 
 char *APE_socket_ipv4(ape_socket *socket)
@@ -964,7 +971,7 @@ int ape_socket_do_jobs(ape_socket *socket)
                 ape_pool_list_t *plist = (ape_pool_list_t *)job->pool.ptr.data;
                 ape_socket_packet_t *packet
                     = (ape_socket_packet_t *)plist->head;
-#ifdef _HAVE_SSL_SUPPORT
+
                 if (APE_SOCKET_ISSECURE(socket)) {
                     ERR_clear_error();
 
@@ -998,7 +1005,7 @@ int ape_socket_do_jobs(ape_socket *socket)
                             plist);
                     }
                 } else {
-#endif
+
                 chunk:
                     for (i = 0; packet != NULL && i < max_chunks; i++) {
                         if (packet->pool.ptr.data == NULL) {
@@ -1020,7 +1027,7 @@ int ape_socket_do_jobs(ape_socket *socket)
                         } else if (errno == EINTR) {
                             goto rewrite;
                         } else {
-                            fprintf(stderr, "writev() IO error: disconnect\n");
+                            APE_ERROR("libapenetwork", "[Socket] writev() IO error: disconnect\n");
                             APE_socket_shutdown_now(socket);
                             return -1;
                         }
@@ -1054,9 +1061,9 @@ int ape_socket_do_jobs(ape_socket *socket)
                     if (packet->pool.ptr.data != NULL) {
                         goto chunk;
                     }
-#ifdef _HAVE_SSL_SUPPORT
+
                 }
-#endif
+
                 break;
             }
 #ifndef __WIN32
@@ -1161,7 +1168,7 @@ static int ape_socket_queue_data(ape_socket *socket, unsigned char *data,
         && socket->current_buffer_memory_bytes
                > (socket->max_buffer_memory_mb * 1024ULL * 1024ULL)) {
 
-        fprintf(stderr, "Maximum buffer size reached for socket %d\n",
+        APE_ERROR("libapenetwork", "[Socket] Maximum buffer size reached for socket %d\n",
                 socket->s.fd);
         APE_socket_shutdown_now(socket);
     }
@@ -1180,12 +1187,10 @@ int ape_socket_connected(void *arg)
 {
     ape_socket *socket = (ape_socket *)arg;
 
-#ifdef _HAVE_SSL_SUPPORT
     if (APE_SOCKET_ISSECURE(socket)) {
         socket->SSL.ssl
             = ape_ssl_init_con(socket->ape->ssl_global_ctx, socket->s.fd, 0);
     }
-#endif
 
     if (socket->callbacks.on_connected != NULL) {
         socket->callbacks.on_connected(socket, socket->ape,
@@ -1221,12 +1226,12 @@ int ape_socket_accept(ape_socket *socket)
 
         client->states.state = APE_SOCKET_ST_ONLINE;
         client->states.type  = APE_SOCKET_TP_CLIENT;
-#ifdef _HAVE_SSL_SUPPORT
+
         if (APE_SOCKET_ISSECURE(socket)) {
             client->SSL.ssl
                 = ape_ssl_init_con(socket->SSL.ssl, client->s.fd, 1);
         }
-#endif
+
         events_add((ape_event_descriptor *)client, EVENT_READ | EVENT_WRITE,
                    socket->ape);
 
@@ -1274,8 +1279,8 @@ int ape_socket_write_udp(ape_socket *from, const char *data, size_t len,
                          const char *ip, uint16_t port)
 {
     if (from->states.proto != APE_SOCKET_PT_UDP) {
-        printf(
-            "[Socket warning] Trying to call sendto from a non UDP socket\n");
+        APE_WARN("libapenetwork",
+            "[Socket] Trying to call sendto from a non UDP socket\n");
         return -1;
     }
 
@@ -1290,11 +1295,11 @@ int ape_socket_write_udp(ape_socket *from, const char *data, size_t len,
                      sizeof(addr));
 
     if (ret == -1) {
-        printf("[Socket warning] UDP I/O Error (%d): %s\n", errno,
+        APE_WARN("libapenetwork", "[Socket] UDP I/O Error (%d): %s\n", errno,
                strerror(errno));
 
         if (errno == EAGAIN) {
-            printf("[Socket] EAGAIN on UDP sendto()\n");
+            APE_DEBUG("libapenetwork", "[Socket] EAGAIN on UDP sendto()\n");
         }
     }
 
@@ -1306,11 +1311,10 @@ static int ape_shutdown(ape_socket *socket, int rw)
     if (socket->states.state != APE_SOCKET_ST_ONLINE) {
         return 1;
     }
-#ifdef _HAVE_SSL_SUPPORT
+
     if (APE_SOCKET_ISSECURE(socket)) {
         ape_ssl_shutdown(socket->SSL.ssl);
     }
-#endif
 
     if (socket->states.proto != APE_SOCKET_PT_UDP) {
         shutdown(socket->s.fd, rw);
@@ -1387,7 +1391,7 @@ static int ape_socket_read_lz4_stream(ape_socket *socket)
                 /* maxDecompressedSize */ APE_LZ4_BLOCK_SIZE);
 
             if (rc <= 0) {
-                fprintf(stderr, "[Error] LZ4 Decompression error %d\n", rc);
+                APE_ERROR("libapenetwork", "[Socket] LZ4 Decompression error %d\n", rc);
                 return -1;
             }
 
@@ -1448,7 +1452,7 @@ static int ape_socket_read_lz4_stream(ape_socket *socket)
         } else if (socket->lz4.rx.current_block_size
                    > APE_LZ4_BLOCK_COMP_SIZE) {
             /* invalid block size received */
-            fprintf(stderr, "io_error from block size (%d)\n",
+            APE_ERROR("libapenetwork", "[Socket] io_error from block size (%d)\n",
                     socket->lz4.rx.current_block_size);
             return -1;
         } else if (pLen - buffer_pos < socket->lz4.rx.current_block_size) {
@@ -1480,7 +1484,7 @@ int ape_socket_read(ape_socket *socket)
     do {
         /* TODO : avoid extra calling (avoid realloc) */
         buffer_prepare(&socket->data_in, 2048);
-#ifdef _HAVE_SSL_SUPPORT
+
         if (APE_SOCKET_ISSECURE(socket)) {
             ERR_clear_error();
 
@@ -1506,7 +1510,7 @@ int ape_socket_read(ape_socket *socket)
             }
             socket->data_in.used += ape_max(nread, 0);
         } else {
-#endif
+
         socket_reread:
             nread = read(socket->s.fd,
                          socket->data_in.data + socket->data_in.used,
@@ -1527,9 +1531,9 @@ int ape_socket_read(ape_socket *socket)
             }
 
             socket->data_in.used += ape_max(nread, 0);
-#ifdef _HAVE_SSL_SUPPORT
+
         }
-#endif
+
     } while (nread > 0);
 
     if (socket->data_in.used != 0) {
@@ -1553,7 +1557,7 @@ int ape_socket_read(ape_socket *socket)
     if ((nread == 0 || io_error)
         && socket->states.state != APE_SOCKET_ST_SHUTDOWN) {
         if (io_error) {
-            fprintf(stderr, "Socket %d disconnected because of IO error\n",
+            APE_ERROR("libapenetwork", "[Socket] Socket %d disconnected because of IO error\n",
                     socket->s.fd);
         }
         ape_socket_destroy(socket);
@@ -1598,3 +1602,4 @@ static ape_pool_list_t *ape_socket_new_packet_queue(size_t n)
 {
     return ape_new_pool_list(sizeof(ape_socket_packet_t), n);
 }
+

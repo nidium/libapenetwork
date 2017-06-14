@@ -131,7 +131,7 @@ static int event_kqueue_reload(struct _fdevent *ev)
 int event_kqueue_init(struct _fdevent *ev)
 {
     if ((ev->kq_fd = kqueue()) == -1) {
-        printf("Kqueue failed\n");
+        APE_ERROR("libapenetwork", "[Event] Kqueue failed\n");
         return 0;
     }
 
@@ -148,7 +148,7 @@ int event_kqueue_init(struct _fdevent *ev)
     ev->mod             = event_kqueue_mod;
 
 #ifdef DEBUG
-    printf("Event loop started using kqueue()\n");
+    APE_DEBUG("libapenetwork", "[Event] Event loop started using kqueue()\n");
 #endif
 
     return 1;
@@ -160,3 +160,4 @@ int event_kqueue_init(struct _fdevent *ev)
     return 0;
 }
 #endif
+
