@@ -50,8 +50,8 @@ def cares():
         env.update(Vars.get("androidEnvClang"))
         env.append("CFLAGS", "-Wno-invalid-source-encoding")
         configure += " --host=%s " % (Vars.get("targetTriplet"))
-    elif Konstruct.config("ios"):
-        env.update(Vars.get("iosEnv"))
+    elif Konstruct.config("ios", "tvos"):
+        env.update(Vars.get("appleSDKEnv"))
         configure += " --host=%s " % (Vars.get("targetTriplet"))
     elif Platform.system == 'Windows':
         makefile = " -f Makefile.m32"
@@ -79,7 +79,7 @@ def openssl():
         })
     elif Konstruct.config("ios"):
         configure[0] = "./Configure iphoneos-cross"
-        env.update(Vars.get("iosEnv"))
+        env.update(Vars.get("appleSDKEnv"))
     elif Platform.system == 'Windows':
 	    configure[0] = "./Configure mingw -fPIC"
     elif Platform.system == "Darwin":
@@ -284,20 +284,32 @@ def ios(ios):
     if not ios:
         return
 
+    Konstruct.setConfigs(["ios"])
+    Gyp.set("target_os", "ios");
+    configureAppleSDK("iphoneos")
+
+@CommandLine.option("--tvos", default=False)
+def tvos(tvos):
+    if not tvos:
+        return
+
+    Konstruct.setConfigs(["tvos"])
+    configureAppleSDK("tvos")
+    Gyp.set("target_os", "tvos");
+
+def configureAppleSDK(sdk):
     if Platform.system != "Darwin":
         Utils.exit("Building nidium for iOS is only supported on OSX")
 
     def xcrun(arg):
         return Utils.run("xcrun -sdk iphoneos %s" % (arg), failExit=True, returnOutput=True)[1].strip()
 
-    Konstruct.setConfigs(["ios"])
-
     targetCpu = "arm64"
     Vars.set("targetCpu", targetCpu)
-    Gyp.set("target_os", "ios");
     Vars.set("targetTriplet", "%s-apple-darwin" % ("aarch64" if targetCpu == "arm64" else targetCpu))
 
     sysroot = xcrun("-show-sdk-path")
+    print("sysroot", sysroot)
     env = Utils.Env({
         "CC": xcrun("-find clang"),
         "CXX": xcrun("-find clang++"),
@@ -309,7 +321,7 @@ def ios(ios):
         "CPPFLAGS": "-isysroot %s -arch %s" % (sysroot, targetCpu)
     })
 
-    Vars.set("iosEnv", env)
+    Vars.set("appleSDKEnv", env)
 
 @CommandLine.option("--android", default=False)
 def android(android):
@@ -372,12 +384,19 @@ def start():
     if Platform.system != "Darwin":
         return
 
-    if not Konstruct.config("ios"):
+    if not Konstruct.config("ios", "tvos"):
         Platform.setEnviron("MACOSX_DEPLOYMENT_TARGET=10.7")
 
-    sdk = findAppleSDK("iphoneos" if Konstruct.config("ios") else "macosx")
+    if Konstruct.config("ios"):
+        sdk = findAppleSDK("iphoneos")
+    elif Konstruct.config("tvos"):
+        sdk = findAppleSDK("iphoneos")
+    else:
+        sdk = findAppleSDK("macosx")
+
     if sdk is None:
        Utils.exit("No macos SDK detected. Make sure Xcode is correctly installed and configured")
+
     Gyp.set("mac_sdk_version", sdk)
 
 if __name__ == '__main__':
