@@ -23,14 +23,7 @@ void ape_ssl_library_destroy()
 {
     return;
     FIPS_mode_set(0);
-    ENGINE_cleanup();
     CONF_modules_unload(1);
-    CONF_modules_free();
-    EVP_cleanup();
-    CRYPTO_cleanup_all_ex_data();
-    sk_SSL_COMP_free(SSL_COMP_get_compression_methods());
-    ERR_remove_state(0);
-    ERR_free_strings();
 }
 
 static void ape_ssl_info_callback(const SSL *s, int where, int ret)
