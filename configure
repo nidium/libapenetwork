@@ -114,6 +114,9 @@ def zlip():
     if Konstruct.config("android"):
         env = Vars.get("androidEnvClang")
         build = ["./configure --static", "make"]
+    elif Konstruct.config("tvos", "ios"):
+        env = Vars.get("appleSDKEnv")
+        build = ["./configure --static", "make"]
     elif Platform.system == 'Windows':
         build = ["make -f ./win32/Makefile.gcc"]
     else:
