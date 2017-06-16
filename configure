@@ -351,13 +351,12 @@ def android(android):
 
     Konstruct.setConfigs(["android"])
 
-    Gyp.set("target_cpu", Vars.get("target_cpu", "arm"));
-    Gyp.set("target_os", "android");
-    Gyp.setOutputFormat("ninja-android")
-
     Vars.set("targetTriplet", "arm-linux-androideabi")
     Vars.set("targetArch", "arm")
     Vars.set("targetCpu", "armv7")
+
+    Gyp.set("target_os", "android");
+    Gyp.setOutputFormat("ninja-android")
 
     # Add android-sdk dependency just before preparing/building
     # all deps so it will be the first dependency to be
@@ -378,11 +377,11 @@ Vars.set("depsRepo", DEPEDENCY_REPO)
 def findAppleSDK(type='macosx'):
     import re
     type = type.lower()
-    if type not in [ 'macosx', 'iphoneos', 'iphonesimulator']:
+    if type not in ["tvos", "macosx", "iphoneos", "iphonesimulator"]:
         Log.error("Invalid Apple SDK type %s" % type)
         exit()
 
-    cmd = 'xcodebuild -showsdks'
+    cmd = "xcodebuild -showsdks"
     code, output = Utils.run(cmd, failExit=True, returnOutput=True)
     if code != 0 or output is None:
         return None
@@ -407,15 +406,18 @@ def start():
 
     if Konstruct.config("ios"):
         sdk = findAppleSDK("iphoneos")
+        sdkName = "iphoneos"
     elif Konstruct.config("tvos"):
-        sdk = findAppleSDK("iphoneos")
+        sdk = findAppleSDK("tvos")
+        sdkName = "appletvos"
     else:
         sdk = findAppleSDK("macosx")
+        sdkName = "macosx"
 
     if sdk is None:
        Utils.exit("No macos SDK detected. Make sure Xcode is correctly installed and configured")
 
-    Gyp.set("mac_sdk_version", sdk)
+    Gyp.set("mac_sdk_sysroot", "%s%s" % (sdkName, sdk))
 
 if __name__ == '__main__':
     Gyp.setArgs("--depth ./ --include=gyp/config.gypi --include=gyp/common.gypi")

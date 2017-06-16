@@ -39,14 +39,12 @@
                 '-std=c++11',
                 '-stdlib=libc++'
             ],
-            'ARCHS': [
-                'x86_64',
-            ],
+            "ARCHS": "$(ARCHS_STANDARD_64_BIT)",
             'MACOSX_DEPLOYMENT_TARGET': [
                 '<(mac_deployment_target)'
             ],
             'SDKROOT': [
-                'macosx<(mac_sdk_version)'
+                '<(mac_sdk_sysroot)'
             ],
         },
         'configurations': {
@@ -93,6 +91,19 @@
                     ]
                 }
             }],
-		]
+            ["target_os=='ios'", {
+                "xcode_settings": {
+                    "IPHONEOS_DEPLOYEMENT_TARGET": "5.0",
+                    "TARGETED_DEVICE_FAMILY": "1,2" # iPhone / iPad
+                },
+                "defines": ["NDM_TARGET_IOS"]
+            }],
+            ["target_os=='tvos'", {
+                "xcode_settings": {
+                    "IPHONEOS_DEPLOYEMENT_TARGET": "1.0" # FIXME : This is probably wrong...
+                },
+                "defines": ["NDM_TARGET_TVOS"],
+            }],
+        ]
     },
 }

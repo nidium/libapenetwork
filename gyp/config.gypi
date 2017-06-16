@@ -23,7 +23,7 @@
 
         'target_os%': '<(OS)',
         'mac_deployment_target': '10.7',
-        'mac_sdk_version%': '10.11',
+        'mac_sdk_sysroot%': 'macosx10.11',
 
         'asan%': 0,
         'profiler%': 0,
