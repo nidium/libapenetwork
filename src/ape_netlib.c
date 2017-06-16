@@ -10,6 +10,10 @@
 #include "ape_ssl.h"
 
 #include <stdio.h>
+#if defined(NDM_TARGET_TVOS) || defined(NDM_TARGET_IOS)
+// Needed for memset() declaration
+#include <string.h>
+#endif
 #include <stdlib.h>
 #include <signal.h>
 #include <time.h>
