@@ -82,13 +82,18 @@ def openssl():
         crossCompile =  xcodePath + "/Toolchains/XcodeDefault.xctoolchain/usr/bin/"
         crossTop = xcodePath + "/Platforms/%s/Developer" % ("AppleTVOS.platform" if Konstruct.config("tvos") else "iPhoneOS.platform")
         crossSDK = ("AppleTVOS.sdk" if Konstruct.config("tvos") else "iPhoneOS.sdk")
-        env.update(Vars.get("appleSDKEnv"))
+
         env.set("CROSS_COMPILE", crossCompile)
         env.set("CROSS_TOP", crossTop)
-        env.set("CROSS_SDL", crossSDK)
-        env.set("CC", "clang")
+        env.set("CROSS_SDK", crossSDK)
 
-        configure[0] = "./Configure iphoneos-cross"
+        # Set the correct SDK minimun version for tvos
+        def fixSDK():
+            if Konstruct.config("tvos"):
+                Utils.run("sed -i.bak -e \"s/mios-version-min/mtvos-version-min/\" Configurations/10-main.conf")
+
+        # no-async : setcontext & co are not available
+        configure = [fixSDK, "./Configure ios64-cross no-async no-shared", "make build_libs"]
     elif Platform.system == 'Windows':
 	    configure[0] = "./Configure mingw -fPIC"
     elif Platform.system == "Darwin":
@@ -311,7 +316,9 @@ def configureAppleSDK(sdk):
         Utils.exit("Building nidium for iOS/tvOS is only supported on OSX")
 
     def xcrun(arg):
-        return Utils.run("xcrun -sdk %s %s" % (sdk, arg), failExit=True, returnOutput=True)[1].strip()
+        ret = Utils.run("xcrun -sdk %s %s" % (sdk, arg), failExit=True, returnOutput=True)[1].strip()
+        Log.debug("=> " + ret)
+        return ret
 
     targetCpu = "arm64"
     Vars.set("targetCpu", targetCpu)
