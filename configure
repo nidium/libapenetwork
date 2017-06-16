@@ -77,9 +77,18 @@ def openssl():
             "MACHINE": Vars.get("targetCpu"),
             "ANDROID_DEV": "%s/sysroot/usr/" % (Vars.get("toolchainPath"))
         })
-    elif Konstruct.config("ios"):
-        configure[0] = "./Configure iphoneos-cross"
+    elif Konstruct.config("ios", "tvos"):
+        xcodePath = Utils.run("xcode-select --print-path", returnOutput=True)[1].strip()
+        crossCompile =  xcodePath + "/Toolchains/XcodeDefault.xctoolchain/usr/bin/"
+        crossTop = xcodePath + "/Platforms/%s/Developer" % ("AppleTVOS.platform" if Konstruct.config("tvos") else "iPhoneOS.platform")
+        crossSDK = ("AppleTVOS.sdk" if Konstruct.config("tvos") else "iPhoneOS.sdk")
         env.update(Vars.get("appleSDKEnv"))
+        env.set("CROSS_COMPILE", crossCompile)
+        env.set("CROSS_TOP", crossTop)
+        env.set("CROSS_SDL", crossSDK)
+        env.set("CC", "clang")
+
+        configure[0] = "./Configure iphoneos-cross"
     elif Platform.system == 'Windows':
 	    configure[0] = "./Configure mingw -fPIC"
     elif Platform.system == "Darwin":
@@ -294,22 +303,21 @@ def tvos(tvos):
         return
 
     Konstruct.setConfigs(["tvos"])
-    configureAppleSDK("tvos")
+    configureAppleSDK("appletvos")
     Gyp.set("target_os", "tvos");
 
 def configureAppleSDK(sdk):
     if Platform.system != "Darwin":
-        Utils.exit("Building nidium for iOS is only supported on OSX")
+        Utils.exit("Building nidium for iOS/tvOS is only supported on OSX")
 
     def xcrun(arg):
-        return Utils.run("xcrun -sdk iphoneos %s" % (arg), failExit=True, returnOutput=True)[1].strip()
+        return Utils.run("xcrun -sdk %s %s" % (sdk, arg), failExit=True, returnOutput=True)[1].strip()
 
     targetCpu = "arm64"
     Vars.set("targetCpu", targetCpu)
     Vars.set("targetTriplet", "%s-apple-darwin" % ("aarch64" if targetCpu == "arm64" else targetCpu))
 
     sysroot = xcrun("-show-sdk-path")
-    print("sysroot", sysroot)
     env = Utils.Env({
         "CC": xcrun("-find clang"),
         "CXX": xcrun("-find clang++"),
