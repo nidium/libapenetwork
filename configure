@@ -401,18 +401,33 @@ def start():
     if Platform.system != "Darwin":
         return
 
-    if not Konstruct.config("ios", "tvos"):
-        Platform.setEnviron("MACOSX_DEPLOYMENT_TARGET=10.7")
-
     if Konstruct.config("ios"):
         sdk = findAppleSDK("iphoneos")
         sdkName = "iphoneos"
+        sdkMinVersion = "9.2"
     elif Konstruct.config("tvos"):
         sdk = findAppleSDK("tvos")
         sdkName = "appletvos"
+        sdkMinVersion = "10.2"
     else:
         sdk = findAppleSDK("macosx")
         sdkName = "macosx"
+        sdkMinVersion = "10.7"
+
+    if not Konstruct.config("ios", "tvos"):
+        Platform.setEnviron("MACOSX_DEPLOYMENT_TARGET=10.7")
+
+    # FIXME : Is this really needs to be global ?
+    Platform.setEnviron("CXXFLAGS+=-stdlib=libc++ -m%s-version-min=%s" % (sdkName, sdkMinVersion))
+    Platform.setEnviron("CPPFLAGS+=-stdlib=libc++ -m%s-version-min=%s" % (sdkName, sdkMinVersion))
+    Platform.setEnviron("CFLAGS+=-m%s-version-min=%s" % (sdkName, sdkMinVersion))
+    # Some third-party librairires (skia, angle, mozilla-central)
+    # produce binaries. So we need to set LDFLAGS too.
+    Platform.setEnviron("LDFLAGS+=-stdlib=libc++ -m%s-version-min=%s" % (sdkName, sdkMinVersion))
+
+    Vars.set("appleSDK", sdkName)
+    Vars.set("appleSDKVersion", sdk)
+    Vars.set("appleSDKMinVersion", sdkMinVersion)
 
     if sdk is None:
        Utils.exit("No macos SDK detected. Make sure Xcode is correctly installed and configured")
