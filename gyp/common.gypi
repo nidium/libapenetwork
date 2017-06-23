@@ -94,13 +94,19 @@
             ["target_os=='ios'", {
                 "xcode_settings": {
                     "IPHONEOS_DEPLOYEMENT_TARGET": "5.0",
-                    "TARGETED_DEVICE_FAMILY": "1,2" # iPhone / iPad
+                    "TARGETED_DEVICE_FAMILY": "1,2", # iPhone / iPad
+                    'OTHER_CFLAGS': [
+                        '-fembed-bitcode'
+                    ]
                 },
                 "defines": ["NDM_TARGET_IOS"]
             }],
             ["target_os=='tvos'", {
                 "xcode_settings": {
-                    "IPHONEOS_DEPLOYEMENT_TARGET": "1.0" # FIXME : This is probably wrong...
+                    "IPHONEOS_DEPLOYEMENT_TARGET": "1.0", # FIXME : This is probably wrong...
+                    'OTHER_CFLAGS': [
+                        '-fembed-bitcode'
+                    ]
                 },
                 "defines": ["NDM_TARGET_TVOS"],
             }],

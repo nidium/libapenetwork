@@ -334,9 +334,10 @@ def configureAppleSDK(sdk):
         "AR": xcrun("-find ar"),
         "RANLIB": xcrun("-find ranlib"),
         "LD": xcrun("-find ld"),
-        "CXXFLAGS": "-isysroot %s -arch %s" % (sysroot, targetCpu),
-        "CFLAGS": "-isysroot %s -arch %s" % (sysroot, targetCpu),
-        "CPPFLAGS": "-isysroot %s -arch %s" % (sysroot, targetCpu)
+        "CXXFLAGS": "-fembed-bitcode -isysroot %s -arch %s" % (sysroot, targetCpu),
+        "CFLAGS": "-fembed-bitcode -isysroot %s -arch %s" % (sysroot, targetCpu),
+        "CPPFLAGS": "-isysroot %s -arch %s" % (sysroot, targetCpu),
+        "LDFLAGS": "-isysroot %s" % (sysroot),
     })
 
     Vars.set("appleSDKEnv", env)
