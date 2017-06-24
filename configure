@@ -78,14 +78,26 @@ def openssl():
             "ANDROID_DEV": "%s/sysroot/usr/" % (Vars.get("toolchainPath"))
         })
     elif Konstruct.config("ios", "tvos"):
-        xcodePath = Utils.run("xcode-select --print-path", returnOutput=True)[1].strip()
-        crossCompile =  xcodePath + "/Toolchains/XcodeDefault.xctoolchain/usr/bin/"
-        crossTop = xcodePath + "/Platforms/%s/Developer" % ("AppleTVOS.platform" if Konstruct.config("tvos") else "iPhoneOS.platform")
-        crossSDK = ("AppleTVOS.sdk" if Konstruct.config("tvos") else "iPhoneOS.sdk")
+        if Konstruct.config("ios-simulator", "tvos-simulator"):
+            sdkName = "AppleTVSimulator" if Konstruct.config("tvos-simulator") else "iPhoneSimulator"
+            configureFor = "darwin64-x86_64-cc"
 
-        env.set("CROSS_COMPILE", crossCompile)
-        env.set("CROSS_TOP", crossTop)
-        env.set("CROSS_SDK", crossSDK)
+            # OpenSSL configure script does not read CFLAGS, so pass custom cflags with CC
+            env.set("CC", "clang " + Vars.get("appleSDKEnv").get("CFLAGS"))
+        else:
+            sdkName = "AppleTVOS" if Konstruct.config("tvos") else "iPhoneOS"
+            configureFor = "ios64-cross"
+
+            xcodePath = Utils.run("xcode-select --print-path", returnOutput=True)[1].strip()
+            crossCompile =  xcodePath + "/Toolchains/XcodeDefault.xctoolchain/usr/bin/"
+            crossTop = xcodePath + "/Platforms/%s.platform/Developer" % (sdkName)
+            crossSDK = sdkName + ".sdk"
+
+            env.set("CROSS_COMPILE", crossCompile)
+            env.set("CROSS_TOP", crossTop)
+            env.set("CROSS_SDK", crossSDK)
+
+        env.set("CC", env.get("CC") + " -fembed-bitcode")
 
         # Set the correct SDK minimun version for tvos
         def fixSDK():
@@ -93,9 +105,9 @@ def openssl():
                 Utils.run("sed -i.bak -e \"s/mios-version-min/mtvos-version-min/\" Configurations/10-main.conf")
 
         # no-async : setcontext & co are not available
-        configure = [fixSDK, "./Configure ios64-cross no-async no-shared", "make build_libs"]
+        configure = [fixSDK, "./Configure %s no-async no-shared" % configureFor, "make build_libs"]
     elif Platform.system == 'Windows':
-	    configure[0] = "./Configure mingw -fPIC"
+        configure[0] = "./Configure mingw -fPIC"
     elif Platform.system == "Darwin":
         configure[0] = "./config -no-shared -DOPENSSL_API_COMPAT=0x10100000L"
     else:
@@ -306,15 +318,23 @@ def ios(ios):
     configureAppleSDK("iphoneos")
 
 @CommandLine.option("--tvos", default=False)
-def tvos(tvos):
-    if not tvos:
+@CommandLine.option("--tvos-simulator", default=False)
+def tvos(tvos, simulator):
+    if not tvos and not simulator:
         return
 
     Konstruct.setConfigs(["tvos"])
-    configureAppleSDK("appletvos")
+
+    if simulator:
+        Konstruct.setConfigs(["tvos-simulator"])
+        configureAppleSDK("appletvsimulator", "x86_64")
+    else:
+        configureAppleSDK("appletvos")
+
     Gyp.set("target_os", "tvos");
 
-def configureAppleSDK(sdk):
+
+def configureAppleSDK(sdk, targetCPU="aarch64"):
     if Platform.system != "Darwin":
         Utils.exit("Building nidium for iOS/tvOS is only supported on OSX")
 
@@ -323,9 +343,8 @@ def configureAppleSDK(sdk):
         Log.debug("=> " + ret)
         return ret
 
-    targetCpu = "arm64"
-    Vars.set("targetCpu", targetCpu)
-    Vars.set("targetTriplet", "%s-apple-darwin" % ("aarch64" if targetCpu == "arm64" else targetCpu))
+    Vars.set("targetCpu", targetCPU)
+    Vars.set("targetTriplet", "%s-apple-darwin" % ("aarch64" if targetCPU == "arm64" else targetCPU))
 
     sysroot = xcrun("-show-sdk-path")
     env = Utils.Env({
@@ -334,9 +353,9 @@ def configureAppleSDK(sdk):
         "AR": xcrun("-find ar"),
         "RANLIB": xcrun("-find ranlib"),
         "LD": xcrun("-find ld"),
-        "CXXFLAGS": "-fembed-bitcode -isysroot %s -arch %s" % (sysroot, targetCpu),
-        "CFLAGS": "-fembed-bitcode -isysroot %s -arch %s" % (sysroot, targetCpu),
-        "CPPFLAGS": "-isysroot %s -arch %s" % (sysroot, targetCpu),
+        "CXXFLAGS": "-fembed-bitcode -isysroot %s -arch %s" % (sysroot, targetCPU),
+        "CFLAGS": "-fembed-bitcode -isysroot %s -arch %s" % (sysroot, targetCPU),
+        "CPPFLAGS": "-isysroot %s -arch %s" % (sysroot, targetCPU),
         "LDFLAGS": "-isysroot %s" % (sysroot),
     })
 
@@ -378,7 +397,7 @@ Vars.set("depsRepo", DEPEDENCY_REPO)
 def findAppleSDK(type='macosx'):
     import re
     type = type.lower()
-    if type not in ["tvos", "macosx", "iphoneos", "iphonesimulator"]:
+    if type not in ["appletv", "appletvsimulator", "macosx", "iphoneos", "iphonesimulator"]:
         Log.error("Invalid Apple SDK type %s" % type)
         exit()
 
@@ -407,8 +426,11 @@ def start():
         sdkName = "iphoneos"
         sdkMinVersion = "9.2"
     elif Konstruct.config("tvos"):
-        sdk = findAppleSDK("tvos")
-        sdkName = "appletvos"
+        if Konstruct.config("tvos-simulator"):
+            sdkName = "appletvsimulator"
+        else:
+            sdkName = "appletvos"
+        sdk = findAppleSDK(sdkName)
         sdkMinVersion = "10.2"
     else:
         sdk = findAppleSDK("macosx")
