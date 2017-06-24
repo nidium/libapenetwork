@@ -49,7 +49,7 @@
                         ]
                     }
                 }],
-                ['target_os=="mac"', {
+                ['target_os=="mac" or target_os=="ios" or target_os=="tvos"', {
                     "link_settings": {
                         'libraries': [
                             'libcares.a',
@@ -62,9 +62,19 @@
                     "xcode_settings": {
                         'OTHER_LDFLAGS': [
                             '../build/third-party/libssl.a',
-                            '../build/third-party/libcrypto.a',
+                            '../build/third-party/libcrypto.a'
                         ],
                     },
+                    'conditions': [
+                        ['target_os=="ios" or target_os=="tvos"', {
+                            "xcode_settings": {
+                                'OTHER_LDFLAGS': [
+                                    '-lresolv',
+                                    '-lobjc'
+                                ],
+                            },
+                        }]
+                    ]
                 }],
                 ['target_os=="win"', {
                     "link_settings": {
