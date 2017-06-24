@@ -103,7 +103,7 @@
             }],
             ["target_os=='tvos'", {
                 "xcode_settings": {
-                    "IPHONEOS_DEPLOYEMENT_TARGET": "1.0", # FIXME : This is probably wrong...
+                    "TVOS_DEPLOYEMENT_TARGET": "1.0",
                     'OTHER_CFLAGS': [
                         '-fembed-bitcode'
                     ]
