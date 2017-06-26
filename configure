@@ -431,7 +431,7 @@ def start():
         else:
             sdkName = "appletvos"
         sdk = findAppleSDK(sdkName)
-        sdkMinVersion = "10.2"
+        sdkMinVersion = "9.2"
     else:
         sdk = findAppleSDK("macosx")
         sdkName = "macosx"

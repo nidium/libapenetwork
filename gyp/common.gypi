@@ -103,7 +103,7 @@
             }],
             ["target_os=='tvos'", {
                 "xcode_settings": {
-                    "TVOS_DEPLOYEMENT_TARGET": "1.0",
+                    "TVOS_DEPLOYEMENT_TARGET": "9.2",
                     'OTHER_CFLAGS': [
                         '-fembed-bitcode'
                     ]
