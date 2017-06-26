@@ -334,7 +334,7 @@ def tvos(tvos, simulator):
     Gyp.set("target_os", "tvos");
 
 
-def configureAppleSDK(sdk, targetCPU="aarch64"):
+def configureAppleSDK(sdk, targetCPU="arm64"):
     if Platform.system != "Darwin":
         Utils.exit("Building nidium for iOS/tvOS is only supported on OSX")
 
@@ -397,7 +397,7 @@ Vars.set("depsRepo", DEPEDENCY_REPO)
 def findAppleSDK(type='macosx'):
     import re
     type = type.lower()
-    if type not in ["appletv", "appletvsimulator", "macosx", "iphoneos", "iphonesimulator"]:
+    if type not in ["appletvos", "appletvsimulator", "macosx", "iphoneos", "iphonesimulator"]:
         Log.error("Invalid Apple SDK type %s" % type)
         exit()
 
