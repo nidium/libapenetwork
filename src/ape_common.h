@@ -29,6 +29,7 @@
 #include "port/POSIX.h"
 #endif
 
+
 #ifndef APE_TIMER_RESOLUTION
 #define APE_TIMER_RESOLUTION 8 /* ms */
 #endif
@@ -76,6 +77,11 @@ struct _ape_global {
 
     int urandom_fd;
     ape_logger_t logger;
+
+    struct {
+        uint32_t numer;
+        uint32_t denom;
+    } mtid;
 };
 
 #endif

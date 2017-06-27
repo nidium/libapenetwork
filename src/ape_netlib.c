@@ -26,6 +26,10 @@
 #include <WinSock2.h>
 #endif
 
+#if defined(__APPLE__)
+#include <mach/mach_time.h>
+#endif
+
 #include <pthread.h>
 
 int ape_running = 1;
@@ -111,6 +115,15 @@ ape_global *APE_init()
     }
 
     pthread_setspecific(g_APEThreadContextKey, ape);
+
+#if defined(__APPLE__)
+    (void)mach_timebase_info((mach_timebase_info_data_t *)&ape->mtid);
+#else
+    ape->mtid.numer = 1;
+    ape->mtid.denom = 1;
+#endif
+
+    fprintf(stderr, "mtid %d %d\n", ape->mtid.numer, ape->mtid.denom);
 
     return ape;
 }

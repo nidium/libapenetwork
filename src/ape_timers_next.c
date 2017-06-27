@@ -42,6 +42,8 @@ struct _ape_timer_async_t {
     struct _ape_timer_async_t *next;
 };
 
+#define ABSOLUTE_TIME_NS(ctx) (mach_absolute_time() * ctx->mtid.numer / ctx->mtid.denom)
+
 #if defined(__APPLE__)
 #include <mach/mach_time.h>
 #else
@@ -145,7 +147,7 @@ int ape_timers_process(ape_global *ape_ctx)
             continue;
         }
 
-        if ((start = mach_absolute_time()) >= cur->schedule - 150000) {
+        if ((start = ABSOLUTE_TIME_NS(ape_ctx)) >= cur->schedule - 150000) {
             uint64_t ret;
             unsigned int duration;
 
@@ -163,7 +165,7 @@ int ape_timers_process(ape_global *ape_ctx)
                 cur->schedule    = start + cur->ticks_needs;
             }
 
-            lastsample = mach_absolute_time();
+            lastsample = ABSOLUTE_TIME_NS(ape_ctx);
             duration   = lastsample - start;
 
             if (cur->stats.max < duration / 1000000) {
@@ -190,7 +192,7 @@ int ape_timers_process(ape_global *ape_ctx)
     }
 
     if (lastsample == 0) {
-        lastsample = mach_absolute_time();
+        lastsample = ABSOLUTE_TIME_NS(ape_ctx);
     }
 
     // APE_DEBUG("libapenetwork", "[Timers] Next timer in : %lld or %d\n", inums-lastsample,  ape_max(1,
@@ -411,7 +413,7 @@ ape_timer_t *APE_timer_create(ape_global *ape_ctx, int ms,
     timers->last_identifier++;
     timer->callback    = cb;
     timer->ticks_needs = (uint64_t)ms * 1000000LL;
-    timer->schedule    = mach_absolute_time() + timer->ticks_needs;
+    timer->schedule    = ABSOLUTE_TIME_NS(ape_ctx) + timer->ticks_needs;
     timer->arg         = arg;
     timer->flags       = APE_TIMER_IS_PROTECTED;
     timer->prev        = NULL;
