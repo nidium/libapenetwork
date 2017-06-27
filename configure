@@ -441,7 +441,7 @@ def start():
         Platform.setEnviron("MACOSX_DEPLOYMENT_TARGET=10.7")
 
     # FIXME : Is this really needs to be global ?
-    Platform.setEnviron("CXXFLAGS+=-stdlib=libc++ -m%s-version-min=%s" % (sdkName, sdkMinVersion))
+    Platform.setEnviron("CXXFLAGS+=-fembed-bitcode -stdlib=libc++ -m%s-version-min=%s" % (sdkName, sdkMinVersion))
     Platform.setEnviron("CPPFLAGS+=-stdlib=libc++ -m%s-version-min=%s" % (sdkName, sdkMinVersion))
     Platform.setEnviron("CFLAGS+=-m%s-version-min=%s" % (sdkName, sdkMinVersion))
     # Some third-party librairires (skia, angle, mozilla-central)
