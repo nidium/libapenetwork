@@ -6,6 +6,8 @@
 
 #include "ape_timers_next.h"
 #include "ape_common.h"
+#include "ape_netlib.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -42,12 +44,14 @@ struct _ape_timer_async_t {
     struct _ape_timer_async_t *next;
 };
 
-#define ABSOLUTE_TIME_NS(ctx) (mach_absolute_time() * ctx->mtid.numer / ctx->mtid.denom)
 
 #if defined(__APPLE__)
 #include <mach/mach_time.h>
+#define ABSOLUTE_TIME_NS(ctx) (mach_absolute_time() * ctx->mtid.numer / ctx->mtid.denom)
+
 #else
 #include <time.h>
+#define ABSOLUTE_TIME_NS(ctx) (mach_absolute_time())
 
 #ifdef __WIN32
 LARGE_INTEGER
@@ -122,12 +126,42 @@ static __inline uint64_t mach_absolute_time()
 static __inline uint64_t mach_absolute_time()
 {
     struct timespec t;
-    clock_gettime(CLOCK_MONOTONIC, &t);
+#ifdef CLOCK_MONOTONIC_RAW
+#define USED_CLOCK CLOCK_MONOTONIC_RAW
+#else
+#define USED_CLOCK CLOCK_MONOTONIC
+#endif
+    clock_gettime(USED_CLOCK, &t);
 
     return (uint64_t)t.tv_sec * 1000000000 + (uint64_t)t.tv_nsec;
 }
 #endif
 #endif
+
+
+uint64_t APE_get_monotonic_time(ape_global *ape_ctx, uint32_t *numer, uint32_t *denom)
+{
+#if defined(__APPLE__)
+    if (!ape_ctx) {
+        ape_ctx = APE_get();
+    }
+
+    if (numer && denom) {
+
+        *numer = ape_ctx->mtid.numer;
+        *denom = ape_ctx->mtid.denom;
+
+        return mach_absolute_time();
+    }
+#else
+    if (numer && denom) {
+        *numer = 1;
+        *denom = 1;
+    }
+#endif
+
+    return ABSOLUTE_TIME_NS(ape_ctx);
+}
 
 int ape_timers_process(ape_global *ape_ctx)
 {
