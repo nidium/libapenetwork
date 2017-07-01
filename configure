@@ -435,13 +435,13 @@ def start():
     else:
         sdk = findAppleSDK("macosx")
         sdkName = "macosx"
-        sdkMinVersion = "10.7"
+        sdkMinVersion = "10.8"
 
     if not Konstruct.config("ios", "tvos"):
-        Platform.setEnviron("MACOSX_DEPLOYMENT_TARGET=10.7")
+        Platform.setEnviron("MACOSX_DEPLOYMENT_TARGET=%s" % sdkMinVersion)
 
     # FIXME : Is this really needs to be global ?
-    Platform.setEnviron("CXXFLAGS+=-fembed-bitcode -stdlib=libc++ -m%s-version-min=%s" % (sdkName, sdkMinVersion))
+    Platform.setEnviron("CXXFLAGS+=-stdlib=libc++ -m%s-version-min=%s" % (sdkName, sdkMinVersion))
     Platform.setEnviron("CPPFLAGS+=-stdlib=libc++ -m%s-version-min=%s" % (sdkName, sdkMinVersion))
     Platform.setEnviron("CFLAGS+=-m%s-version-min=%s" % (sdkName, sdkMinVersion))
     # Some third-party librairires (skia, angle, mozilla-central)

@@ -22,7 +22,7 @@
         'libapenetwork_output_third_party_path': '<(libapenetwork_output_third_party_path)',
 
         'target_os%': '<(OS)',
-        'mac_deployment_target': '10.7',
+        'mac_deployment_target': '10.8',
         'mac_sdk_sysroot%': 'macosx10.11',
 
         'asan%': 0,
