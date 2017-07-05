@@ -309,13 +309,20 @@ def asan(asan):
         Gyp.set("asan", 1)
 
 @CommandLine.option("--ios", default=False)
-def ios(ios):
-    if not ios:
+@CommandLine.option("--ios-simulator", default=False)
+def ios(ios, simulator):
+    if not ios and not simulator:
         return
 
     Konstruct.setConfigs(["ios"])
+
+    if simulator:
+        Konstruct.setConfigs(["ios-simulator"])
+        configureAppleSDK("iphonesimulator", "x86_64")
+    else:
+        configureAppleSDK("iphoneos")
+
     Gyp.set("target_os", "ios");
-    configureAppleSDK("iphoneos")
 
 @CommandLine.option("--tvos", default=False)
 @CommandLine.option("--tvos-simulator", default=False)
