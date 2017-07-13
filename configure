@@ -429,8 +429,11 @@ def start():
         return
 
     if Konstruct.config("ios"):
-        sdk = findAppleSDK("iphoneos")
-        sdkName = "iphoneos"
+        if Konstruct.config("ios-simulator"):
+            sdkName = "iphonesimulator"
+        else:
+            sdkName = "iphoneos"
+        sdk = findAppleSDK(sdkName)
         sdkMinVersion = "9.2"
     elif Konstruct.config("tvos"):
         if Konstruct.config("tvos-simulator"):
