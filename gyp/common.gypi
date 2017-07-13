@@ -93,7 +93,7 @@
             }],
             ["target_os=='ios'", {
                 "xcode_settings": {
-                    "IPHONEOS_DEPLOYEMENT_TARGET": "5.0",
+                    "IPHONEOS_DEPLOYEMENT_TARGET": "9.2",
                     "TARGETED_DEVICE_FAMILY": "1,2", # iPhone / iPad
                     'OTHER_CFLAGS': [
                         '-fembed-bitcode'
