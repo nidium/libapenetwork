@@ -8,11 +8,6 @@
 
 #define __APE_PORT_WINDOWS_H
 
-
-#ifndef _UNICODE
-#define _UNICODE
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
