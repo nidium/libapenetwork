@@ -40,7 +40,7 @@ Gyp.setExec("python2.7 third-party/gyp/gyp_main.py")
 @Deps.register("gyp")
 def gyp():
     return {
-        "location": Deps.GitRepo("https://chromium.googlesource.com/external/gyp", revision="4ec6c4e3a94bd04a6da2858163d40b2429b8aad1")
+        "location": Deps.GitRepo("https://chromium.googlesource.com/external/gyp", revision="fcd686f1880fa52a1ee78d3e98af1b88cb334528")
     }
 
 @Deps.register("c-ares")
