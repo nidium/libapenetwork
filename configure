@@ -111,7 +111,7 @@ def zlip():
 @Deps.register("gperftools")
 def gperftools():
     return {
-        "location": "https://github.com/gperftools/gperftools/releases/download/gperftools-2.5/gperftools-2.5.tar.gz",
+        "location": "https://github.com/gperftools/gperftools/releases/download/gperftools-2.7/gperftools-2.7.tar.gz",
         "build": ["autoconf", "chmod +x ./configure", "./configure --enable-static --enable-shared", "make"],
         "outputs": [".libs/libprofiler.so.0$"]
     }
