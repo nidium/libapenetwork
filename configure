@@ -57,7 +57,7 @@ def cares():
         makefile = " -f Makefile.m32"
 
     return {
-        "location": "http://c-ares.haxx.se/download/c-ares-1.12.0.tar.gz",
+        "location": "http://c-ares.haxx.se/download/c-ares-1.14.0.tar.gz",
         "build": [configure, "make" + makefile],
         "env": env,
         "outputs": [".libs/libcares.a"]
@@ -78,7 +78,7 @@ def openssl():
             "ANDROID_DEV": "%s/sysroot/usr/" % (Vars.get("toolchainPath"))
         })
     elif Platform.system == 'Windows':
-	    configure[0] = "./Configure mingw -fPIC"
+        configure[0] = "./Configure mingw -fPIC"
     elif Platform.system == "Darwin":
         configure[0] = "./config -no-shared -DOPENSSL_API_COMPAT=0x10100000L"
     else:
