@@ -132,7 +132,7 @@ def gtest():
         flags = "-DCMAKE_CXX_FLAGS='-std=c++11 -stdlib=libc++'"
 
     return {
-        "location": Deps.GitRepo("https://github.com/google/googletest.git", revision="d225acc90bc3a8c420a9bcd1f033033c1ccd7fe0"),
+        "location": Deps.GitRepo("https://github.com/google/googletest.git", tag="release-1.10.0"),
         "build": ["cmake %s ." % flags, "make"],
         "outputs": ["googlemock/libgmock.a", "googlemock/libgmock_main.a", "googlemock/gtest/libgtest.a", "googlemock/gtest/libgtest_main.a"]
     }
