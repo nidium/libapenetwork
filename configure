@@ -84,7 +84,7 @@ def openssl():
     else:
         configure[0] = "./config -fPIC -DOPENSSL_API_COMPAT=0x10100000L"
     return {
-        "location": "https://github.com/openssl/openssl/archive/OpenSSL_1_1_0c.tar.gz",
+        "location": "https://github.com/openssl/openssl/archive/OpenSSL_1_1_1d.tar.gz",
         "build": configure,
         "env": env,
         "outputs": ["libssl(.a|.lib)", "libcrypto(.a|.lib)"]
